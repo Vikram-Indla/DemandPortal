@@ -11,7 +11,7 @@ interface HierarchyLevel {
   color: string;
   bgColor: string;
   borderColor: string;
-  description: string;
+  owner: string;
   executiveCommentary: string;
   characteristics: string[];
   examples: string[];
@@ -27,7 +27,7 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-pink-600 dark:text-pink-400",
     bgColor: "bg-pink-500/10 dark:bg-pink-500/20",
     borderColor: "border-pink-500/50",
-    description: "Long-term strategic direction",
+    owner: "Deputyship",
     executiveCommentary: "Strategic Themes define multi-year company direction and competitive positioning. These are CEO-level priorities that shape the entire portfolio. Board oversight and annual strategy reviews required. All initiatives must ladder up to an active theme.",
     characteristics: [
       "Multi-year strategic direction",
@@ -46,7 +46,7 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-purple-600 dark:text-purple-400",
     bgColor: "bg-purple-500/10 dark:bg-purple-500/20",
     borderColor: "border-purple-500/50",
-    description: "Strategic business objectives",
+    owner: "Product Manager",
     executiveCommentary: "Initiatives represent major strategic investments aligned with company vision. These are the 'big bets' that drive competitive advantage and market position. Board-level visibility and CEO ownership expected.",
     characteristics: [
       "Aligned with strategic themes",
@@ -65,13 +65,13 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-blue-600 dark:text-blue-400",
     bgColor: "bg-blue-500/10 dark:bg-blue-500/20",
     borderColor: "border-blue-500/50",
-    description: "Customer-facing capabilities",
+    owner: "Product Owner",
     executiveCommentary: "Features deliver tangible customer value and competitive differentiation. These are the capabilities your customers will experience and judge you by. Product leadership drives prioritization based on market feedback and strategic fit.",
     characteristics: [
       "End-user facing functionality",
       "Delivers measurable value",
       "Can be released independently",
-      "Product Manager owned"
+      "Product Owner owned"
     ],
     examples: ["SSO Authentication", "Real-time Analytics", "Mobile App"],
     typicalDuration: "2-6 months",
@@ -84,7 +84,7 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-indigo-600 dark:text-indigo-400",
     bgColor: "bg-indigo-500/10 dark:bg-indigo-500/20",
     borderColor: "border-indigo-500/50",
-    description: "Large bodies of work",
+    owner: "Product Owner/BA",
     executiveCommentary: "Epics break down complex features into manageable delivery increments. This is where engineering leadership translates business requirements into technical delivery. Progress here indicates actual implementation velocity and risk.",
     characteristics: [
       "Spans multiple sprints",
@@ -103,13 +103,13 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-green-600 dark:text-green-400",
     bgColor: "bg-green-500/10 dark:bg-green-500/20",
     borderColor: "border-green-500/50",
-    description: "Deliverable work increments",
+    owner: "BA",
     executiveCommentary: "Stories are the daily currency of your delivery teams. Completed stories mean working software. Blocked or delayed stories signal impediments requiring leadership intervention. Velocity at this level predicts release timelines.",
     characteristics: [
       "Fits within a sprint",
       "Testable and demonstrable",
       "Clear acceptance criteria",
-      "Developer assigned"
+      "BA owned"
     ],
     examples: ["Login UI Component", "Password Reset Email", "Session Timeout"],
     typicalDuration: "1-5 days",
@@ -122,19 +122,38 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-slate-600 dark:text-slate-400",
     bgColor: "bg-slate-500/10 dark:bg-slate-500/20",
     borderColor: "border-slate-500/50",
-    description: "Implementation steps",
+    owner: "Developer/Tester",
     executiveCommentary: "Subtasks represent the granular work engineers track internally. While not typically visible at executive level, systemic blockers at this tier cascade up and impact delivery commitments. Trust your teams to manage this layer autonomously.",
     characteristics: [
       "Technical implementation detail",
       "Hours to complete",
       "Team-internal tracking",
-      "Engineering owned"
+      "Developer/Tester owned"
     ],
     examples: ["Write unit tests", "Update API documentation", "Code review"],
     typicalDuration: "2-8 hours",
     typicalCount: "2-6 per story"
   }
 ];
+
+const businessRequestInfo = {
+  id: "business-request",
+  name: "Business Request",
+  icon: FileText,
+  color: "text-orange-600 dark:text-orange-400",
+  bgColor: "bg-orange-500/10 dark:bg-orange-500/20",
+  borderColor: "border-orange-500/50",
+  owner: "Business Owner",
+  executiveCommentary: "Business Requests represent stakeholder-driven work items that can exist at multiple hierarchy levels. These span from Feature-level strategic requests down to Subtask-level tactical changes. Business Owners maintain accountability throughout the delivery lifecycle.",
+  characteristics: [
+    "Stakeholder-driven initiatives",
+    "Can span multiple hierarchy levels",
+    "Business value focused",
+    "Business Owner accountability"
+  ],
+  examples: ["Compliance Requirement", "Customer Enhancement Request", "Process Improvement"],
+  scope: "Feature → Epic → Story → Subtask"
+};
 
 export default function RoadmapGuide() {
   const [hoveredLevel, setHoveredLevel] = useState<string | null>(null);
@@ -189,7 +208,7 @@ export default function RoadmapGuide() {
                             <Icon className={cn("w-5 h-5 flex-shrink-0", level.color)} />
                             <div className="flex flex-col">
                               <span className="font-semibold text-base">{level.name}</span>
-                              <span className="text-xs text-muted-foreground">{level.description}</span>
+                              <span className="text-xs font-medium text-muted-foreground">Owner: {level.owner}</span>
                             </div>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
@@ -288,6 +307,66 @@ export default function RoadmapGuide() {
               Hover over any hierarchy level to view executive commentary and details
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Business Request Section */}
+      <Card 
+        className={cn(
+          "border-2",
+          businessRequestInfo.borderColor,
+          businessRequestInfo.bgColor
+        )}
+      >
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <FileText className={cn("w-5 h-5", businessRequestInfo.color)} />
+            <CardTitle>Business Request (Cross-Level Work Item)</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-base">{businessRequestInfo.name}</span>
+                  <span className="text-xs font-medium text-muted-foreground">Owner: {businessRequestInfo.owner}</span>
+                </div>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                Scope: {businessRequestInfo.scope}
+              </Badge>
+            </div>
+
+            <div className="text-sm text-muted-foreground">
+              {businessRequestInfo.executiveCommentary}
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 pt-2">
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Key Characteristics</h4>
+                <ul className="space-y-1">
+                  {businessRequestInfo.characteristics.map((char, idx) => (
+                    <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <span className="text-primary mt-0.5">•</span>
+                      <span>{char}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Examples</h4>
+                <div className="flex flex-wrap gap-2">
+                  {businessRequestInfo.examples.map((example, idx) => (
+                    <Badge key={idx} variant="secondary" className="text-xs">
+                      {example}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
