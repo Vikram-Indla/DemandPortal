@@ -67,6 +67,11 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 ## Recent Changes
 
 **November 7, 2025 (Latest):**
+- ✅ Created Portfolio Risk Register dashboard with executive-level risk visualization
+- ✅ Risk grid displays all at-risk work items with traceability (Initiative → Feature → Epic → Story)
+- ✅ Each risk shows: severity level, category, description, business impact, and recommended action
+- ✅ Color-coded risk levels (Critical/High/Medium) with left-border accent for quick scanning
+- ✅ Comprehensive risk metadata: owner, due date, status impact, and hierarchy path
 - ✅ Added explicit status badges to all roadmap views (Portfolio, Feature, Epic) in left column
 - ✅ Status indicators now visible at a glance without relying solely on color coding
 - ✅ Enhanced readability and accessibility with clear status labels on all work items
@@ -113,7 +118,8 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 
 **Key Component Structure:**
 - `DashboardLayout`: Main shell with five-tab navigation (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Epic Roadmap, Release Dashboard)
-- `StatusDashboard`: Portfolio metrics with circular gauges and Strategic Theme Spotlight with circular completion gauge
+- `StatusDashboard`: Portfolio metrics with circular gauges, Strategic Theme Spotlight, and Risk Register
+- `RiskDashboard`: Executive-level risk grid with traceability, impact analysis, and action recommendations
 - `RoadmapView`: Split-panel layout (collapsible tree + Gantt chart) for full hierarchy with explicit status badges
 - `FeatureRoadmap`: Gantt-style timeline for strategic features with hover cards and status indicators
 - `EpicRoadmap`: Gantt-style timeline for epics across features with progress tracking and status badges

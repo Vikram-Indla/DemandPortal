@@ -6,6 +6,7 @@ import { Layers, TrendingUp, Target } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BusinessRequestGrid from './BusinessRequestGrid';
 import StrategicThemeSpotlight from './StrategicThemeSpotlight';
+import { RiskDashboard } from './RiskDashboard';
 
 interface BusinessRequestMetrics {
   id: string;
@@ -281,6 +282,10 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
           <StrategicThemeSpotlight metrics={themeMetrics} />
         </div>
       )}
+
+      <div>
+        <RiskDashboard />
+      </div>
 
       {filteredInitiatives.length === 0 ? (
         <Card>
