@@ -78,8 +78,6 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
     const done = versionStories.filter(s => s.status === 'done').length;
     const inProgress = versionStories.filter(s => s.status === 'in-progress').length;
     const blocked = versionStories.filter(s => s.status === 'blocked').length;
-    const totalPoints = versionStories.reduce((sum, s) => sum + (s.storyPoints || 0), 0);
-    const donePoints = versionStories.filter(s => s.status === 'done').reduce((sum, s) => sum + (s.storyPoints || 0), 0);
     
     return {
       total,
@@ -87,9 +85,6 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
       inProgress,
       blocked,
       completionPercentage: total > 0 ? Math.round((done / total) * 100) : 0,
-      pointsCompletion: totalPoints > 0 ? Math.round((donePoints / totalPoints) * 100) : 0,
-      totalPoints,
-      donePoints,
     };
   };
 
@@ -135,7 +130,7 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
                     <div className="flex-1 min-w-0">
                       <CardTitle className="text-lg">{version}</CardTitle>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {metrics.total} {metrics.total === 1 ? 'story' : 'stories'} · {metrics.donePoints}/{metrics.totalPoints} points
+                        {metrics.total} {metrics.total === 1 ? 'story' : 'stories'}
                       </p>
                     </div>
                   </div>
@@ -165,11 +160,11 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
                   </div>
                 </div>
                 
-                <Progress value={metrics.pointsCompletion} className="h-2 mt-4" />
+                <Progress value={metrics.completionPercentage} className="h-2 mt-4" />
               </CardHeader>
 
               {isExpanded && (
-                <CardContent className="pt-0 space-y-2">
+                <CardContent className="pt-0 space-y-1">
                   {versionStories.map((story) => {
                     const StatusIcon = statusConfig[story.status].icon;
                     const PriorityIcon = priorityConfig[story.priority].icon;
@@ -179,38 +174,36 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
                       <HoverCard key={story.id} openDelay={300}>
                         <HoverCardTrigger asChild>
                           <div 
-                            className="p-3 rounded-md border hover-elevate transition-all cursor-pointer group"
+                            className="px-3 py-2 rounded-md border hover-elevate transition-all cursor-pointer group"
                             data-testid={`story-item-${story.key}`}
                           >
-                            <div className="flex items-start gap-3">
-                              <PriorityIcon className={cn("w-3.5 h-3.5 flex-shrink-0 mt-0.5", priorityConfig[story.priority].color)} />
+                            <div className="flex items-center gap-2.5">
+                              <PriorityIcon className={cn("w-3 h-3 flex-shrink-0", priorityConfig[story.priority].color)} />
                               
-                              <div className="flex-1 min-w-0 space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <code className="text-xs font-mono font-semibold text-primary">
-                                    {story.key}
-                                  </code>
-                                  <div className="flex items-center gap-1.5">
-                                    <StatusIcon className={cn("w-3.5 h-3.5", statusConfig[story.status].color)} />
-                                    <span className="text-xs text-muted-foreground">{statusConfig[story.status].label}</span>
-                                  </div>
-                                </div>
+                              <code className="text-xs font-mono font-semibold text-primary w-20 flex-shrink-0">
+                                {story.key}
+                              </code>
 
-                                <p className="text-sm font-medium leading-snug">{story.title}</p>
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <StatusIcon className={cn("w-3 h-3", statusConfig[story.status].color)} />
+                                <span className="text-xs text-muted-foreground w-20">{statusConfig[story.status].label}</span>
+                              </div>
+                              
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{story.title}</p>
+                              </div>
 
-                                {/* Breadcrumb Navigation */}
-                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
-                                  <span className="truncate max-w-[200px]">{story.businessRequestName}</span>
-                                  <BreadcrumbIcon className="w-3 h-3 flex-shrink-0" />
-                                  <span className="truncate max-w-[200px]">{story.featureName}</span>
-                                  <BreadcrumbIcon className="w-3 h-3 flex-shrink-0" />
-                                  <span className="truncate max-w-[200px] font-medium">{story.epicName}</span>
-                                </div>
+                              <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0 max-w-md">
+                                <span className="truncate">{story.businessRequestName}</span>
+                                <BreadcrumbIcon className="w-2.5 h-2.5 flex-shrink-0" />
+                                <span className="truncate">{story.featureName}</span>
+                                <BreadcrumbIcon className="w-2.5 h-2.5 flex-shrink-0" />
+                                <span className="truncate font-medium">{story.epicName}</span>
                               </div>
 
                               {hasResources && (
                                 <div className="flex items-center gap-1 text-muted-foreground flex-shrink-0">
-                                  <Users className="w-3.5 h-3.5" />
+                                  <Users className="w-3 h-3" />
                                   <span className="text-xs font-semibold">{story.subtaskAssignees?.length || 0}</span>
                                 </div>
                               )}
@@ -256,15 +249,6 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
                                   ))}
                                 </div>
                               </div>
-
-                              {story.storyPoints && (
-                                <div className="pt-2 border-t flex items-center justify-between">
-                                  <span className="text-xs text-muted-foreground">Story Points</span>
-                                  <Badge variant="outline" className="text-xs">
-                                    {story.storyPoints} pts
-                                  </Badge>
-                                </div>
-                              )}
                             </div>
                           </HoverCardContent>
                         )}
