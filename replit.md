@@ -68,11 +68,15 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 ## Recent Changes
 
 **November 7, 2025 (Latest):**
-- ✅ Created Roadmap Guide page with pyramid hierarchy visualization for change management education
+- ✅ Redesigned Roadmap Guide to C-suite focused compact snapshot with vertical connector arrows
+- ✅ Added Strategic Theme as top-level hierarchy (2-5 year multi-year planning horizon)
+- ✅ Removed verbose descriptive text from Portfolio Hierarchy Model for executive scannability
+- ✅ Changed from progressive pyramid widths to uniform width boxes (320px) stacked vertically
+- ✅ Implemented ArrowDown connector icons between each hierarchy level (top-down flow)
 - ✅ Interactive hover states showing executive-level commentary for each work item type
-- ✅ Pyramid displays 5 levels: Initiative → Feature → Epic → Story → Subtask with progressive widths
+- ✅ Hierarchy displays 6 levels: Strategic Theme → Initiative → Feature → Epic → Story → Subtask
 - ✅ Executive insights include characteristics, examples, typical duration, and portfolio counts
-- ✅ Change Management Insights card with strategic alignment, value delivery, execution planning, and delivery cadence guidance
+- ✅ Updated Change Management Insights to start with Strategic Themes section (was Strategic Alignment)
 - ✅ Enhanced risk items with work item type badges (Initiative/Feature/Epic/Story) using distinct icons
 - ✅ Added hierarchy breadcrumbs showing parent-to-child path (e.g., "Security Enhancement → Compliance & Audit")
 - ✅ Implemented priority badges with colored backgrounds (High=Red, Medium=Amber, Low=Slate)
@@ -131,7 +135,7 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 - `FeatureRoadmap`: Gantt-style timeline for strategic features with hover cards and status indicators
 - `EpicRoadmap`: Gantt-style timeline for epics across features with progress tracking and status badges
 - `ReleaseDashboard`: Card-based view grouping stories by release version with expandable subtasks and Release Risks
-- `RoadmapGuide`: Educational pyramid showing work item hierarchy (Initiative→Feature→Epic→Story→Subtask) with executive commentary on hover
+- `RoadmapGuide`: Educational pyramid showing work item hierarchy (Strategic Theme→Initiative→Feature→Epic→Story→Subtask) with executive commentary on hover
 - `HierarchyTree`: Collapsible tree with expand/collapse, visual hierarchy differentiation
 - `GanttChart`: Timeline visualization with color-coded status bars and completion overlays
 - `StrategicThemeSpotlight`: Theme-specific metrics banner (conditional visibility)
