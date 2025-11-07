@@ -2,10 +2,8 @@ import { useState, useMemo } from 'react';
 import HierarchyTree, { TreeNode } from './HierarchyTree';
 import GanttChart, { GanttItem } from './GanttChart';
 import FilterBar from './FilterBar';
-import StrategicThemeSpotlight from './StrategicThemeSpotlight';
 import { Button } from '@/components/ui/button';
-import { PanelLeftClose, PanelLeft, Target } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PanelLeftClose, PanelLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 //todo: remove mock functionality - replace with real Jira data
@@ -358,53 +356,14 @@ const mockGanttData: GanttItem[] = [
   },
 ];
 
-const mockThemeMetrics = {
-  'Digital Transformation': {
-    themeName: 'Digital Transformation',
-    completionPercentage: 62,
-    totalInitiatives: 2,
-    completedInitiatives: 1,
-    totalItems: 78,
-    completedItems: 48,
-    atRiskItems: 6,
-    trend: 'up' as const,
-  },
-  'Security Enhancement': {
-    themeName: 'Security Enhancement',
-    completionPercentage: 29,
-    totalInitiatives: 1,
-    completedInitiatives: 0,
-    totalItems: 43,
-    completedItems: 12,
-    atRiskItems: 12,
-    trend: 'down' as const,
-  },
-  'Infrastructure Optimization': {
-    themeName: 'Infrastructure Optimization',
-    completionPercentage: 15,
-    totalInitiatives: 1,
-    completedInitiatives: 0,
-    totalItems: 35,
-    completedItems: 5,
-    atRiskItems: 0,
-    trend: 'stable' as const,
-  },
-};
-
 export default function RoadmapView() {
   const [isTreeVisible, setIsTreeVisible] = useState(true);
-  const [selectedTheme, setSelectedTheme] = useState<string>('Digital Transformation');
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [releaseFilter, setReleaseFilter] = useState('all');
   const { toast } = useToast();
-
-  const themes = useMemo(() => {
-    const uniqueThemes = new Set(mockGanttData.map(item => item.themeName));
-    return Array.from(uniqueThemes);
-  }, []);
 
   const releases = useMemo(() => {
     const uniqueReleases = new Set(mockGanttData.map(item => item.releaseLabel).filter(Boolean));
@@ -413,17 +372,14 @@ export default function RoadmapView() {
 
   const filteredGanttData = useMemo(() => {
     return mockGanttData.filter(item => {
-      const matchesTheme = item.themeName === selectedTheme;
       const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesLevel = levelFilter === 'all' || item.type === levelFilter;
       const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
       const matchesPriority = priorityFilter === 'all' || item.priority === priorityFilter;
       const matchesRelease = releaseFilter === 'all' || item.releaseLabel === releaseFilter;
-      return matchesTheme && matchesSearch && matchesLevel && matchesStatus && matchesPriority && matchesRelease;
+      return matchesSearch && matchesLevel && matchesStatus && matchesPriority && matchesRelease;
     });
-  }, [selectedTheme, searchTerm, levelFilter, statusFilter, priorityFilter, releaseFilter]);
-
-  const currentThemeMetrics = mockThemeMetrics[selectedTheme as keyof typeof mockThemeMetrics] || mockThemeMetrics['Digital Transformation'];
+  }, [searchTerm, levelFilter, statusFilter, priorityFilter, releaseFilter]);
 
   const handleExport = () => {
     toast({
@@ -434,30 +390,6 @@ export default function RoadmapView() {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="px-4 pt-4 pb-2 border-b bg-card">
-        <div className="flex items-center gap-2 mb-3">
-          <Target className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-muted-foreground">Strategic Theme</span>
-        </div>
-        <Tabs value={selectedTheme} onValueChange={setSelectedTheme}>
-          <TabsList data-testid="tabs-theme-switcher">
-            {themes.map(theme => (
-              <TabsTrigger 
-                key={theme} 
-                value={theme}
-                data-testid={`tab-theme-${theme.toLowerCase().replace(/\s+/g, '-')}`}
-              >
-                {theme}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </div>
-
-      <div className="p-4 border-b bg-background">
-        <StrategicThemeSpotlight metrics={currentThemeMetrics} />
-      </div>
-
       <FilterBar
         onSearchChange={setSearchTerm}
         onLevelChange={setLevelFilter}

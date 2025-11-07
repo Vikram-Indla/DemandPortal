@@ -5,6 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { Layers, TrendingUp, Target } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BusinessRequestGrid from './BusinessRequestGrid';
+import StrategicThemeSpotlight from './StrategicThemeSpotlight';
 
 interface BusinessRequestMetrics {
   id: string;
@@ -216,6 +217,29 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
   const completedItems = filteredInitiatives.reduce((sum, init) => sum + init.completedItems, 0);
   const overallCompletion = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
+  const themeMetrics = useMemo(() => {
+    if (selectedTheme === 'all') return null;
+    
+    const themeInitiatives = defaultInitiatives.filter(i => i.themeName === selectedTheme);
+    const themeRequests = defaultBusinessRequests.filter(br => br.themeName === selectedTheme);
+    
+    const totalThemeItems = themeInitiatives.reduce((sum, init) => sum + init.totalItems, 0);
+    const completedThemeItems = themeInitiatives.reduce((sum, init) => sum + init.completedItems, 0);
+    const atRisk = themeRequests.reduce((sum, br) => sum + br.blockedItems, 0);
+    const completedInits = themeInitiatives.filter(i => i.completionPercentage === 100).length;
+    
+    return {
+      themeName: selectedTheme,
+      completionPercentage: totalThemeItems > 0 ? Math.round((completedThemeItems / totalThemeItems) * 100) : 0,
+      totalInitiatives: themeInitiatives.length,
+      completedInitiatives: completedInits,
+      totalItems: totalThemeItems,
+      completedItems: completedThemeItems,
+      atRiskItems: atRisk,
+      trend: completedThemeItems > totalThemeItems * 0.5 ? 'up' as const : completedThemeItems > 0 ? 'stable' as const : 'down' as const,
+    };
+  }, [selectedTheme, defaultInitiatives, defaultBusinessRequests]);
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'high':
@@ -251,6 +275,12 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
           </Tabs>
         </div>
       </div>
+
+      {themeMetrics && (
+        <div>
+          <StrategicThemeSpotlight metrics={themeMetrics} />
+        </div>
+      )}
 
       {filteredInitiatives.length === 0 ? (
         <Card>
