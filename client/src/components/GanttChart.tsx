@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, ArrowUp, ArrowDown, Minus, Calendar } from 'lucide-react';
+import { AlertCircle, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface GanttItem {
@@ -29,22 +29,22 @@ const statusColors: Record<string, { bg: string; border: string; text: string }>
   done: { 
     bg: 'bg-green-100 dark:bg-green-950/30', 
     border: 'border-green-500',
-    text: 'text-green-700 dark:text-green-400'
+    text: 'text-green-800 dark:text-green-300'
   },
   'in-progress': { 
     bg: 'bg-amber-100 dark:bg-amber-950/30', 
     border: 'border-amber-500',
-    text: 'text-amber-700 dark:text-amber-400'
+    text: 'text-amber-900 dark:text-amber-300'
   },
   blocked: { 
     bg: 'bg-red-100 dark:bg-red-950/30', 
     border: 'border-red-500',
-    text: 'text-red-700 dark:text-red-400'
+    text: 'text-red-900 dark:text-red-300'
   },
   'not-started': { 
     bg: 'bg-slate-100 dark:bg-slate-800/30', 
     border: 'border-slate-400',
-    text: 'text-slate-700 dark:text-slate-400'
+    text: 'text-slate-800 dark:text-slate-300'
   },
 };
 
@@ -146,7 +146,7 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
                       {item.releaseLabel}
                     </Badge>
                   )}
-                  <span className="text-xs text-muted-foreground">{item.initiativeName}</span>
+                  <span className="text-xs text-muted-foreground truncate">{item.initiativeName}</span>
                 </div>
               </div>
               
@@ -164,47 +164,52 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
                       style={getBarPosition(item)}
                       onClick={() => onItemClick?.(item)}
                     >
-                      {/* Status color bar */}
+                      {/* Status color bar with completion progress */}
                       <div className={cn(
-                        "absolute inset-0 rounded-md border-2 transition-all",
+                        "absolute inset-0 rounded-md border-2 transition-all overflow-hidden",
                         statusColor.bg,
                         statusColor.border
                       )}>
                         {/* Completion progress overlay */}
                         <div 
-                          className="h-full bg-foreground/5 rounded-sm transition-all"
+                          className="h-full bg-foreground/8 transition-all"
                           style={{ width: `${item.completionPercentage}%` }}
                         />
-                        
-                        {item.status === 'blocked' && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <AlertCircle className={cn("w-5 h-5", statusColor.text)} />
-                          </div>
-                        )}
                       </div>
                       
-                      {/* Information overlay panel */}
-                      <div className="absolute inset-x-0 top-0 h-full flex items-center justify-between px-2 gap-2">
-                        {/* Left side: Priority & Completion */}
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-background/95 backdrop-blur-sm border shadow-sm">
-                          <PriorityIcon className={cn("w-3 h-3", priorityConfig[item.priority]?.color)} />
-                          <span className="text-xs font-semibold">
+                      {/* Information overlay - transparent text */}
+                      <div className="absolute inset-0 flex items-center justify-between px-3">
+                        {/* Left: Start date */}
+                        <div className="flex items-center gap-1.5">
+                          <span className={cn("text-xs font-semibold", statusColor.text)}>
+                            {item.targetStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                        
+                        {/* Center: Priority icon & Completion percentage */}
+                        <div className="flex items-center gap-1.5">
+                          <PriorityIcon className={cn("w-3.5 h-3.5", priorityConfig[item.priority]?.color)} />
+                          <span className={cn("text-sm font-bold", statusColor.text)}>
                             {item.completionPercentage}%
                           </span>
                         </div>
                         
-                        {/* Right side: Date range */}
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-background/95 backdrop-blur-sm border shadow-sm">
-                          <Calendar className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-xs font-medium">
-                            {item.targetStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                          </span>
-                          <span className="text-xs text-muted-foreground">→</span>
-                          <span className="text-xs font-medium">
+                        {/* Right: End date */}
+                        <div className="flex items-center gap-1.5">
+                          <span className={cn("text-xs font-semibold", statusColor.text)}>
                             {item.targetEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                           </span>
                         </div>
                       </div>
+                      
+                      {/* Blocked indicator */}
+                      {item.status === 'blocked' && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="bg-red-500 rounded-full p-1">
+                            <AlertCircle className="w-4 h-4 text-white" />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </HoverCardTrigger>
                   <HoverCardContent className="w-72 z-50" align="start" side="top">
