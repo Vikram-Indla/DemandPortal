@@ -294,36 +294,6 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
             </div>
           </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                {selectedTheme === 'all' ? 'Overall Portfolio Progress' : `${selectedTheme} Progress`}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium">Completion Rate</span>
-                  <span className="text-2xl font-bold text-primary">{overallCompletion}%</span>
-                </div>
-                <Progress value={overallCompletion} className="h-3" />
-              </div>
-              <div className="grid grid-cols-3 gap-4 pt-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Initiatives</p>
-                  <p className="text-2xl font-semibold">{filteredInitiatives.length}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Items</p>
-                  <p className="text-2xl font-semibold">{totalItems}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Items Remaining</p>
-                  <p className="text-2xl font-semibold">{totalItems - completedItems}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           <div>
             <div className="flex items-center gap-2 mb-4">
