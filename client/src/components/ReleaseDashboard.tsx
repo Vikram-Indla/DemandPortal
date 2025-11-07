@@ -17,7 +17,7 @@ export interface Story {
   epicName: string;
 }
 
-interface StoryCompletionDashboardProps {
+interface ReleaseDashboardProps {
   stories: Story[];
 }
 
@@ -34,7 +34,7 @@ const priorityConfig = {
   low: { icon: ArrowDown, color: 'text-slate-600 dark:text-slate-400' },
 };
 
-export default function StoryCompletionDashboard({ stories }: StoryCompletionDashboardProps) {
+export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
   const groupedByFixVersion = useMemo(() => {
     const groups = stories.reduce((acc, story) => {
       if (!acc[story.fixVersion]) {
@@ -70,8 +70,8 @@ export default function StoryCompletionDashboard({ stories }: StoryCompletionDas
   return (
     <div className="p-6 space-y-6 overflow-auto h-full">
       <div>
-        <h2 className="text-2xl font-semibold mb-2">Story Completion</h2>
-        <p className="text-muted-foreground">Track story progress by fix version</p>
+        <h2 className="text-2xl font-semibold mb-2">Release Dashboard</h2>
+        <p className="text-muted-foreground">Track story progress by release version</p>
       </div>
 
       <div className="space-y-6">

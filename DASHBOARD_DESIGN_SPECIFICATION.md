@@ -5,7 +5,7 @@
 
 ## 🎨 Design Philosophy
 
-**Core Principle**: Maintain visual consistency across all dashboard views while allowing content structure to vary based on data hierarchy (Features → Epics → Stories).
+**Core Principle**: Maintain visual consistency across all dashboard views while allowing content structure to vary based on data hierarchy (Features → Epics → Stories) and release cycles.
 
 ### Shared Design Language
 All dashboards follow the same visual system:
@@ -37,11 +37,11 @@ All dashboards follow the same visual system:
 **Key Metrics**: Date ranges, epic count, completion percentage
 **Grouping**: Features with date ranges
 
-### 4. Story Completion Dashboard
-**Purpose**: Tactical view of stories by fix version
+### 4. Release Dashboard
+**Purpose**: Tactical view of stories by release version
 **Layout**: Card-based grouped lists
 **Key Metrics**: Story counts, points, completion by version
-**Grouping**: Fix versions
+**Grouping**: Release versions (e.g., v1.0, v1.1, v2.0)
 
 ---
 

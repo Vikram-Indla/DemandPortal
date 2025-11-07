@@ -11,7 +11,7 @@ A full-stack enterprise roadmap visualization application for tracking strategic
   - Portfolio Dashboard: Strategic initiative overview with circular gauges and theme filtering
   - Portfolio Roadmap (Epic View): Interactive Gantt chart with hierarchical tree navigation
   - Feature Roadmap: Timeline view of strategic features with date ranges
-  - Story Completion Dashboard: Tactical view of stories grouped by fix version
+  - Release Dashboard: Tactical view of stories grouped by release version
 - Multi-level hierarchy visualization (Theme → Initiative → Business Request → Epic → Feature → Story)
 - Interactive Gantt timeline charts with date-based visualization
 - Strategic Theme Spotlight for focused theme analysis
@@ -59,7 +59,7 @@ While maintaining visual consistency, each view uses the layout that best fits i
 - Portfolio Dashboard: Card grid with circular gauges
 - Portfolio Roadmap: Horizontal Gantt chart with hierarchy tree
 - Feature Roadmap: Horizontal Gantt chart (strategic level)
-- Story Completion: Grouped cards with story lists
+- Release Dashboard: Grouped cards with story lists by release version
 
 See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 
@@ -69,7 +69,7 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 - ✅ Moved Strategic Theme Spotlight from Portfolio Roadmap to Portfolio Dashboard
 - ✅ Removed theme filtering from Portfolio Roadmap (now shows all items)
 - ✅ Created Feature Roadmap component with Gantt-style timeline view
-- ✅ Created Story Completion Dashboard with fix version grouping
+- ✅ Created Release Dashboard with release version grouping (formerly Story Completion Dashboard)
 - ✅ Redesigned both new dashboards to match consistent design language
 - ✅ Added four-tab navigation in DashboardLayout
 - ✅ Created comprehensive design specification document
@@ -101,11 +101,11 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 - Focus on information density and scannable hierarchies
 
 **Key Component Structure:**
-- `DashboardLayout`: Main shell with four-tab navigation (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Story Completion)
+- `DashboardLayout`: Main shell with four-tab navigation (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Release Dashboard)
 - `StatusDashboard`: Portfolio metrics with circular gauges and Strategic Theme Spotlight
 - `RoadmapView`: Split-panel layout (collapsible tree + Gantt chart) for epic/feature/story hierarchy
 - `FeatureRoadmap`: Gantt-style timeline for strategic features with hover cards
-- `StoryCompletionDashboard`: Card-based view grouping stories by fix version with metrics
+- `ReleaseDashboard`: Card-based view grouping stories by release version with metrics
 - `HierarchyTree`: Collapsible tree with expand/collapse, visual hierarchy differentiation
 - `GanttChart`: Timeline visualization with color-coded status bars and completion overlays
 - `StrategicThemeSpotlight`: Theme-specific metrics banner (conditional visibility)

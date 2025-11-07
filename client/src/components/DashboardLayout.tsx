@@ -56,7 +56,7 @@ export default function DashboardLayout({ statusContent, roadmapContent, feature
                 Feature Roadmap
               </TabsTrigger>
               <TabsTrigger value="story-completion" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-story-completion">
-                Story Completion
+                Release Dashboard
               </TabsTrigger>
             </TabsList>
           </div>

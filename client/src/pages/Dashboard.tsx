@@ -2,7 +2,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import StatusDashboard from '@/components/StatusDashboard';
 import RoadmapView from '@/components/RoadmapView';
 import FeatureRoadmap, { Feature } from '@/components/FeatureRoadmap';
-import StoryCompletionDashboard, { Story } from '@/components/StoryCompletionDashboard';
+import ReleaseDashboard, { Story } from '@/components/ReleaseDashboard';
 
 //todo: remove mock functionality - replace with real Jira data
 const mockFeatures: Feature[] = [
@@ -285,7 +285,7 @@ export default function Dashboard() {
       statusContent={<StatusDashboard />}
       roadmapContent={<RoadmapView />}
       featureRoadmapContent={<FeatureRoadmap features={mockFeatures} />}
-      storyCompletionContent={<StoryCompletionDashboard stories={mockStories} />}
+      storyCompletionContent={<ReleaseDashboard stories={mockStories} />}
     />
   );
 }
