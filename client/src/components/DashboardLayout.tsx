@@ -11,9 +11,10 @@ interface DashboardLayoutProps {
   featureRoadmapContent?: React.ReactNode;
   epicRoadmapContent?: React.ReactNode;
   storyCompletionContent?: React.ReactNode;
+  roadmapGuideContent?: React.ReactNode;
 }
 
-export default function DashboardLayout({ statusContent, roadmapContent, featureRoadmapContent, epicRoadmapContent, storyCompletionContent }: DashboardLayoutProps) {
+export default function DashboardLayout({ statusContent, roadmapContent, featureRoadmapContent, epicRoadmapContent, storyCompletionContent, roadmapGuideContent }: DashboardLayoutProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const toggleTheme = () => {
@@ -62,6 +63,9 @@ export default function DashboardLayout({ statusContent, roadmapContent, feature
               <TabsTrigger value="story-completion" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-story-completion">
                 Release Dashboard
               </TabsTrigger>
+              <TabsTrigger value="roadmap-guide" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-roadmap-guide">
+                Roadmap Guide
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -83,6 +87,10 @@ export default function DashboardLayout({ statusContent, roadmapContent, feature
 
           <TabsContent value="story-completion" className="flex-1 overflow-auto m-0">
             {storyCompletionContent}
+          </TabsContent>
+
+          <TabsContent value="roadmap-guide" className="flex-1 overflow-auto m-0">
+            {roadmapGuideContent}
           </TabsContent>
         </Tabs>
       </main>

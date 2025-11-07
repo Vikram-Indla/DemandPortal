@@ -4,6 +4,7 @@ import RoadmapView from '@/components/RoadmapView';
 import FeatureRoadmap, { Feature } from '@/components/FeatureRoadmap';
 import EpicRoadmap, { Epic } from '@/components/EpicRoadmap';
 import ReleaseDashboard, { Story } from '@/components/ReleaseDashboard';
+import RoadmapGuide from '@/pages/RoadmapGuide';
 
 //todo: remove mock functionality - replace with real Jira data
 const mockFeatures: Feature[] = [
@@ -542,6 +543,7 @@ export default function Dashboard() {
       featureRoadmapContent={<FeatureRoadmap features={mockFeatures} />}
       epicRoadmapContent={<EpicRoadmap epics={mockEpics} />}
       storyCompletionContent={<ReleaseDashboard stories={mockStories} />}
+      roadmapGuideContent={<RoadmapGuide />}
     />
   );
 }
