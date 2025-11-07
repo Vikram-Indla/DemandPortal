@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Target, Layers, FileText, ListChecks, Info } from "lucide-react";
+import { Zap, Target, Layers, FileText, ListChecks, Info, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HierarchyLevel {
@@ -169,8 +169,7 @@ export default function RoadmapGuide() {
                   <div
                     className={cn(
                       "relative transition-all duration-300",
-                      level.width,
-                      isHovered ? "scale-105" : ""
+                      level.width
                     )}
                   >
                     <div
@@ -196,9 +195,10 @@ export default function RoadmapGuide() {
                       </p>
                       
                       {/* Duration badge */}
-                      <div className="mt-2">
-                        <Badge variant="secondary" className="text-xs">
-                          ⏱️ {level.typicalDuration}
+                      <div className="mt-2 flex items-center gap-1">
+                        <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {level.typicalDuration}
                         </Badge>
                       </div>
                     </div>
