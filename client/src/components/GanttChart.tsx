@@ -111,7 +111,7 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
 
   return (
     <div className="h-full overflow-auto bg-background">
-      <div className="sticky top-0 z-10 bg-card border-b">
+      <div className="sticky top-0 z-[5] bg-card border-b">
         <div className="flex h-12 items-center">
           <div className="w-80 px-4 font-semibold text-sm border-r flex-shrink-0">Item</div>
           <div className="flex-1 flex">
@@ -178,7 +178,7 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
                       </div>
                       
                       {/* Information overlay - transparent text */}
-                      <div className="absolute inset-0 flex items-center justify-between px-3">
+                      <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
                         {/* Left: Start date */}
                         <div className="flex items-center gap-1.5">
                           <span className={cn("text-xs font-semibold", statusColor.text)}>
@@ -212,7 +212,7 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
                       )}
                     </div>
                   </HoverCardTrigger>
-                  <HoverCardContent className="w-72 z-[9999]" align="start" side="top">
+                  <HoverCardContent className="w-72" align="start" side="top" sideOffset={8}>
                     <div className="space-y-3">
                       <div>
                         <h4 className="font-semibold text-sm mb-1 leading-tight">{item.title}</h4>
