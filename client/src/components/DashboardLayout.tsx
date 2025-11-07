@@ -9,10 +9,11 @@ interface DashboardLayoutProps {
   statusContent?: React.ReactNode;
   roadmapContent?: React.ReactNode;
   featureRoadmapContent?: React.ReactNode;
+  epicRoadmapContent?: React.ReactNode;
   storyCompletionContent?: React.ReactNode;
 }
 
-export default function DashboardLayout({ statusContent, roadmapContent, featureRoadmapContent, storyCompletionContent }: DashboardLayoutProps) {
+export default function DashboardLayout({ statusContent, roadmapContent, featureRoadmapContent, epicRoadmapContent, storyCompletionContent }: DashboardLayoutProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const toggleTheme = () => {
@@ -55,6 +56,9 @@ export default function DashboardLayout({ statusContent, roadmapContent, feature
               <TabsTrigger value="feature-roadmap" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-feature-roadmap">
                 Feature Roadmap
               </TabsTrigger>
+              <TabsTrigger value="epic-roadmap" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-epic-roadmap">
+                Epic Roadmap
+              </TabsTrigger>
               <TabsTrigger value="story-completion" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-story-completion">
                 Release Dashboard
               </TabsTrigger>
@@ -71,6 +75,10 @@ export default function DashboardLayout({ statusContent, roadmapContent, feature
 
           <TabsContent value="feature-roadmap" className="flex-1 overflow-hidden m-0">
             {featureRoadmapContent}
+          </TabsContent>
+
+          <TabsContent value="epic-roadmap" className="flex-1 overflow-hidden m-0">
+            {epicRoadmapContent}
           </TabsContent>
 
           <TabsContent value="story-completion" className="flex-1 overflow-auto m-0">

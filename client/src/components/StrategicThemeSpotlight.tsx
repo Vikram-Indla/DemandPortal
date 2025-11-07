@@ -1,8 +1,60 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Target, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+function CircularGauge({ 
+  percentage, 
+  size = 140,
+  strokeWidth = 10 
+}: { 
+  percentage: number; 
+  size?: number;
+  strokeWidth?: number;
+}) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  const getColor = () => {
+    if (percentage >= 75) return 'hsl(var(--chart-2))';
+    if (percentage >= 50) return 'hsl(var(--chart-3))';
+    if (percentage >= 25) return 'hsl(var(--primary))';
+    return 'hsl(var(--chart-4))';
+  };
+
+  return (
+    <div className="relative inline-flex items-center justify-center">
+      <svg width={size} height={size} className="transform -rotate-90">
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="hsl(var(--muted))"
+          strokeWidth={strokeWidth}
+          fill="none"
+          className="opacity-20"
+        />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={getColor()}
+          strokeWidth={strokeWidth}
+          fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="transition-all duration-1000 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-3xl font-bold">{percentage}%</span>
+        <span className="text-[10px] text-muted-foreground mt-0.5">Complete</span>
+      </div>
+    </div>
+  );
+}
 
 interface ThemeMetrics {
   themeName: string;
@@ -99,29 +151,26 @@ export default function StrategicThemeSpotlight({ metrics }: StrategicThemeSpotl
           </div>
         </div>
 
-        {/* Right: Primary KPI */}
+        {/* Right: Primary KPI with Circular Gauge */}
         <div className="flex items-center gap-6">
-          {/* Completion Metric */}
-          <div className="flex flex-col items-end gap-2">
-            <div className="flex items-center gap-3">
-              <TrendIcon className={cn("w-5 h-5", health.color)} />
-              <span className="text-5xl font-bold" data-testid="kpi-completion">
-                {metrics.completionPercentage}%
-              </span>
-            </div>
-            <span className="text-sm text-muted-foreground font-medium">Overall Completion</span>
-          </div>
+          {/* Circular Gauge */}
+          <CircularGauge percentage={metrics.completionPercentage} size={140} strokeWidth={10} />
 
-          {/* Visual Progress */}
-          <div className="flex flex-col gap-3 w-48">
-            <Progress 
-              value={metrics.completionPercentage} 
-              className="h-3"
-              data-testid="progress-theme"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{metrics.totalItems - metrics.completedItems} remaining</span>
-              <span>{metrics.completedItems} done</span>
+          {/* Metadata */}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <TrendIcon className={cn("w-4 h-4", health.color)} />
+              <span className="text-sm text-muted-foreground font-medium">Theme Progress</span>
+            </div>
+            <div className="text-xs text-muted-foreground space-y-1">
+              <div className="flex justify-between gap-4">
+                <span>Completed:</span>
+                <span className="font-semibold text-foreground">{metrics.completedItems} items</span>
+              </div>
+              <div className="flex justify-between gap-4">
+                <span>Remaining:</span>
+                <span className="font-semibold text-foreground">{metrics.totalItems - metrics.completedItems} items</span>
+              </div>
             </div>
           </div>
         </div>
