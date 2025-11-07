@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 export interface TreeNode {
   id: string;
   title: string;
-  type: 'theme' | 'initiative' | 'br' | 'epic' | 'feature' | 'story' | 'bug' | 'incident' | 'subtask';
+  type: 'feature' | 'epic' | 'story';
   status: 'done' | 'in-progress' | 'blocked' | 'not-started';
+  priority: 'high' | 'medium' | 'low';
+  releaseLabel?: string;
+  completionPercentage: number;
   children?: TreeNode[];
 }
 
@@ -17,15 +20,9 @@ interface HierarchyTreeProps {
 }
 
 const typeLabels: Record<string, string> = {
-  theme: 'Theme',
-  initiative: 'Initiative',
-  br: 'BR',
-  epic: 'Epic',
   feature: 'Feature',
+  epic: 'Epic',
   story: 'Story',
-  bug: 'Bug',
-  incident: 'Incident',
-  subtask: 'Subtask',
 };
 
 const statusColors: Record<string, string> = {
@@ -35,9 +32,16 @@ const statusColors: Record<string, string> = {
   'not-started': 'bg-gray-500/20 text-gray-700 dark:text-gray-400',
 };
 
+const priorityConfig: Record<string, { icon: any; color: string }> = {
+  high: { icon: ArrowUp, color: 'text-red-600 dark:text-red-400' },
+  medium: { icon: Minus, color: 'text-yellow-600 dark:text-yellow-400' },
+  low: { icon: ArrowDown, color: 'text-gray-600 dark:text-gray-400' },
+};
+
 function TreeNodeItem({ node, level = 0, onNodeClick }: { node: TreeNode; level?: number; onNodeClick?: (node: TreeNode) => void }) {
   const [isExpanded, setIsExpanded] = useState(level < 2);
   const hasChildren = node.children && node.children.length > 0;
+  const PriorityIcon = priorityConfig[node.priority]?.icon || Minus;
 
   return (
     <div>
@@ -62,10 +66,24 @@ function TreeNodeItem({ node, level = 0, onNodeClick }: { node: TreeNode; level?
         ) : (
           <span className="w-4" />
         )}
+        
+        <PriorityIcon className={cn("w-3 h-3 flex-shrink-0", priorityConfig[node.priority]?.color || 'text-gray-600')} />
+        
         <span className="flex-1 text-sm truncate">{node.title}</span>
-        <Badge variant="secondary" className={cn("text-xs", statusColors[node.status])}>
-          {typeLabels[node.type]}
-        </Badge>
+        
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {node.releaseLabel && (
+            <Badge variant="outline" className="text-xs h-5">
+              {node.releaseLabel}
+            </Badge>
+          )}
+          <Badge variant="secondary" className={cn("text-xs", statusColors[node.status])}>
+            {typeLabels[node.type]}
+          </Badge>
+          <span className="text-xs text-muted-foreground ml-1">
+            {node.completionPercentage}%
+          </span>
+        </div>
       </div>
       {isExpanded && hasChildren && (
         <div>
@@ -81,7 +99,10 @@ function TreeNodeItem({ node, level = 0, onNodeClick }: { node: TreeNode; level?
 export default function HierarchyTree({ nodes, onNodeClick }: HierarchyTreeProps) {
   return (
     <div className="h-full overflow-auto p-4 bg-card">
-      <h3 className="text-lg font-semibold mb-4 px-3">Project Hierarchy</h3>
+      <div className="mb-4 px-3">
+        <h3 className="text-lg font-semibold mb-1">Work Items</h3>
+        <p className="text-xs text-muted-foreground">Feature → Epic → Story hierarchy</p>
+      </div>
       <div className="space-y-1">
         {nodes.map((node) => (
           <TreeNodeItem key={node.id} node={node} onNodeClick={onNodeClick} />

@@ -1,20 +1,23 @@
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Progress } from '@/components/ui/progress';
+import { AlertCircle, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface GanttItem {
   id: string;
   title: string;
-  type: string;
+  type: 'feature' | 'epic' | 'story';
   status: 'done' | 'in-progress' | 'blocked' | 'not-started';
-  startDate: Date;
-  endDate: Date;
-  progress: number;
+  priority: 'high' | 'medium' | 'low';
+  releaseLabel?: string;
+  targetStartDate: Date;
+  targetEndDate: Date;
+  completionPercentage: number;
+  themeName: string;
+  initiativeName: string;
+  storyPoints?: number;
 }
 
 interface GanttChartProps {
@@ -29,11 +32,23 @@ const statusColors: Record<string, string> = {
   'not-started': 'bg-gray-400',
 };
 
+const priorityConfig: Record<string, { icon: any; color: string; borderColor: string }> = {
+  high: { icon: ArrowUp, color: 'text-red-600', borderColor: 'border-red-500' },
+  medium: { icon: Minus, color: 'text-yellow-600', borderColor: 'border-yellow-500' },
+  low: { icon: ArrowDown, color: 'text-gray-600', borderColor: 'border-gray-400' },
+};
+
+const typeLabels: Record<string, string> = {
+  feature: 'Feature',
+  epic: 'Epic',
+  story: 'Story',
+};
+
 export default function GanttChart({ items, onItemClick }: GanttChartProps) {
   const { months, startDate, endDate } = useMemo(() => {
     if (items.length === 0) return { months: [], startDate: new Date(), endDate: new Date() };
 
-    const allDates = items.flatMap(item => [item.startDate, item.endDate]);
+    const allDates = items.flatMap(item => [item.targetStartDate, item.targetEndDate]);
     const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
     const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
 
@@ -58,8 +73,8 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
   const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
   const getBarPosition = (item: GanttItem) => {
-    const itemStart = Math.max(item.startDate.getTime(), startDate.getTime());
-    const itemEnd = Math.min(item.endDate.getTime(), endDate.getTime());
+    const itemStart = Math.max(item.targetStartDate.getTime(), startDate.getTime());
+    const itemEnd = Math.min(item.targetEndDate.getTime(), endDate.getTime());
 
     const startOffset = Math.ceil((itemStart - startDate.getTime()) / (1000 * 60 * 60 * 24));
     const duration = Math.ceil((itemEnd - itemStart) / (1000 * 60 * 60 * 24));
@@ -82,7 +97,7 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
     <div className="h-full overflow-auto bg-background">
       <div className="sticky top-0 z-10 bg-card border-b">
         <div className="flex h-12 items-center">
-          <div className="w-64 px-4 font-semibold text-sm border-r flex-shrink-0">Task</div>
+          <div className="w-80 px-4 font-semibold text-sm border-r flex-shrink-0">Item</div>
           <div className="flex-1 flex">
             {months.map((month, idx) => (
               <div
@@ -97,50 +112,125 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
       </div>
 
       <div className="relative">
-        {items.map((item, idx) => (
-          <div key={item.id} className="flex h-12 border-b hover-elevate" data-testid={`gantt-item-${item.id}`}>
-            <div className="w-64 px-4 flex items-center gap-2 border-r flex-shrink-0">
-              <span className="text-sm truncate flex-1">{item.title}</span>
-              <Badge variant="secondary" className="text-xs">{item.type}</Badge>
-            </div>
-            <div className="flex-1 relative">
-              <div className="absolute inset-0 flex">
-                {months.map((_, idx) => (
-                  <div key={idx} className="flex-1 border-r last:border-r-0" />
-                ))}
+        {items.map((item) => {
+          const PriorityIcon = priorityConfig[item.priority]?.icon || Minus;
+          
+          return (
+            <div key={item.id} className="flex h-14 border-b hover-elevate" data-testid={`gantt-item-${item.id}`}>
+              <div className="w-80 px-4 py-2 flex flex-col gap-1 border-r flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <PriorityIcon className={cn("w-3 h-3", priorityConfig[item.priority]?.color || 'text-gray-600')} />
+                  <span className="text-sm font-medium truncate flex-1">{item.title}</span>
+                  <Badge variant="secondary" className="text-xs">{typeLabels[item.type]}</Badge>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {item.releaseLabel && (
+                    <Badge variant="outline" className="text-xs h-5">
+                      {item.releaseLabel}
+                    </Badge>
+                  )}
+                  <span>{item.completionPercentage}% complete</span>
+                </div>
               </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div
-                    className={cn(
-                      "absolute top-1/2 -translate-y-1/2 h-6 rounded-md cursor-pointer transition-all hover:h-7",
-                      statusColors[item.status]
-                    )}
-                    style={getBarPosition(item)}
-                    onClick={() => onItemClick?.(item)}
-                  >
-                    <div className="h-full w-full relative overflow-hidden rounded-md">
-                      <div
-                        className="h-full bg-white/30"
-                        style={{ width: `${item.progress}%` }}
-                      />
+              
+              <div className="flex-1 relative">
+                <div className="absolute inset-0 flex">
+                  {months.map((_, idx) => (
+                    <div key={idx} className="flex-1 border-r last:border-r-0" />
+                  ))}
+                </div>
+                
+                <HoverCard openDelay={200}>
+                  <HoverCardTrigger asChild>
+                    <div
+                      className={cn(
+                        "absolute top-1/2 -translate-y-1/2 h-8 rounded-md cursor-pointer transition-all hover:h-9 border-2",
+                        statusColors[item.status],
+                        priorityConfig[item.priority]?.borderColor || 'border-gray-400'
+                      )}
+                      style={getBarPosition(item)}
+                      onClick={() => onItemClick?.(item)}
+                    >
+                      <div className="h-full w-full relative overflow-hidden rounded-sm">
+                        <div
+                          className="h-full bg-white/40"
+                          style={{ width: `${item.completionPercentage}%` }}
+                        />
+                        {item.status === 'blocked' && (
+                          <AlertCircle className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-white" />
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className="space-y-1">
-                    <p className="font-semibold">{item.title}</p>
-                    <p className="text-xs">Status: {item.status}</p>
-                    <p className="text-xs">Progress: {item.progress}%</p>
-                    <p className="text-xs">
-                      {item.startDate.toLocaleDateString()} - {item.endDate.toLocaleDateString()}
-                    </p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-80" align="start">
+                    <div className="space-y-3">
+                      <div>
+                        <h4 className="font-semibold text-sm mb-1">{item.title}</h4>
+                        <p className="text-xs text-muted-foreground">{typeLabels[item.type]}</p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Theme:</span>
+                          <span className="font-medium">{item.themeName}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Initiative:</span>
+                          <span className="font-medium">{item.initiativeName}</span>
+                        </div>
+                        {item.releaseLabel && (
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Release:</span>
+                            <Badge variant="outline" className="text-xs h-5">{item.releaseLabel}</Badge>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Status:</span>
+                          <Badge variant="secondary" className="capitalize text-xs">{item.status}</Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Priority:</span>
+                          <div className="flex items-center gap-1">
+                            <PriorityIcon className={cn("w-3 h-3", priorityConfig[item.priority]?.color || 'text-gray-600')} />
+                            <span className="capitalize">{item.priority}</span>
+                          </div>
+                        </div>
+                        {item.storyPoints && (
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Story Points:</span>
+                            <span>{item.storyPoints}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Target Start:</span>
+                          <span>{item.targetStartDate.toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Target End:</span>
+                          <span>{item.targetEndDate.toLocaleDateString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Completion</span>
+                          <span className="font-semibold">{item.completionPercentage}%</span>
+                        </div>
+                        <Progress value={item.completionPercentage} className="h-2" />
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
