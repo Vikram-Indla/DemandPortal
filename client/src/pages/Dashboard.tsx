@@ -101,6 +101,11 @@ const mockStories: Story[] = [
     featureName: 'Security & Access Control',
     businessRequestName: 'Customer Portal Modernization',
     subtaskAssignees: ['John Smith', 'Sarah Jones', 'Mike Davis'],
+    subtasks: [
+      { id: 'st1', key: 'PROJ-101-1', title: 'Design OAuth2 flow diagram', status: 'done', assignee: 'John Smith' },
+      { id: 'st2', key: 'PROJ-101-2', title: 'Implement authorization endpoint', status: 'done', assignee: 'Sarah Jones' },
+      { id: 'st3', key: 'PROJ-101-3', title: 'Add token validation', status: 'done', assignee: 'Mike Davis' },
+    ],
   },
   {
     id: 's2',
@@ -187,6 +192,12 @@ const mockStories: Story[] = [
     featureName: 'Live Data Streaming',
     businessRequestName: 'Real-time Analytics Dashboard',
     subtaskAssignees: ['Sarah Jones', 'Mike Davis'],
+    subtasks: [
+      { id: 'st4', key: 'PROJ-202-1', title: 'Setup WebSocket server', status: 'done', assignee: 'Sarah Jones' },
+      { id: 'st5', key: 'PROJ-202-2', title: 'Implement client connection handler', status: 'in-progress', assignee: 'Mike Davis' },
+      { id: 'st6', key: 'PROJ-202-3', title: 'Add heartbeat mechanism', status: 'todo', assignee: 'Sarah Jones' },
+      { id: 'st7', key: 'PROJ-202-4', title: 'Create reconnection logic', status: 'todo' },
+    ],
   },
   {
     id: 's8',
@@ -272,6 +283,13 @@ const mockStories: Story[] = [
     featureName: 'Business Intelligence Suite',
     businessRequestName: 'API Integration Platform',
     subtaskAssignees: ['John Smith', 'Mike Davis', 'Tom Wilson'],
+    subtasks: [
+      { id: 'st8', key: 'PROJ-302-1', title: 'Design report builder UI', status: 'todo', assignee: 'John Smith' },
+      { id: 'st9', key: 'PROJ-302-2', title: 'Create drag-and-drop components', status: 'todo', assignee: 'Mike Davis' },
+      { id: 'st10', key: 'PROJ-302-3', title: 'Implement data source selector', status: 'todo', assignee: 'Tom Wilson' },
+      { id: 'st11', key: 'PROJ-302-4', title: 'Add preview functionality', status: 'todo' },
+      { id: 'st12', key: 'PROJ-302-5', title: 'Implement save/load templates', status: 'todo', assignee: 'John Smith' },
+    ],
   },
   {
     id: 's14',

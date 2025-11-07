@@ -19,6 +19,14 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+export interface Subtask {
+  id: string;
+  key: string;
+  title: string;
+  status: 'todo' | 'in-progress' | 'done' | 'blocked';
+  assignee?: string;
+}
+
 export interface Story {
   id: string;
   key: string;
@@ -32,6 +40,7 @@ export interface Story {
   featureName: string;
   businessRequestName: string;
   subtaskAssignees?: string[];
+  subtasks?: Subtask[];
 }
 
 interface ReleaseDashboardProps {
@@ -53,6 +62,7 @@ const priorityConfig = {
 
 export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
   const [expandedVersions, setExpandedVersions] = useState<Record<string, boolean>>({});
+  const [expandedStories, setExpandedStories] = useState<Record<string, boolean>>({});
 
   const groupedByFixVersion = useMemo(() => {
     const groups = stories.reduce((acc, story) => {
@@ -70,6 +80,13 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
     setExpandedVersions(prev => ({
       ...prev,
       [version]: !prev[version]
+    }));
+  };
+
+  const toggleStory = (storyId: string) => {
+    setExpandedStories(prev => ({
+      ...prev,
+      [storyId]: !prev[storyId]
     }));
   };
 
@@ -169,90 +186,163 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
                     const StatusIcon = statusConfig[story.status].icon;
                     const PriorityIcon = priorityConfig[story.priority].icon;
                     const hasResources = story.subtaskAssignees && story.subtaskAssignees.length > 0;
+                    const hasSubtasks = story.subtasks && story.subtasks.length > 0;
+                    const isStoryExpanded = expandedStories[story.id];
 
                     return (
-                      <HoverCard key={story.id} openDelay={300}>
-                        <HoverCardTrigger asChild>
-                          <div 
-                            className="px-3 py-2 rounded-md border hover-elevate transition-all cursor-pointer group"
-                            data-testid={`story-item-${story.key}`}
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <PriorityIcon className={cn("w-3 h-3 flex-shrink-0", priorityConfig[story.priority].color)} />
-                              
-                              <code className="text-xs font-mono font-semibold text-primary w-20 flex-shrink-0">
-                                {story.key}
-                              </code>
+                      <div key={story.id} className="space-y-0">
+                        <HoverCard openDelay={300}>
+                          <HoverCardTrigger asChild>
+                            <div 
+                              className="px-3 py-2 rounded-md border hover-elevate transition-all cursor-pointer group"
+                              data-testid={`story-item-${story.key}`}
+                              onClick={() => hasSubtasks && toggleStory(story.id)}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                {hasSubtasks && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-4 w-4 p-0 hover:bg-transparent flex-shrink-0"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggleStory(story.id);
+                                    }}
+                                  >
+                                    {isStoryExpanded ? (
+                                      <ChevronDown className="w-3 h-3" />
+                                    ) : (
+                                      <ChevronRight className="w-3 h-3" />
+                                    )}
+                                  </Button>
+                                )}
+                                {!hasSubtasks && <div className="w-4" />}
 
-                              <div className="flex items-center gap-1.5 flex-shrink-0">
-                                <StatusIcon className={cn("w-3 h-3", statusConfig[story.status].color)} />
-                                <span className="text-xs text-muted-foreground w-20">{statusConfig[story.status].label}</span>
-                              </div>
-                              
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">{story.title}</p>
-                              </div>
+                                <PriorityIcon className={cn("w-3 h-3 flex-shrink-0", priorityConfig[story.priority].color)} />
+                                
+                                <code className="text-xs font-mono font-semibold text-primary w-20 flex-shrink-0">
+                                  {story.key}
+                                </code>
 
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0 max-w-md">
-                                <span className="truncate">{story.businessRequestName}</span>
-                                <BreadcrumbIcon className="w-2.5 h-2.5 flex-shrink-0" />
-                                <span className="truncate">{story.featureName}</span>
-                                <BreadcrumbIcon className="w-2.5 h-2.5 flex-shrink-0" />
-                                <span className="truncate font-medium">{story.epicName}</span>
-                              </div>
-
-                              {hasResources && (
-                                <div className="flex items-center gap-1 text-muted-foreground flex-shrink-0">
-                                  <Users className="w-3 h-3" />
-                                  <span className="text-xs font-semibold">{story.subtaskAssignees?.length || 0}</span>
+                                <div className="flex items-center gap-1.5 flex-shrink-0">
+                                  <StatusIcon className={cn("w-3 h-3", statusConfig[story.status].color)} />
+                                  <span className="text-xs text-muted-foreground w-20">{statusConfig[story.status].label}</span>
                                 </div>
-                              )}
+                                
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium truncate">{story.title}</p>
+                                </div>
+
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0 max-w-md">
+                                  <span className="truncate">{story.businessRequestName}</span>
+                                  <BreadcrumbIcon className="w-2.5 h-2.5 flex-shrink-0" />
+                                  <span className="truncate">{story.featureName}</span>
+                                  <BreadcrumbIcon className="w-2.5 h-2.5 flex-shrink-0" />
+                                  <span className="truncate font-medium">{story.epicName}</span>
+                                </div>
+
+                                {hasSubtasks && (
+                                  <Badge variant="outline" className="text-xs flex-shrink-0">
+                                    {story.subtasks.length} {story.subtasks.length === 1 ? 'subtask' : 'subtasks'}
+                                  </Badge>
+                                )}
+
+                                {hasResources && (
+                                  <div className="flex items-center gap-1 text-muted-foreground flex-shrink-0">
+                                    <Users className="w-3 h-3" />
+                                    <span className="text-xs font-semibold">{story.subtaskAssignees?.length || 0}</span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </HoverCardTrigger>
-                        
-                        {hasResources && (
-                          <HoverCardContent 
-                            className="w-80 p-4 z-[100]"
-                            side="top"
-                            align="end"
-                          >
-                            <div className="space-y-3">
-                              <div className="flex items-center gap-2 pb-2 border-b">
-                                <Users className="w-4 h-4 text-primary" />
-                                <h4 className="font-semibold text-sm">Resources Working on This Story</h4>
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between text-xs">
-                                  <span className="text-muted-foreground">Story</span>
-                                  <code className="font-mono font-semibold text-primary">{story.key}</code>
+                          </HoverCardTrigger>
+                          
+                          {hasResources && (
+                            <HoverCardContent 
+                              className="w-80 p-4 z-[100]"
+                              side="top"
+                              align="end"
+                            >
+                              <div className="space-y-3">
+                                <div className="flex items-center gap-2 pb-2 border-b">
+                                  <Users className="w-4 h-4 text-primary" />
+                                  <h4 className="font-semibold text-sm">Resources Working on This Story</h4>
                                 </div>
-                                <p className="text-sm font-medium">{story.title}</p>
-                              </div>
+                                
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between text-xs">
+                                    <span className="text-muted-foreground">Story</span>
+                                    <code className="font-mono font-semibold text-primary">{story.key}</code>
+                                  </div>
+                                  <p className="text-sm font-medium">{story.title}</p>
+                                </div>
 
-                              <div className="pt-2 border-t">
-                                <p className="text-xs text-muted-foreground mb-2">Team Members ({story.subtaskAssignees?.length || 0}):</p>
-                                <div className="space-y-1.5">
-                                  {story.subtaskAssignees?.map((assignee, index) => (
-                                    <div 
-                                      key={index}
-                                      className="flex items-center gap-2 p-2 rounded-md bg-muted/30"
-                                    >
-                                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                        <span className="text-xs font-semibold text-primary">
-                                          {assignee.split(' ').map(n => n[0]).join('')}
-                                        </span>
+                                <div className="pt-2 border-t">
+                                  <p className="text-xs text-muted-foreground mb-2">Team Members ({story.subtaskAssignees?.length || 0}):</p>
+                                  <div className="space-y-1.5">
+                                    {story.subtaskAssignees?.map((assignee, index) => (
+                                      <div 
+                                        key={index}
+                                        className="flex items-center gap-2 p-2 rounded-md bg-muted/30"
+                                      >
+                                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                          <span className="text-xs font-semibold text-primary">
+                                            {assignee.split(' ').map(n => n[0]).join('')}
+                                          </span>
+                                        </div>
+                                        <span className="text-sm">{assignee}</span>
                                       </div>
-                                      <span className="text-sm">{assignee}</span>
-                                    </div>
-                                  ))}
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </HoverCardContent>
+                            </HoverCardContent>
+                          )}
+                        </HoverCard>
+
+                        {/* Subtasks */}
+                        {isStoryExpanded && hasSubtasks && (
+                          <div className="ml-8 mt-1 space-y-1 border-l-2 border-muted pl-4">
+                            {story.subtasks.map((subtask) => {
+                              const SubtaskStatusIcon = statusConfig[subtask.status].icon;
+                              
+                              return (
+                                <div
+                                  key={subtask.id}
+                                  className="px-3 py-1.5 rounded-md bg-muted/30 hover-elevate transition-all"
+                                  data-testid={`subtask-item-${subtask.key}`}
+                                >
+                                  <div className="flex items-center gap-2.5">
+                                    <code className="text-xs font-mono text-muted-foreground w-20 flex-shrink-0">
+                                      {subtask.key}
+                                    </code>
+
+                                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                                      <SubtaskStatusIcon className={cn("w-2.5 h-2.5", statusConfig[subtask.status].color)} />
+                                      <span className="text-xs text-muted-foreground w-20">{statusConfig[subtask.status].label}</span>
+                                    </div>
+                                    
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs truncate">{subtask.title}</p>
+                                    </div>
+
+                                    {subtask.assignee && (
+                                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                                        <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                                          <span className="text-[10px] font-semibold text-primary">
+                                            {subtask.assignee.split(' ').map(n => n[0]).join('')}
+                                          </span>
+                                        </div>
+                                        <span className="text-xs text-muted-foreground">{subtask.assignee}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
                         )}
-                      </HoverCard>
+                      </div>
                     );
                   })}
                 </CardContent>
