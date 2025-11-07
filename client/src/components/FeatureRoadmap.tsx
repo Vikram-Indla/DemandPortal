@@ -1,93 +1,90 @@
 import { useMemo } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Progress } from '@/components/ui/progress';
-import { Target, Calendar, TrendingUp, Flag, Users } from 'lucide-react';
+import { Calendar, Users, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface Feature {
   id: string;
   title: string;
-  description?: string;
+  themeName: string;
   startDate: Date;
   endDate: Date;
   completionPercentage: number;
-  status: 'planning' | 'in-progress' | 'completed' | 'at-risk';
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  themeName: string;
-  owner?: string;
+  status: 'done' | 'in-progress' | 'blocked' | 'not-started';
   epicCount: number;
   completedEpics: number;
+  owner?: string;
+  description?: string;
 }
 
 interface FeatureRoadmapProps {
   features: Feature[];
 }
 
-const statusConfig = {
-  planning: { 
-    label: 'Planning',
-    color: 'bg-slate-100 dark:bg-slate-800/30 text-slate-700 dark:text-slate-300',
-    icon: Target
+const statusColors: Record<string, { bg: string; border: string; text: string }> = {
+  done: { 
+    bg: 'bg-green-100 dark:bg-green-950/30', 
+    border: 'border-green-500',
+    text: 'text-green-800 dark:text-green-300'
   },
   'in-progress': { 
-    label: 'In Progress',
-    color: 'bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300',
-    icon: TrendingUp
+    bg: 'bg-amber-100 dark:bg-amber-950/30', 
+    border: 'border-amber-500',
+    text: 'text-amber-900 dark:text-amber-300'
   },
-  completed: { 
-    label: 'Completed',
-    color: 'bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-300',
-    icon: Flag
+  blocked: { 
+    bg: 'bg-red-100 dark:bg-red-950/30', 
+    border: 'border-red-500',
+    text: 'text-red-900 dark:text-red-300'
   },
-  'at-risk': { 
-    label: 'At Risk',
-    color: 'bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-300',
-    icon: Flag
+  'not-started': { 
+    bg: 'bg-slate-100 dark:bg-slate-800/30', 
+    border: 'border-slate-400',
+    text: 'text-slate-800 dark:text-slate-300'
   },
-};
-
-const priorityColors = {
-  critical: 'border-l-red-600 dark:border-l-red-400',
-  high: 'border-l-amber-600 dark:border-l-amber-400',
-  medium: 'border-l-blue-600 dark:border-l-blue-400',
-  low: 'border-l-slate-400 dark:border-l-slate-500',
 };
 
 export default function FeatureRoadmap({ features }: FeatureRoadmapProps) {
-  const { timelineMonths, minDate, maxDate } = useMemo(() => {
-    if (features.length === 0) return { timelineMonths: [], minDate: new Date(), maxDate: new Date() };
+  const { months, startDate, endDate } = useMemo(() => {
+    if (features.length === 0) return { months: [], startDate: new Date(), endDate: new Date() };
 
     const allDates = features.flatMap(f => [f.startDate, f.endDate]);
-    const min = new Date(Math.min(...allDates.map(d => d.getTime())));
-    const max = new Date(Math.max(...allDates.map(d => d.getTime())));
+    const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
+    const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
 
-    min.setDate(1);
-    const end = new Date(max);
+    minDate.setDate(1);
+    const end = new Date(maxDate);
     end.setMonth(end.getMonth() + 1);
+    end.setDate(0);
 
-    const months: { label: string; date: Date }[] = [];
-    const current = new Date(min);
+    const monthsList: { label: string; date: Date }[] = [];
+    const current = new Date(minDate);
     while (current <= end) {
-      months.push({
-        label: current.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+      monthsList.push({
+        label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
         date: new Date(current),
       });
       current.setMonth(current.getMonth() + 1);
     }
 
-    return { timelineMonths: months, minDate: min, maxDate: end };
+    return { months: monthsList, startDate: minDate, endDate: end };
   }, [features]);
 
-  const getFeaturePosition = (feature: Feature) => {
-    const totalDays = Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
-    const startOffset = Math.ceil((feature.startDate.getTime() - minDate.getTime()) / (1000 * 60 * 60 * 24));
-    const duration = Math.ceil((feature.endDate.getTime() - feature.startDate.getTime()) / (1000 * 60 * 60 * 24));
-    
-    return {
-      left: `${(startOffset / totalDays) * 100}%`,
-      width: `${(duration / totalDays) * 100}%`,
-    };
+  const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  const getBarPosition = (feature: Feature) => {
+    const itemStart = Math.max(feature.startDate.getTime(), startDate.getTime());
+    const itemEnd = Math.min(feature.endDate.getTime(), endDate.getTime());
+
+    const startOffset = Math.ceil((itemStart - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const duration = Math.ceil((itemEnd - itemStart) / (1000 * 60 * 60 * 24));
+
+    const left = (startOffset / totalDays) * 100;
+    const width = (duration / totalDays) * 100;
+
+    return { left: `${left}%`, width: `${width}%` };
   };
 
   if (features.length === 0) {
@@ -99,137 +96,155 @@ export default function FeatureRoadmap({ features }: FeatureRoadmapProps) {
   }
 
   return (
-    <div className="space-y-8 p-6">
-      {/* Timeline Header */}
-      <div className="relative">
-        <div className="flex border-b-2 border-primary/20">
-          {timelineMonths.map((month, idx) => (
-            <div
-              key={idx}
-              className="flex-1 text-center pb-3"
-            >
-              <span className="text-sm font-semibold text-primary">{month.label}</span>
-            </div>
-          ))}
+    <div className="h-full overflow-auto bg-background">
+      <div className="sticky top-0 z-[5] bg-card border-b">
+        <div className="flex h-12 items-center">
+          <div className="w-80 px-4 font-semibold text-sm border-r flex-shrink-0">Feature</div>
+          <div className="flex-1 flex">
+            {months.map((month, idx) => (
+              <div
+                key={idx}
+                className="flex-1 px-2 py-3 text-center text-xs font-medium border-r last:border-r-0"
+              >
+                {month.label}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Feature Cards */}
-      <div className="space-y-6">
+      <div className="relative">
         {features.map((feature) => {
-          const StatusIcon = statusConfig[feature.status].icon;
-          const position = getFeaturePosition(feature);
-
+          const statusColor = statusColors[feature.status];
+          
           return (
-            <Card 
-              key={feature.id} 
-              className={cn(
-                "border-l-4 hover-elevate transition-all",
-                priorityColors[feature.priority]
-              )}
-              data-testid={`feature-card-${feature.id}`}
-            >
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-3">
-                      <Target className="w-6 h-6 text-primary" />
-                      <h3 className="text-xl font-bold">{feature.title}</h3>
-                    </div>
-                    {feature.description && (
-                      <p className="text-sm text-muted-foreground ml-9">{feature.description}</p>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Badge 
-                      variant="secondary"
-                      className={cn("flex items-center gap-1.5 px-3 py-1", statusConfig[feature.status].color)}
-                    >
-                      <StatusIcon className="w-3.5 h-3.5" />
-                      {statusConfig[feature.status].label}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-6">
-                {/* Metrics Row */}
-                <div className="flex items-center gap-8 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-muted-foreground" />
-                    <span className="font-medium">
-                      {feature.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
-                    <span className="text-muted-foreground">→</span>
-                    <span className="font-medium">
-                      {feature.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
-                  </div>
-
-                  {feature.owner && (
-                    <>
-                      <div className="h-4 w-px bg-border" />
-                      <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        <span className="text-muted-foreground">{feature.owner}</span>
-                      </div>
-                    </>
-                  )}
-
-                  <div className="h-4 w-px bg-border" />
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Epics:</span>
-                    <span className="font-semibold">{feature.completedEpics}/{feature.epicCount}</span>
-                  </div>
-
-                  <div className="flex-1" />
-                  
-                  <div className="text-right">
-                    <span className="text-2xl font-bold text-primary">{feature.completionPercentage}%</span>
-                    <span className="text-xs text-muted-foreground ml-2">Complete</span>
-                  </div>
-                </div>
-
-                {/* Visual Timeline */}
-                <div className="space-y-2">
-                  <div className="relative h-12 bg-muted/30 rounded-lg overflow-hidden">
-                    <div className="absolute inset-0 flex">
-                      {timelineMonths.map((_, idx) => (
-                        <div key={idx} className="flex-1 border-r border-muted last:border-r-0" />
-                      ))}
-                    </div>
-                    
-                    <div
-                      className="absolute top-1/2 -translate-y-1/2 h-8 rounded-md shadow-lg"
-                      style={position}
-                    >
-                      <div className={cn(
-                        "h-full rounded-md border-2 overflow-hidden",
-                        feature.status === 'completed' ? 'bg-green-500 border-green-600' :
-                        feature.status === 'at-risk' ? 'bg-red-500 border-red-600' :
-                        feature.status === 'in-progress' ? 'bg-blue-500 border-blue-600' :
-                        'bg-slate-400 border-slate-500'
-                      )}>
-                        <div 
-                          className="h-full bg-white/30"
-                          style={{ width: `${feature.completionPercentage}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Progress value={feature.completionPercentage} className="h-1.5" />
-                </div>
-
-                {/* Theme Badge */}
+            <div key={feature.id} className="flex h-20 border-b hover-elevate" data-testid={`feature-item-${feature.id}`}>
+              <div className="w-80 px-4 py-3 flex flex-col gap-2 border-r flex-shrink-0">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="text-xs">
+                  <Target className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                  <span className="text-sm font-medium truncate flex-1">{feature.title}</span>
+                  <Badge variant="secondary" className="text-xs">Feature</Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs h-5">
                     {feature.themeName}
                   </Badge>
+                  <span className="text-xs text-muted-foreground truncate">
+                    {feature.completedEpics}/{feature.epicCount} epics
+                  </span>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              
+              <div className="flex-1 relative py-3">
+                <div className="absolute inset-0 flex">
+                  {months.map((_, idx) => (
+                    <div key={idx} className="flex-1 border-r last:border-r-0" />
+                  ))}
+                </div>
+                
+                <HoverCard openDelay={200}>
+                  <HoverCardTrigger asChild>
+                    <div
+                      className="absolute top-3 h-14 cursor-pointer group"
+                      style={getBarPosition(feature)}
+                    >
+                      <div className={cn(
+                        "absolute inset-0 rounded-md border-2 transition-all overflow-hidden",
+                        statusColor.bg,
+                        statusColor.border
+                      )}>
+                        <div 
+                          className="h-full bg-foreground/8 transition-all"
+                          style={{ width: `${feature.completionPercentage}%` }}
+                        />
+                        
+                        <div className="absolute inset-0 flex items-center justify-between px-3">
+                          <span className={cn("text-xs font-medium", statusColor.text)}>
+                            {feature.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                          <span className={cn("text-xs font-bold", statusColor.text)}>
+                            {feature.completionPercentage}%
+                          </span>
+                          <span className={cn("text-xs font-medium", statusColor.text)}>
+                            {feature.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent 
+                    className="w-96 p-4 z-[100]"
+                    side="top"
+                    align="start"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Target className="w-4 h-4 text-primary" />
+                            <h4 className="font-semibold text-sm">{feature.title}</h4>
+                          </div>
+                          {feature.description && (
+                            <p className="text-xs text-muted-foreground mt-2">{feature.description}</p>
+                          )}
+                        </div>
+                        <Badge variant="secondary" className={cn("text-xs", statusColor.text)}>
+                          {feature.status.replace('-', ' ')}
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-2 pt-2 border-t">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Progress</span>
+                          <span className="font-semibold">{feature.completionPercentage}%</span>
+                        </div>
+                        <Progress value={feature.completionPercentage} className="h-1.5" />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 pt-2 border-t text-xs">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                          <div>
+                            <div className="text-muted-foreground">Start</div>
+                            <div className="font-medium">
+                              {feature.startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                          <div>
+                            <div className="text-muted-foreground">End</div>
+                            <div className="font-medium">
+                              {feature.endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2 border-t text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">Epics:</span>
+                          <span className="font-semibold">{feature.completedEpics}/{feature.epicCount}</span>
+                        </div>
+                        {feature.owner && (
+                          <div className="flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                            <span className="text-muted-foreground">{feature.owner}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="pt-2 border-t">
+                        <Badge variant="outline" className="text-xs">
+                          {feature.themeName}
+                        </Badge>
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
+            </div>
           );
         })}
       </div>
