@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Zap, Target, Layers, FileText, ListChecks, Info, Clock, TrendingUp, ArrowDown, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +18,8 @@ interface HierarchyLevel {
   examples: string[];
   typicalDuration: string;
   typicalCount: string;
+  width: string;
+  padding: string;
 }
 
 const hierarchyLevels: HierarchyLevel[] = [
@@ -37,7 +40,9 @@ const hierarchyLevels: HierarchyLevel[] = [
     ],
     examples: ["Digital Transformation", "Customer Experience Excellence", "Operational Excellence"],
     typicalDuration: "2-5 years",
-    typicalCount: "2-4 per portfolio"
+    typicalCount: "2-4 per portfolio",
+    width: "w-full max-w-2xl",
+    padding: "px-8 py-5"
   },
   {
     id: "initiative",
@@ -56,7 +61,9 @@ const hierarchyLevels: HierarchyLevel[] = [
     ],
     examples: ["Security Enhancement", "Cloud Migration", "Platform Modernization"],
     typicalDuration: "6-18 months",
-    typicalCount: "3-8 per portfolio"
+    typicalCount: "3-8 per portfolio",
+    width: "w-[90%] max-w-xl",
+    padding: "px-7 py-4"
   },
   {
     id: "feature",
@@ -75,7 +82,9 @@ const hierarchyLevels: HierarchyLevel[] = [
     ],
     examples: ["SSO Authentication", "Real-time Analytics", "Mobile App"],
     typicalDuration: "2-6 months",
-    typicalCount: "5-15 per initiative"
+    typicalCount: "5-15 per initiative",
+    width: "w-[80%] max-w-lg",
+    padding: "px-6 py-4"
   },
   {
     id: "epic",
@@ -94,7 +103,9 @@ const hierarchyLevels: HierarchyLevel[] = [
     ],
     examples: ["User Authentication Flow", "Data Pipeline Setup", "API Integration"],
     typicalDuration: "2-8 weeks",
-    typicalCount: "3-8 per feature"
+    typicalCount: "3-8 per feature",
+    width: "w-[70%] max-w-md",
+    padding: "px-6 py-3"
   },
   {
     id: "story",
@@ -113,7 +124,9 @@ const hierarchyLevels: HierarchyLevel[] = [
     ],
     examples: ["Login UI Component", "Password Reset Email", "Session Timeout"],
     typicalDuration: "1-5 days",
-    typicalCount: "5-12 per epic"
+    typicalCount: "5-12 per epic",
+    width: "w-[60%] max-w-sm",
+    padding: "px-5 py-3"
   },
   {
     id: "subtask",
@@ -132,7 +145,9 @@ const hierarchyLevels: HierarchyLevel[] = [
     ],
     examples: ["Write unit tests", "Update API documentation", "Code review"],
     typicalDuration: "2-8 hours",
-    typicalCount: "2-6 per story"
+    typicalCount: "2-6 per story",
+    width: "w-[50%] max-w-xs",
+    padding: "px-4 py-2"
   }
 ];
 
@@ -177,30 +192,29 @@ export default function RoadmapGuide() {
           <CardTitle>Portfolio Hierarchy Model</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Compact Hierarchy Visualization */}
-          <div className="flex justify-center py-6">
-            <div className="inline-flex flex-col gap-0">
+          {/* Size-Based Hierarchy Visualization */}
+          <div className="flex justify-center py-8">
+            <div className="flex flex-col gap-0 items-center w-full">
               {hierarchyLevels.map((level, index) => {
                 const Icon = level.icon;
-                const isHovered = hoveredLevel === level.id;
                 
                 return (
-                  <div key={level.id} className="flex flex-col items-center">
-                    {/* Hierarchy Level */}
+                  <div key={level.id} className="flex flex-col items-center w-full">
+                    {/* Hierarchy Level - Size decreases top to bottom */}
                     <div
                       className={cn(
                         "relative transition-all cursor-pointer hover-elevate",
-                        isHovered ? "shadow-lg z-10" : ""
+                        level.width
                       )}
-                      onMouseEnter={() => setHoveredLevel(level.id)}
-                      onMouseLeave={() => setHoveredLevel(null)}
+                      onClick={() => setHoveredLevel(level.id)}
                       data-testid={`pyramid-level-${level.id}`}
                     >
                       <div
                         className={cn(
-                          "border-2 rounded-lg px-6 py-3 min-w-[320px]",
+                          "border-2 rounded-lg",
                           level.bgColor,
-                          level.borderColor
+                          level.borderColor,
+                          level.padding
                         )}
                       >
                         <div className="flex items-center justify-between gap-4">
@@ -226,7 +240,7 @@ export default function RoadmapGuide() {
 
                     {/* Connector Arrow */}
                     {index < hierarchyLevels.length - 1 && (
-                      <div className="flex flex-col items-center py-1">
+                      <div className="flex flex-col items-center py-2">
                         <ArrowDown className="w-5 h-5 text-muted-foreground/40" />
                       </div>
                     )}
@@ -236,44 +250,33 @@ export default function RoadmapGuide() {
             </div>
           </div>
 
-          {/* Executive Commentary Panel */}
-          {hoveredLevel && (
-            <Card className={cn(
-              "border-2 transition-all",
-              hierarchyLevels.find(l => l.id === hoveredLevel)?.borderColor
-            )}>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  {(() => {
-                    const level = hierarchyLevels.find(l => l.id === hoveredLevel);
-                    if (!level) return null;
-                    const Icon = level.icon;
-                    return (
-                      <>
-                        <Icon className={cn("w-5 h-5", level.color)} />
-                        <CardTitle className="text-lg">{level.name} - Executive Perspective</CardTitle>
-                      </>
-                    );
-                  })()}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {(() => {
-                  const level = hierarchyLevels.find(l => l.id === hoveredLevel);
-                  if (!level) return null;
-                  
-                  return (
-                    <>
-                      <div className="space-y-2">
-                        <p className="text-sm leading-relaxed">
+          {/* Centered Executive Commentary Modal */}
+          <Dialog open={hoveredLevel !== null} onOpenChange={(open) => !open && setHoveredLevel(null)}>
+            <DialogContent className="max-w-2xl">
+              {hoveredLevel && (() => {
+                const level = hierarchyLevels.find(l => l.id === hoveredLevel);
+                if (!level) return null;
+                const Icon = level.icon;
+                
+                return (
+                  <>
+                    <DialogHeader>
+                      <div className="flex items-center gap-2">
+                        <Icon className={cn("w-6 h-6", level.color)} />
+                        <DialogTitle className="text-xl">{level.name} - Executive Perspective</DialogTitle>
+                      </div>
+                    </DialogHeader>
+                    <div className="space-y-6 pt-4">
+                      <div className="space-y-3">
+                        <p className="text-sm leading-relaxed text-foreground">
                           {level.executiveCommentary}
                         </p>
                       </div>
 
-                      <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <h4 className="font-semibold text-sm">Key Characteristics</h4>
-                          <ul className="space-y-1">
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                          <h4 className="font-semibold text-base">Key Characteristics</h4>
+                          <ul className="space-y-2">
                             {level.characteristics.map((char, idx) => (
                               <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
                                 <span className="text-primary mt-0.5">•</span>
@@ -283,8 +286,8 @@ export default function RoadmapGuide() {
                           </ul>
                         </div>
 
-                        <div className="space-y-2">
-                          <h4 className="font-semibold text-sm">Examples</h4>
+                        <div className="space-y-3">
+                          <h4 className="font-semibold text-base">Examples</h4>
                           <div className="flex flex-wrap gap-2">
                             {level.examples.map((example, idx) => (
                               <Badge key={idx} variant="secondary" className="text-xs">
@@ -294,19 +297,17 @@ export default function RoadmapGuide() {
                           </div>
                         </div>
                       </div>
-                    </>
-                  );
-                })()}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Default message when nothing hovered */}
-          {!hoveredLevel && (
-            <div className="text-center py-8 text-muted-foreground text-sm">
-              Hover over any hierarchy level to view executive commentary and details
-            </div>
-          )}
+                    </div>
+                  </>
+                );
+              })()}
+            </DialogContent>
+          </Dialog>
+          
+          {/* Instruction text */}
+          <div className="text-center pb-4 text-muted-foreground text-sm">
+            Click any hierarchy level to view executive commentary and details
+          </div>
         </CardContent>
       </Card>
 
@@ -365,56 +366,6 @@ export default function RoadmapGuide() {
                   ))}
                 </div>
               </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Key Insights Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Change Management Insights</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-pink-600" />
-                Strategic Themes
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Multi-year themes define company direction and shape the entire portfolio. All initiatives must ladder up to an active strategic theme with clear business justification.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2">
-                <Target className="w-4 h-4 text-blue-600" />
-                Value Delivery
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Features represent the unit of customer value. Focus roadmap conversations at this level to balance stakeholder needs with delivery capacity.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2">
-                <Layers className="w-4 h-4 text-indigo-600" />
-                Execution Planning
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Epics bridge the gap between product vision and engineering execution. Well-decomposed epics indicate mature planning and reduce delivery risk.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <h4 className="font-semibold flex items-center gap-2">
-                <FileText className="w-4 h-4 text-green-600" />
-                Delivery Cadence
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                Story completion velocity is the heartbeat of delivery. Consistent velocity enables predictable commitments. Declining velocity signals systemic issues.
-              </p>
             </div>
           </div>
         </CardContent>
