@@ -68,14 +68,22 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 ## Recent Changes
 
 **November 7, 2025 (Latest):**
+- ✅ Replaced descriptive text with ownership information in Roadmap Guide hierarchy boxes
+- ✅ Added owner roles for each hierarchy level:
+  - Strategic Theme: Deputyship
+  - Initiative: Product Manager
+  - Feature: Product Owner
+  - Epic: Product Owner/BA
+  - Story: BA
+  - Subtask: Developer/Tester
+- ✅ Added Business Request as cross-level work item type (Feature → Epic → Story → Subtask)
+- ✅ Business Request owned by Business Owner with Briefcase icon (orange color scheme)
 - ✅ Redesigned Roadmap Guide to C-suite focused compact snapshot with vertical connector arrows
 - ✅ Added Strategic Theme as top-level hierarchy (2-5 year multi-year planning horizon)
-- ✅ Removed verbose descriptive text from Portfolio Hierarchy Model for executive scannability
 - ✅ Changed from progressive pyramid widths to uniform width boxes (320px) stacked vertically
 - ✅ Implemented ArrowDown connector icons between each hierarchy level (top-down flow)
 - ✅ Interactive hover states showing executive-level commentary for each work item type
 - ✅ Hierarchy displays 6 levels: Strategic Theme → Initiative → Feature → Epic → Story → Subtask
-- ✅ Executive insights include characteristics, examples, typical duration, and portfolio counts
 - ✅ Updated Change Management Insights to start with Strategic Themes section (was Strategic Alignment)
 - ✅ Enhanced risk items with work item type badges (Initiative/Feature/Epic/Story) using distinct icons
 - ✅ Added hierarchy breadcrumbs showing parent-to-child path (e.g., "Security Enhancement → Compliance & Audit")
