@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Layers, TrendingUp, Target } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import BusinessRequestGrid from './BusinessRequestGrid';
 
 interface BusinessRequestMetrics {
   id: string;
@@ -301,65 +302,7 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
               <h3 className="text-xl font-semibold">Strategic Business Requests</h3>
             </div>
             
-            {filteredBusinessRequests.length === 0 ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground">No business requests found for the selected theme.</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {filteredBusinessRequests.map((br) => (
-                  <Card key={br.id} data-testid={`card-br-${br.id}`}>
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1">
-                          <CardTitle className="text-base mb-1">{br.name}</CardTitle>
-                          <div className="space-y-1">
-                            <p className="text-xs text-muted-foreground">
-                              <span className="font-medium">Theme:</span> {br.themeName}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              <span className="font-medium">Initiative:</span> {br.initiativeName}
-                            </p>
-                          </div>
-                        </div>
-                        <Badge 
-                          variant="secondary" 
-                          className={`capitalize ${getPriorityColor(br.priority)}`}
-                        >
-                          {br.priority}
-                        </Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Progress</span>
-                          <span className="font-semibold">{br.completionPercentage}%</span>
-                        </div>
-                        <Progress value={br.completionPercentage} className="h-2" />
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-2 text-center pt-2">
-                        <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Total</p>
-                          <p className="text-lg font-semibold">{br.totalItems}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-xs text-green-600 dark:text-green-400">Done</p>
-                          <p className="text-lg font-semibold text-green-600 dark:text-green-400">{br.completedItems}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-xs text-red-600 dark:text-red-400">Blocked</p>
-                          <p className="text-lg font-semibold text-red-600 dark:text-red-400">{br.blockedItems}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
+            <BusinessRequestGrid requests={filteredBusinessRequests} />
           </div>
         </>
       )}
