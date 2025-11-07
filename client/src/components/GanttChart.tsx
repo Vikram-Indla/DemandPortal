@@ -116,7 +116,7 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
           const PriorityIcon = priorityConfig[item.priority]?.icon || Minus;
           
           return (
-            <div key={item.id} className="flex h-14 border-b hover-elevate" data-testid={`gantt-item-${item.id}`}>
+            <div key={item.id} className="flex h-16 border-b hover-elevate" data-testid={`gantt-item-${item.id}`}>
               <div className="w-80 px-4 py-2 flex flex-col gap-1 border-r flex-shrink-0">
                 <div className="flex items-center gap-2">
                   <PriorityIcon className={cn("w-3 h-3", priorityConfig[item.priority]?.color || 'text-gray-600')} />
@@ -144,25 +144,43 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
                   <HoverCardTrigger asChild>
                     <div
                       className={cn(
-                        "absolute top-1/2 -translate-y-1/2 h-8 rounded-md cursor-pointer transition-all hover:h-9 border-2",
+                        "absolute top-1/2 -translate-y-1/2 h-10 rounded-md cursor-pointer transition-all hover:h-11 border-2 overflow-visible",
                         statusColors[item.status],
                         priorityConfig[item.priority]?.borderColor || 'border-gray-400'
                       )}
                       style={getBarPosition(item)}
                       onClick={() => onItemClick?.(item)}
                     >
-                      <div className="h-full w-full relative overflow-hidden rounded-sm">
+                      <div className="h-full w-full relative flex items-center justify-between px-2 gap-1">
                         <div
-                          className="h-full bg-white/40"
+                          className="absolute inset-0 bg-white/40 rounded-sm"
                           style={{ width: `${item.completionPercentage}%` }}
                         />
+                        
+                        <div className="relative z-10 flex items-center gap-1">
+                          <PriorityIcon className={cn("w-3 h-3 text-white drop-shadow", priorityConfig[item.priority]?.color)} />
+                          <span className="text-xs font-semibold text-white drop-shadow">
+                            {item.completionPercentage}%
+                          </span>
+                        </div>
+                        
+                        <div className="relative z-10 flex items-center gap-1 text-xs text-white drop-shadow">
+                          <span className="font-medium">
+                            {item.targetStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                          <span>→</span>
+                          <span className="font-medium">
+                            {item.targetEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                        
                         {item.status === 'blocked' && (
-                          <AlertCircle className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-white" />
+                          <AlertCircle className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-white drop-shadow z-10" />
                         )}
                       </div>
                     </div>
                   </HoverCardTrigger>
-                  <HoverCardContent className="w-80" align="start">
+                  <HoverCardContent className="w-64 z-50" align="start" side="top">
                     <div className="space-y-3">
                       <div>
                         <h4 className="font-semibold text-sm mb-1">{item.title}</h4>
@@ -170,10 +188,6 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
                       </div>
                       
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Theme:</span>
-                          <span className="font-medium">{item.themeName}</span>
-                        </div>
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-muted-foreground">Initiative:</span>
                           <span className="font-medium">{item.initiativeName}</span>
@@ -184,37 +198,6 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
                             <Badge variant="outline" className="text-xs h-5">{item.releaseLabel}</Badge>
                           </div>
                         )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Status:</span>
-                          <Badge variant="secondary" className="capitalize text-xs">{item.status}</Badge>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Priority:</span>
-                          <div className="flex items-center gap-1">
-                            <PriorityIcon className={cn("w-3 h-3", priorityConfig[item.priority]?.color || 'text-gray-600')} />
-                            <span className="capitalize">{item.priority}</span>
-                          </div>
-                        </div>
-                        {item.storyPoints && (
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-muted-foreground">Story Points:</span>
-                            <span>{item.storyPoints}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Target Start:</span>
-                          <span>{item.targetStartDate.toLocaleDateString()}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">Target End:</span>
-                          <span>{item.targetEndDate.toLocaleDateString()}</span>
-                        </div>
                       </div>
 
                       <div className="space-y-1">
