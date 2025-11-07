@@ -1,0 +1,39 @@
+Build a full-stack web application called "Digital Services Roadmap Dashboard" using React for the frontend, Node.js/Express for the backend, and Chart.js or D3.js for rendering Gantt-style charts. The app should extend a basic status dashboard by adding an interactive "Roadmap" tab that visualizes a custom agile work hierarchy fetched from Jira via the Jira API.
+Key requirements:
+
+Hierarchy Structure: Implement the following levels with parent-child relationships:
+
+Strategic Theme (top-level strategic goals).
+Initiative (child of Theme).
+Business Request (BR) (child of Initiative).
+Epic (child of BR).
+Feature (child of Epic).
+Team-level items: Story, QA Bug, UAT Bug, Incident (children of Feature or Story).
+Subtask (child of Story only).
+
+Parent Rules Enforcement: In data fetching and rendering, ensure relationships like: Initiative parented to Theme, BR to Initiative, Epic to BR, Feature to Epic, Story/QA Bug/UAT Bug/Incident to Feature or Story, Subtask to Story only. Use Jira issue links or custom fields to query these (e.g., via JQL: "project = XYZ AND issuetype in (Theme, Initiative, BR, Epic, Feature, Story, Bug, Incident, Subtask) ORDER BY rank").
+Backend (Node.js/Express):
+
+Set up API endpoints like /api/roadmap?themeId=123 to fetch hierarchical data from Jira.
+Use the @atlassian/jira-client or axios to integrate with Jira API (handle auth via .env for API token).
+Aggregate data into a nested JSON tree: { id: 'Theme1', children: [{id: 'Initiative1', startDate, endDate, status, children: ...}] }.
+Handle branched types: Treat QA Bug/UAT Bug as Bug subtypes, Incident as a defect type.
+Include progress calculation (e.g., % complete based on child items).
+
+Frontend (React):
+
+Use Material-UI or Bootstrap for a modern, responsive UI with blue accents and a mountain image in the footer.
+Main components: Navbar with tabs (Status, Roadmap), <RoadmapView> for the roadmap.
+In <RoadmapView>: Left side collapsible tree (using react-d3-tree or similar) showing hierarchy levels; right side Gantt timeline (using react-google-charts Gantt or D3) with bars over months/quarters.
+Features: Color-code bars by status (green=done, yellow=in progress, red=blocked). Add tooltips with details (points, due dates, bug counts). Draw dependency arrows if links exist in Jira.
+Interactivity: Filters (dropdowns for levels, status), timeline zoom, click-to-drill (modal with item details, integrate gauges for health metrics).
+Fetch data on load with loading spinners and error handling.
+
+Additional Features:
+
+Export roadmap as PDF (using jsPDF).
+Sample data fallback if API fails.
+Make it Vercel-deployable, with .env for Jira creds.
+
+
+Style: Professional enterprise-grade. Start with a wireframe in the build process, then add code iteratively. Ask clarifying questions if needed, like for specific Jira project keys.
