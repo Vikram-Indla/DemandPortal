@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Target, Layers, FileText, ListChecks, Info, Clock, TrendingUp, ArrowDown } from "lucide-react";
+import { Zap, Target, Layers, FileText, ListChecks, Info, Clock, TrendingUp, ArrowDown, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HierarchyLevel {
@@ -139,7 +139,7 @@ const hierarchyLevels: HierarchyLevel[] = [
 const businessRequestInfo = {
   id: "business-request",
   name: "Business Request",
-  icon: FileText,
+  icon: Briefcase,
   color: "text-orange-600 dark:text-orange-400",
   bgColor: "bg-orange-500/10 dark:bg-orange-500/20",
   borderColor: "border-orange-500/50",
@@ -320,7 +320,7 @@ export default function RoadmapGuide() {
       >
         <CardHeader>
           <div className="flex items-center gap-2">
-            <FileText className={cn("w-5 h-5", businessRequestInfo.color)} />
+            <Briefcase className={cn("w-5 h-5", businessRequestInfo.color)} />
             <CardTitle>Business Request (Cross-Level Work Item)</CardTitle>
           </div>
         </CardHeader>
