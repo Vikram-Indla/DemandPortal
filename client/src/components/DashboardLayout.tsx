@@ -48,7 +48,7 @@ export default function DashboardLayout({ statusContent, roadmapContent }: Dashb
                 Portfolio Dashboard
               </TabsTrigger>
               <TabsTrigger value="roadmap" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-roadmap">
-                Roadmap
+                Portfolio Roadmap
               </TabsTrigger>
             </TabsList>
           </div>
