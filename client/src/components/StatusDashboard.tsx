@@ -1,7 +1,9 @@
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Layers, TrendingUp } from 'lucide-react';
+import { Layers, TrendingUp, Target } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface BusinessRequestMetrics {
   id: string;
@@ -86,6 +88,8 @@ function CircularGauge({
 }
 
 export default function StatusDashboard({ initiatives, businessRequests }: StatusDashboardProps) {
+  const [selectedTheme, setSelectedTheme] = useState<string>('all');
+
   const defaultInitiatives: InitiativeMetrics[] = initiatives || [
     {
       id: 'init-1',
@@ -178,11 +182,38 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
       completionPercentage: 0,
       priority: 'medium',
     },
+    {
+      id: 'br-5',
+      name: 'Real-time Analytics Dashboard',
+      themeName: 'Digital Transformation',
+      initiativeName: 'Data Analytics Platform',
+      totalItems: 18,
+      completedItems: 10,
+      inProgressItems: 6,
+      blockedItems: 2,
+      completionPercentage: 56,
+      priority: 'high',
+    },
   ];
 
-  const totalItems = defaultInitiatives.reduce((sum, init) => sum + init.totalItems, 0);
-  const completedItems = defaultInitiatives.reduce((sum, init) => sum + init.completedItems, 0);
-  const overallCompletion = Math.round((completedItems / totalItems) * 100);
+  const themes = useMemo(() => {
+    const uniqueThemes = new Set(defaultInitiatives.map(i => i.themeName));
+    return Array.from(uniqueThemes);
+  }, [defaultInitiatives]);
+
+  const filteredInitiatives = useMemo(() => {
+    if (selectedTheme === 'all') return defaultInitiatives;
+    return defaultInitiatives.filter(i => i.themeName === selectedTheme);
+  }, [selectedTheme, defaultInitiatives]);
+
+  const filteredBusinessRequests = useMemo(() => {
+    if (selectedTheme === 'all') return defaultBusinessRequests;
+    return defaultBusinessRequests.filter(br => br.themeName === selectedTheme);
+  }, [selectedTheme, defaultBusinessRequests]);
+
+  const totalItems = filteredInitiatives.reduce((sum, init) => sum + init.totalItems, 0);
+  const completedItems = filteredInitiatives.reduce((sum, init) => sum + init.completedItems, 0);
+  const overallCompletion = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -199,133 +230,169 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
 
   return (
     <div className="p-6 space-y-6 overflow-auto h-full">
-      <div>
-        <h2 className="text-2xl font-semibold mb-2">Status Dashboard</h2>
-        <p className="text-muted-foreground">Strategic initiatives and business request progress</p>
-      </div>
-
-      <div>
-        <div className="flex items-center gap-2 mb-6">
-          <TrendingUp className="w-5 h-5 text-primary" />
-          <h3 className="text-xl font-semibold">Initiative Progress</h3>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h2 className="text-2xl font-semibold mb-2">Portfolio Dashboard</h2>
+          <p className="text-muted-foreground">Strategic initiatives and business request progress</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {defaultInitiatives.map((initiative) => (
-            <Card key={initiative.id} className="hover-elevate" data-testid={`card-initiative-${initiative.id}`}>
-              <CardContent className="p-6">
-                <div className="flex flex-col items-center space-y-4">
-                  <CircularGauge percentage={initiative.completionPercentage} size={160} strokeWidth={10} />
-                  
-                  <div className="text-center space-y-2 w-full">
-                    <h4 className="font-semibold text-sm leading-tight">{initiative.name}</h4>
-                    <p className="text-xs text-muted-foreground">{initiative.themeName}</p>
-                    
-                    <div className="pt-2 space-y-1 border-t">
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Business Requests</span>
-                        <span className="font-medium">{initiative.completedBusinessRequests}/{initiative.totalBusinessRequests}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Work Items</span>
-                        <span className="font-medium">{initiative.completedItems}/{initiative.totalItems}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex items-center gap-2">
+          <Target className="w-4 h-4 text-muted-foreground" />
+          <Tabs value={selectedTheme} onValueChange={setSelectedTheme}>
+            <TabsList data-testid="tabs-theme-switcher">
+              <TabsTrigger value="all" data-testid="tab-theme-all">All Themes</TabsTrigger>
+              {themes.map(theme => (
+                <TabsTrigger key={theme} value={theme} data-testid={`tab-theme-${theme.toLowerCase().replace(/\s+/g, '-')}`}>
+                  {theme}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Overall Portfolio Progress</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {filteredInitiatives.length === 0 ? (
+        <Card>
+          <CardContent className="p-12 text-center">
+            <p className="text-muted-foreground">No initiatives found for the selected theme.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
           <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Completion Rate</span>
-              <span className="text-2xl font-bold text-primary">{overallCompletion}%</span>
+            <div className="flex items-center gap-2 mb-6">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              <h3 className="text-xl font-semibold">Initiative Progress</h3>
             </div>
-            <Progress value={overallCompletion} className="h-3" />
-          </div>
-          <div className="grid grid-cols-3 gap-4 pt-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Total Initiatives</p>
-              <p className="text-2xl font-semibold">{defaultInitiatives.length}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Total Items</p>
-              <p className="text-2xl font-semibold">{totalItems}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Items Remaining</p>
-              <p className="text-2xl font-semibold">{totalItems - completedItems}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <Layers className="w-5 h-5 text-primary" />
-          <h3 className="text-xl font-semibold">Strategic Business Requests</h3>
-        </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {defaultBusinessRequests.map((br) => (
-            <Card key={br.id} data-testid={`card-br-${br.id}`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1">
-                    <CardTitle className="text-base mb-1">{br.name}</CardTitle>
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-medium">Theme:</span> {br.themeName}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        <span className="font-medium">Initiative:</span> {br.initiativeName}
-                      </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {filteredInitiatives.map((initiative) => (
+                <Card key={initiative.id} className="hover-elevate" data-testid={`card-initiative-${initiative.id}`}>
+                  <CardContent className="p-6">
+                    <div className="flex flex-col items-center space-y-4">
+                      <CircularGauge percentage={initiative.completionPercentage} size={160} strokeWidth={10} />
+                      
+                      <div className="text-center space-y-2 w-full">
+                        <h4 className="font-semibold text-sm leading-tight">{initiative.name}</h4>
+                        <p className="text-xs text-muted-foreground">{initiative.themeName}</p>
+                        
+                        <div className="pt-2 space-y-1 border-t">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Business Requests</span>
+                            <span className="font-medium">{initiative.completedBusinessRequests}/{initiative.totalBusinessRequests}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">Work Items</span>
+                            <span className="font-medium">{initiative.completedItems}/{initiative.totalItems}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <Badge 
-                    variant="secondary" 
-                    className={`capitalize ${getPriorityColor(br.priority)}`}
-                  >
-                    {br.priority}
-                  </Badge>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {selectedTheme === 'all' ? 'Overall Portfolio Progress' : `${selectedTheme} Progress`}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Completion Rate</span>
+                  <span className="text-2xl font-bold text-primary">{overallCompletion}%</span>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className="font-semibold">{br.completionPercentage}%</span>
-                  </div>
-                  <Progress value={br.completionPercentage} className="h-2" />
+                <Progress value={overallCompletion} className="h-3" />
+              </div>
+              <div className="grid grid-cols-3 gap-4 pt-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Initiatives</p>
+                  <p className="text-2xl font-semibold">{filteredInitiatives.length}</p>
                 </div>
-                
-                <div className="grid grid-cols-3 gap-2 text-center pt-2">
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Total</p>
-                    <p className="text-lg font-semibold">{br.totalItems}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-green-600 dark:text-green-400">Done</p>
-                    <p className="text-lg font-semibold text-green-600 dark:text-green-400">{br.completedItems}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-red-600 dark:text-red-400">Blocked</p>
-                    <p className="text-lg font-semibold text-red-600 dark:text-red-400">{br.blockedItems}</p>
-                  </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Items</p>
+                  <p className="text-2xl font-semibold">{totalItems}</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Items Remaining</p>
+                  <p className="text-2xl font-semibold">{totalItems - completedItems}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Layers className="w-5 h-5 text-primary" />
+              <h3 className="text-xl font-semibold">Strategic Business Requests</h3>
+            </div>
+            
+            {filteredBusinessRequests.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <p className="text-muted-foreground">No business requests found for the selected theme.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {filteredBusinessRequests.map((br) => (
+                  <Card key={br.id} data-testid={`card-br-${br.id}`}>
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <CardTitle className="text-base mb-1">{br.name}</CardTitle>
+                          <div className="space-y-1">
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-medium">Theme:</span> {br.themeName}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              <span className="font-medium">Initiative:</span> {br.initiativeName}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge 
+                          variant="secondary" 
+                          className={`capitalize ${getPriorityColor(br.priority)}`}
+                        >
+                          {br.priority}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground">Progress</span>
+                          <span className="font-semibold">{br.completionPercentage}%</span>
+                        </div>
+                        <Progress value={br.completionPercentage} className="h-2" />
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-2 text-center pt-2">
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground">Total</p>
+                          <p className="text-lg font-semibold">{br.totalItems}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs text-green-600 dark:text-green-400">Done</p>
+                          <p className="text-lg font-semibold text-green-600 dark:text-green-400">{br.completedItems}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs text-red-600 dark:text-red-400">Blocked</p>
+                          <p className="text-lg font-semibold text-red-600 dark:text-red-400">{br.blockedItems}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

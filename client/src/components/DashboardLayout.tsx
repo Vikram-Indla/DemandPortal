@@ -45,7 +45,7 @@ export default function DashboardLayout({ statusContent, roadmapContent }: Dashb
           <div className="border-b px-6">
             <TabsList className="h-12 bg-transparent" data-testid="tabs-navigation">
               <TabsTrigger value="status" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-status">
-                Status Dashboard
+                Portfolio Dashboard
               </TabsTrigger>
               <TabsTrigger value="roadmap" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-roadmap">
                 Roadmap
