@@ -7,12 +7,13 @@ A full-stack enterprise roadmap visualization application for tracking strategic
 **Core Purpose:** Enable portfolio managers and stakeholders to visualize and track multi-level project hierarchies from strategic themes down to individual stories, with timeline visualization, status tracking, and role-based access preparation.
 
 **Key Capabilities:**
-- **Five Dashboard Views:**
+- **Six Dashboard Views:**
   - Portfolio Dashboard: Strategic initiative overview with circular gauges and theme filtering with Strategic Theme Spotlight
   - Portfolio Roadmap: Interactive Gantt chart with full hierarchy tree navigation (Feature → Epic → Story)
   - Feature Roadmap: Timeline view of strategic features with date ranges and status indicators
   - Epic Roadmap: Timeline view of epics across features with progress tracking
   - Release Dashboard: Tactical view of stories grouped by release version with expandable subtasks
+  - **Roadmap Guide:** Educational pyramid visualization showing work item hierarchy with executive commentary for change management
 - Multi-level hierarchy visualization (Theme → Initiative → Business Request → Epic → Feature → Story → Subtask)
 - Interactive Gantt timeline charts with date-based visualization and explicit status badges
 - Strategic Theme Spotlight with circular gauge for completion percentage
@@ -67,6 +68,11 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 ## Recent Changes
 
 **November 7, 2025 (Latest):**
+- ✅ Created Roadmap Guide page with pyramid hierarchy visualization for change management education
+- ✅ Interactive hover states showing executive-level commentary for each work item type
+- ✅ Pyramid displays 5 levels: Initiative → Feature → Epic → Story → Subtask with progressive widths
+- ✅ Executive insights include characteristics, examples, typical duration, and portfolio counts
+- ✅ Change Management Insights card with strategic alignment, value delivery, execution planning, and delivery cadence guidance
 - ✅ Enhanced risk items with work item type badges (Initiative/Feature/Epic/Story) using distinct icons
 - ✅ Added hierarchy breadcrumbs showing parent-to-child path (e.g., "Security Enhancement → Compliance & Audit")
 - ✅ Implemented priority badges with colored backgrounds (High=Red, Medium=Amber, Low=Slate)
@@ -75,10 +81,7 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 - ✅ Redesigned risk displays as compact, data-focused lists showing priority, progress, and end dates
 - ✅ Moved Portfolio Risks under Business Requests section for better contextual placement
 - ✅ Added Release Risks section under Release Dashboard with same compact format
-- ✅ Smart date highlighting showing overdue items and urgent deadlines
-- ✅ Removed verbose RiskDashboard in favor of actionable, scannable compact lists
 - ✅ Added explicit status badges to all roadmap views (Portfolio, Feature, Epic) in left column
-- ✅ Enhanced readability and accessibility with clear status labels on all work items
 
 **November 7, 2025:**
 - ✅ Created Epic Roadmap view with timeline visualization for 13 epics across features
@@ -121,13 +124,14 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 - Focus on information density and scannable hierarchies
 
 **Key Component Structure:**
-- `DashboardLayout`: Main shell with five-tab navigation (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Epic Roadmap, Release Dashboard)
+- `DashboardLayout`: Main shell with six-tab navigation (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Epic Roadmap, Release Dashboard, Roadmap Guide)
 - `StatusDashboard`: Portfolio metrics with circular gauges, Strategic Theme Spotlight, and compact Portfolio Risks
 - `CompactRiskList`: Space-efficient risk display showing priority, progress, and end dates for at-risk items
 - `RoadmapView`: Split-panel layout (collapsible tree + Gantt chart) for full hierarchy with explicit status badges
 - `FeatureRoadmap`: Gantt-style timeline for strategic features with hover cards and status indicators
 - `EpicRoadmap`: Gantt-style timeline for epics across features with progress tracking and status badges
 - `ReleaseDashboard`: Card-based view grouping stories by release version with expandable subtasks and Release Risks
+- `RoadmapGuide`: Educational pyramid showing work item hierarchy (Initiative→Feature→Epic→Story→Subtask) with executive commentary on hover
 - `HierarchyTree`: Collapsible tree with expand/collapse, visual hierarchy differentiation
 - `GanttChart`: Timeline visualization with color-coded status bars and completion overlays
 - `StrategicThemeSpotlight`: Theme-specific metrics banner (conditional visibility)
