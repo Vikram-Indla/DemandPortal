@@ -140,7 +140,10 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
                   <span className="text-sm font-medium truncate flex-1">{item.title}</span>
                   <Badge variant="secondary" className="text-xs">{typeLabels[item.type]}</Badge>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className={cn("text-xs h-5", statusColor.bg, statusColor.text)}>
+                    {item.status.charAt(0).toUpperCase() + item.status.slice(1).replace('-', ' ')}
+                  </Badge>
                   {item.releaseLabel && (
                     <Badge variant="outline" className="text-xs h-5">
                       {item.releaseLabel}

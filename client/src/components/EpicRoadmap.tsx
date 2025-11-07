@@ -124,9 +124,11 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
                 <div className="flex items-center gap-2">
                   <Layers className="w-3.5 h-3.5 text-primary flex-shrink-0" />
                   <span className="text-sm font-medium truncate flex-1">{epic.title}</span>
-                  <Badge variant="secondary" className="text-xs">Epic</Badge>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className={cn("text-xs h-5", statusColor.bg, statusColor.text)}>
+                    {epic.status.charAt(0).toUpperCase() + epic.status.slice(1).replace('-', ' ')}
+                  </Badge>
                   <Badge variant="outline" className="text-xs h-5">
                     {epic.featureName}
                   </Badge>

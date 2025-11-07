@@ -7,14 +7,15 @@ A full-stack enterprise roadmap visualization application for tracking strategic
 **Core Purpose:** Enable portfolio managers and stakeholders to visualize and track multi-level project hierarchies from strategic themes down to individual stories, with timeline visualization, status tracking, and role-based access preparation.
 
 **Key Capabilities:**
-- **Four Dashboard Views:**
-  - Portfolio Dashboard: Strategic initiative overview with circular gauges and theme filtering
-  - Portfolio Roadmap (Epic View): Interactive Gantt chart with hierarchical tree navigation
-  - Feature Roadmap: Timeline view of strategic features with date ranges
-  - Release Dashboard: Tactical view of stories grouped by release version
-- Multi-level hierarchy visualization (Theme → Initiative → Business Request → Epic → Feature → Story)
-- Interactive Gantt timeline charts with date-based visualization
-- Strategic Theme Spotlight for focused theme analysis
+- **Five Dashboard Views:**
+  - Portfolio Dashboard: Strategic initiative overview with circular gauges and theme filtering with Strategic Theme Spotlight
+  - Portfolio Roadmap: Interactive Gantt chart with full hierarchy tree navigation (Feature → Epic → Story)
+  - Feature Roadmap: Timeline view of strategic features with date ranges and status indicators
+  - Epic Roadmap: Timeline view of epics across features with progress tracking
+  - Release Dashboard: Tactical view of stories grouped by release version with expandable subtasks
+- Multi-level hierarchy visualization (Theme → Initiative → Business Request → Epic → Feature → Story → Subtask)
+- Interactive Gantt timeline charts with date-based visualization and explicit status badges
+- Strategic Theme Spotlight with circular gauge for completion percentage
 - Filtering and search across hierarchy levels, status, and priority
 - Consistent design system across all views with shared components
 - Prepared for role-based access control (Executive, PM, Team Lead, Developer roles)
@@ -65,15 +66,25 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 
 ## Recent Changes
 
+**November 7, 2025 (Latest):**
+- ✅ Added explicit status badges to all roadmap views (Portfolio, Feature, Epic) in left column
+- ✅ Status indicators now visible at a glance without relying solely on color coding
+- ✅ Enhanced readability and accessibility with clear status labels on all work items
+
 **November 7, 2025:**
+- ✅ Created Epic Roadmap view with timeline visualization for 13 epics across features
+- ✅ Added circular gauge to Strategic Theme Spotlight matching initiative card style
+- ✅ Theme gauge shows completion percentage with color-coded progress (green ≥75%, amber ≥50%, blue ≥25%, red <25%)
+- ✅ Implemented expandable subtask functionality in Release Dashboard
+- ✅ Subtasks display with status badges, assignee, and hierarchical visual borders
 - ✅ Moved Strategic Theme Spotlight from Portfolio Roadmap to Portfolio Dashboard
 - ✅ Removed theme filtering from Portfolio Roadmap (now shows all items)
 - ✅ Created Feature Roadmap component with Gantt-style timeline view
 - ✅ Created Release Dashboard with release version grouping (formerly Story Completion Dashboard)
 - ✅ Redesigned both new dashboards to match consistent design language
-- ✅ Added four-tab navigation in DashboardLayout
+- ✅ Added five-tab navigation in DashboardLayout
 - ✅ Created comprehensive design specification document
-- ✅ Added mock data for features and stories
+- ✅ Added mock data for features, epics, stories, and subtasks
 - ✅ Strategic Theme Spotlight now has smart visibility (shows only when specific theme selected)
 
 ## System Architecture
@@ -101,11 +112,12 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 - Focus on information density and scannable hierarchies
 
 **Key Component Structure:**
-- `DashboardLayout`: Main shell with four-tab navigation (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Release Dashboard)
-- `StatusDashboard`: Portfolio metrics with circular gauges and Strategic Theme Spotlight
-- `RoadmapView`: Split-panel layout (collapsible tree + Gantt chart) for epic/feature/story hierarchy
-- `FeatureRoadmap`: Gantt-style timeline for strategic features with hover cards
-- `ReleaseDashboard`: Card-based view grouping stories by release version with metrics
+- `DashboardLayout`: Main shell with five-tab navigation (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Epic Roadmap, Release Dashboard)
+- `StatusDashboard`: Portfolio metrics with circular gauges and Strategic Theme Spotlight with circular completion gauge
+- `RoadmapView`: Split-panel layout (collapsible tree + Gantt chart) for full hierarchy with explicit status badges
+- `FeatureRoadmap`: Gantt-style timeline for strategic features with hover cards and status indicators
+- `EpicRoadmap`: Gantt-style timeline for epics across features with progress tracking and status badges
+- `ReleaseDashboard`: Card-based view grouping stories by release version with expandable subtasks
 - `HierarchyTree`: Collapsible tree with expand/collapse, visual hierarchy differentiation
 - `GanttChart`: Timeline visualization with color-coded status bars and completion overlays
 - `StrategicThemeSpotlight`: Theme-specific metrics banner (conditional visibility)
