@@ -67,16 +67,17 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 ## Recent Changes
 
 **November 7, 2025 (Latest):**
-- ✅ Redesigned risk displays as compact, data-focused lists showing only priority, progress, and end dates
+- ✅ Enhanced risk items with work item type badges (Initiative/Feature/Epic/Story) using distinct icons
+- ✅ Added hierarchy breadcrumbs showing parent-to-child path (e.g., "Security Enhancement → Compliance & Audit")
+- ✅ Implemented priority badges with colored backgrounds (High=Red, Medium=Amber, Low=Slate)
+- ✅ Two-row compact layout: title row (key, title, priority badge) + metadata row (type, hierarchy, progress, date)
+- ✅ Type differentiation: Initiative (Zap), Feature (Target), Epic (Layers), Story (FileText) icons
+- ✅ Redesigned risk displays as compact, data-focused lists showing priority, progress, and end dates
 - ✅ Moved Portfolio Risks under Business Requests section for better contextual placement
 - ✅ Added Release Risks section under Release Dashboard with same compact format
-- ✅ Space-efficient design optimized for scanning multiple at-risk items quickly
-- ✅ Color-coded priority indicators (High=Red, Medium=Amber, Low=Slate)
 - ✅ Smart date highlighting showing overdue items and urgent deadlines
-- ✅ Progress bars with percentage for quick visual assessment
 - ✅ Removed verbose RiskDashboard in favor of actionable, scannable compact lists
 - ✅ Added explicit status badges to all roadmap views (Portfolio, Feature, Epic) in left column
-- ✅ Status indicators now visible at a glance without relying solely on color coding
 - ✅ Enhanced readability and accessibility with clear status labels on all work items
 
 **November 7, 2025:**

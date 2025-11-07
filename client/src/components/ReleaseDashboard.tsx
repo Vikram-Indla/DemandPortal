@@ -74,6 +74,8 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
         id: story.id,
         key: story.key,
         title: story.title,
+        type: 'story',
+        hierarchyBreadcrumb: `${story.epicName} → ${story.featureName}`,
         priority: story.priority,
         progress: story.status === 'done' ? 100 : story.status === 'in-progress' ? 50 : 0,
         endDate: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
