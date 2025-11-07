@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Zap, Target, Layers, FileText, ListChecks, Info, Clock } from "lucide-react";
+import { Zap, Target, Layers, FileText, ListChecks, Info, Clock, TrendingUp, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HierarchyLevel {
@@ -11,7 +11,6 @@ interface HierarchyLevel {
   color: string;
   bgColor: string;
   borderColor: string;
-  width: string;
   description: string;
   executiveCommentary: string;
   characteristics: string[];
@@ -22,13 +21,31 @@ interface HierarchyLevel {
 
 const hierarchyLevels: HierarchyLevel[] = [
   {
+    id: "theme",
+    name: "Strategic Theme",
+    icon: TrendingUp,
+    color: "text-pink-600 dark:text-pink-400",
+    bgColor: "bg-pink-500/10 dark:bg-pink-500/20",
+    borderColor: "border-pink-500/50",
+    description: "Long-term strategic direction",
+    executiveCommentary: "Strategic Themes define multi-year company direction and competitive positioning. These are CEO-level priorities that shape the entire portfolio. Board oversight and annual strategy reviews required. All initiatives must ladder up to an active theme.",
+    characteristics: [
+      "Multi-year strategic direction",
+      "Board-level alignment",
+      "Market positioning focus",
+      "CEO-owned priorities"
+    ],
+    examples: ["Digital Transformation", "Customer Experience Excellence", "Operational Excellence"],
+    typicalDuration: "2-5 years",
+    typicalCount: "2-4 per portfolio"
+  },
+  {
     id: "initiative",
     name: "Initiative",
     icon: Zap,
     color: "text-purple-600 dark:text-purple-400",
     bgColor: "bg-purple-500/10 dark:bg-purple-500/20",
     borderColor: "border-purple-500/50",
-    width: "w-64",
     description: "Strategic business objectives",
     executiveCommentary: "Initiatives represent major strategic investments aligned with company vision. These are the 'big bets' that drive competitive advantage and market position. Board-level visibility and CEO ownership expected.",
     characteristics: [
@@ -37,7 +54,7 @@ const hierarchyLevels: HierarchyLevel[] = [
       "Measurable business outcomes",
       "Executive sponsorship required"
     ],
-    examples: ["Digital Transformation", "Market Expansion", "Platform Modernization"],
+    examples: ["Security Enhancement", "Cloud Migration", "Platform Modernization"],
     typicalDuration: "6-18 months",
     typicalCount: "3-8 per portfolio"
   },
@@ -48,7 +65,6 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-blue-600 dark:text-blue-400",
     bgColor: "bg-blue-500/10 dark:bg-blue-500/20",
     borderColor: "border-blue-500/50",
-    width: "w-80",
     description: "Customer-facing capabilities",
     executiveCommentary: "Features deliver tangible customer value and competitive differentiation. These are the capabilities your customers will experience and judge you by. Product leadership drives prioritization based on market feedback and strategic fit.",
     characteristics: [
@@ -68,8 +84,7 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-indigo-600 dark:text-indigo-400",
     bgColor: "bg-indigo-500/10 dark:bg-indigo-500/20",
     borderColor: "border-indigo-500/50",
-    width: "w-96",
-    description: "Large bodies of work decomposed from features",
+    description: "Large bodies of work",
     executiveCommentary: "Epics break down complex features into manageable delivery increments. This is where engineering leadership translates business requirements into technical delivery. Progress here indicates actual implementation velocity and risk.",
     characteristics: [
       "Spans multiple sprints",
@@ -88,8 +103,7 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-green-600 dark:text-green-400",
     bgColor: "bg-green-500/10 dark:bg-green-500/20",
     borderColor: "border-green-500/50",
-    width: "w-[28rem]",
-    description: "Deliverable increments of work",
+    description: "Deliverable work increments",
     executiveCommentary: "Stories are the daily currency of your delivery teams. Completed stories mean working software. Blocked or delayed stories signal impediments requiring leadership intervention. Velocity at this level predicts release timelines.",
     characteristics: [
       "Fits within a sprint",
@@ -108,8 +122,7 @@ const hierarchyLevels: HierarchyLevel[] = [
     color: "text-slate-600 dark:text-slate-400",
     bgColor: "bg-slate-500/10 dark:bg-slate-500/20",
     borderColor: "border-slate-500/50",
-    width: "w-[32rem]",
-    description: "Technical implementation steps",
+    description: "Implementation steps",
     executiveCommentary: "Subtasks represent the granular work engineers track internally. While not typically visible at executive level, systemic blockers at this tier cascade up and impact delivery commitments. Trust your teams to manage this layer autonomously.",
     characteristics: [
       "Technical implementation detail",
@@ -139,78 +152,69 @@ export default function RoadmapGuide() {
         </p>
       </div>
 
-      {/* Overview Card */}
+      {/* Executive Snapshot Card */}
       <Card>
         <CardHeader>
           <CardTitle>Portfolio Hierarchy Model</CardTitle>
-          <CardDescription>
-            Work items flow from strategic initiatives down to tactical execution. Each level serves a specific purpose in translating business vision into delivered value.
-          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Pyramid Visualization */}
-          <div className="flex flex-col items-center gap-3 py-8">
-            <div className="text-sm text-muted-foreground mb-4">
-              Strategic (Top) → Tactical (Bottom)
-            </div>
-            
-            {hierarchyLevels.map((level, index) => {
-              const Icon = level.icon;
-              const isHovered = hoveredLevel === level.id;
-              
-              return (
-                <div
-                  key={level.id}
-                  className="flex flex-col items-center gap-2"
-                  onMouseEnter={() => setHoveredLevel(level.id)}
-                  onMouseLeave={() => setHoveredLevel(null)}
-                >
-                  {/* Pyramid Level */}
-                  <div
-                    className={cn(
-                      "relative transition-all duration-300",
-                      level.width
-                    )}
-                  >
+          {/* Compact Hierarchy Visualization */}
+          <div className="flex justify-center py-6">
+            <div className="inline-flex flex-col gap-0">
+              {hierarchyLevels.map((level, index) => {
+                const Icon = level.icon;
+                const isHovered = hoveredLevel === level.id;
+                
+                return (
+                  <div key={level.id} className="flex flex-col items-center">
+                    {/* Hierarchy Level */}
                     <div
                       className={cn(
-                        "border-2 rounded-md p-4 cursor-pointer transition-all hover-elevate",
-                        level.bgColor,
-                        level.borderColor,
-                        isHovered ? "shadow-lg" : ""
+                        "relative transition-all cursor-pointer hover-elevate",
+                        isHovered ? "shadow-lg z-10" : ""
                       )}
+                      onMouseEnter={() => setHoveredLevel(level.id)}
+                      onMouseLeave={() => setHoveredLevel(null)}
                       data-testid={`pyramid-level-${level.id}`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Icon className={cn("w-5 h-5", level.color)} />
-                          <span className="font-semibold text-base">{level.name}</span>
+                      <div
+                        className={cn(
+                          "border-2 rounded-lg px-6 py-3 min-w-[320px]",
+                          level.bgColor,
+                          level.borderColor
+                        )}
+                      >
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-3">
+                            <Icon className={cn("w-5 h-5 flex-shrink-0", level.color)} />
+                            <div className="flex flex-col">
+                              <span className="font-semibold text-base">{level.name}</span>
+                              <span className="text-xs text-muted-foreground">{level.description}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {level.typicalDuration}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {level.typicalCount}
+                            </Badge>
+                          </div>
                         </div>
-                        <Badge variant="outline" className="text-xs">
-                          {level.typicalCount}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {level.description}
-                      </p>
-                      
-                      {/* Duration badge */}
-                      <div className="mt-2 flex items-center gap-1">
-                        <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {level.typicalDuration}
-                        </Badge>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Connection Line */}
-                  {index < hierarchyLevels.length - 1 && (
-                    <div className="w-px h-6 bg-border" />
-                  )}
-                </div>
-              );
-            })}
+                    {/* Connector Arrow */}
+                    {index < hierarchyLevels.length - 1 && (
+                      <div className="flex flex-col items-center py-1">
+                        <ArrowDown className="w-5 h-5 text-muted-foreground/40" />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Executive Commentary Panel */}
@@ -296,11 +300,11 @@ export default function RoadmapGuide() {
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <h4 className="font-semibold flex items-center gap-2">
-                <Zap className="w-4 h-4 text-purple-600" />
-                Strategic Alignment
+                <TrendingUp className="w-4 h-4 text-pink-600" />
+                Strategic Themes
               </h4>
               <p className="text-sm text-muted-foreground">
-                Top-level initiatives must ladder up to strategic themes and company objectives. Any initiative without clear business justification should be challenged.
+                Multi-year themes define company direction and shape the entire portfolio. All initiatives must ladder up to an active strategic theme with clear business justification.
               </p>
             </div>
 
