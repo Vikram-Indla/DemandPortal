@@ -67,11 +67,14 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 ## Recent Changes
 
 **November 7, 2025 (Latest):**
-- ✅ Created Portfolio Risk Register dashboard with executive-level risk visualization
-- ✅ Risk grid displays all at-risk work items with traceability (Initiative → Feature → Epic → Story)
-- ✅ Each risk shows: severity level, category, description, business impact, and recommended action
-- ✅ Color-coded risk levels (Critical/High/Medium) with left-border accent for quick scanning
-- ✅ Comprehensive risk metadata: owner, due date, status impact, and hierarchy path
+- ✅ Redesigned risk displays as compact, data-focused lists showing only priority, progress, and end dates
+- ✅ Moved Portfolio Risks under Business Requests section for better contextual placement
+- ✅ Added Release Risks section under Release Dashboard with same compact format
+- ✅ Space-efficient design optimized for scanning multiple at-risk items quickly
+- ✅ Color-coded priority indicators (High=Red, Medium=Amber, Low=Slate)
+- ✅ Smart date highlighting showing overdue items and urgent deadlines
+- ✅ Progress bars with percentage for quick visual assessment
+- ✅ Removed verbose RiskDashboard in favor of actionable, scannable compact lists
 - ✅ Added explicit status badges to all roadmap views (Portfolio, Feature, Epic) in left column
 - ✅ Status indicators now visible at a glance without relying solely on color coding
 - ✅ Enhanced readability and accessibility with clear status labels on all work items
@@ -118,12 +121,12 @@ See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
 
 **Key Component Structure:**
 - `DashboardLayout`: Main shell with five-tab navigation (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Epic Roadmap, Release Dashboard)
-- `StatusDashboard`: Portfolio metrics with circular gauges, Strategic Theme Spotlight, and Risk Register
-- `RiskDashboard`: Executive-level risk grid with traceability, impact analysis, and action recommendations
+- `StatusDashboard`: Portfolio metrics with circular gauges, Strategic Theme Spotlight, and compact Portfolio Risks
+- `CompactRiskList`: Space-efficient risk display showing priority, progress, and end dates for at-risk items
 - `RoadmapView`: Split-panel layout (collapsible tree + Gantt chart) for full hierarchy with explicit status badges
 - `FeatureRoadmap`: Gantt-style timeline for strategic features with hover cards and status indicators
 - `EpicRoadmap`: Gantt-style timeline for epics across features with progress tracking and status badges
-- `ReleaseDashboard`: Card-based view grouping stories by release version with expandable subtasks
+- `ReleaseDashboard`: Card-based view grouping stories by release version with expandable subtasks and Release Risks
 - `HierarchyTree`: Collapsible tree with expand/collapse, visual hierarchy differentiation
 - `GanttChart`: Timeline visualization with color-coded status bars and completion overlays
 - `StrategicThemeSpotlight`: Theme-specific metrics banner (conditional visibility)

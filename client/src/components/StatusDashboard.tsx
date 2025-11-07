@@ -6,7 +6,7 @@ import { Layers, TrendingUp, Target } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BusinessRequestGrid from './BusinessRequestGrid';
 import StrategicThemeSpotlight from './StrategicThemeSpotlight';
-import { RiskDashboard } from './RiskDashboard';
+import { CompactRiskList, CompactRiskItem } from './CompactRiskList';
 
 interface BusinessRequestMetrics {
   id: string;
@@ -199,6 +199,46 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
     },
   ];
 
+  // Mock portfolio risk items derived from business requests
+  const mockPortfolioRisks: CompactRiskItem[] = [
+    {
+      id: 'br-1',
+      key: 'BR-001',
+      title: 'SSO Integration',
+      priority: 'high',
+      progress: 65,
+      endDate: '2025-12-15',
+      isAtRisk: true,
+    },
+    {
+      id: 'br-3',
+      key: 'BR-003',
+      title: 'GDPR Compliance',
+      priority: 'high',
+      progress: 29,
+      endDate: '2025-11-25',
+      isAtRisk: true,
+    },
+    {
+      id: 'br-2',
+      key: 'BR-002',
+      title: 'Customer Portal Modernization',
+      priority: 'medium',
+      progress: 33,
+      endDate: '2026-01-30',
+      isAtRisk: true,
+    },
+    {
+      id: 'br-5',
+      key: 'BR-005',
+      title: 'Real-time Analytics Dashboard',
+      priority: 'high',
+      progress: 56,
+      endDate: '2025-12-10',
+      isAtRisk: true,
+    },
+  ];
+
   const themes = useMemo(() => {
     const uniqueThemes = new Set(defaultInitiatives.map(i => i.themeName));
     return Array.from(uniqueThemes);
@@ -283,10 +323,6 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
         </div>
       )}
 
-      <div>
-        <RiskDashboard />
-      </div>
-
       {filteredInitiatives.length === 0 ? (
         <Card>
           <CardContent className="p-12 text-center">
@@ -338,6 +374,18 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
             </div>
             
             <BusinessRequestGrid requests={filteredBusinessRequests} />
+          </div>
+
+          <div>
+            <Card>
+              <CardContent className="p-4">
+                <CompactRiskList 
+                  items={mockPortfolioRisks}
+                  title="Portfolio Risks"
+                  emptyMessage="No portfolio risks identified"
+                />
+              </CardContent>
+            </Card>
           </div>
         </>
       )}

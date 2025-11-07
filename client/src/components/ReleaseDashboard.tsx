@@ -18,6 +18,7 @@ import {
   ChevronRight as BreadcrumbIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CompactRiskList, CompactRiskItem } from './CompactRiskList';
 
 export interface Subtask {
   id: string;
@@ -63,6 +64,22 @@ const priorityConfig = {
 export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
   const [expandedVersions, setExpandedVersions] = useState<Record<string, boolean>>({});
   const [expandedStories, setExpandedStories] = useState<Record<string, boolean>>({});
+
+  // Mock release risk items
+  const releaseRisks: CompactRiskItem[] = useMemo(() => {
+    return stories
+      .filter(story => story.status === 'blocked' || (story.status === 'in-progress' && story.priority === 'high'))
+      .slice(0, 6)
+      .map(story => ({
+        id: story.id,
+        key: story.key,
+        title: story.title,
+        priority: story.priority,
+        progress: story.status === 'done' ? 100 : story.status === 'in-progress' ? 50 : 0,
+        endDate: new Date(Date.now() + Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        isAtRisk: true,
+      }));
+  }, [stories]);
 
   const groupedByFixVersion = useMemo(() => {
     const groups = stories.reduce((acc, story) => {
@@ -241,7 +258,7 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
                                   <span className="truncate font-medium">{story.epicName}</span>
                                 </div>
 
-                                {hasSubtasks && (
+                                {hasSubtasks && story.subtasks && (
                                   <Badge variant="outline" className="text-xs flex-shrink-0">
                                     {story.subtasks.length} {story.subtasks.length === 1 ? 'subtask' : 'subtasks'}
                                   </Badge>
@@ -301,7 +318,7 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
                         </HoverCard>
 
                         {/* Subtasks */}
-                        {isStoryExpanded && hasSubtasks && (
+                        {isStoryExpanded && hasSubtasks && story.subtasks && (
                           <div className="ml-8 mt-1 space-y-1 border-l-2 border-muted pl-4">
                             {story.subtasks.map((subtask) => {
                               const SubtaskStatusIcon = statusConfig[subtask.status].icon;
@@ -356,6 +373,18 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
         <Card>
           <CardContent className="p-12 text-center">
             <p className="text-muted-foreground">No stories to display</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {releaseRisks.length > 0 && (
+        <Card>
+          <CardContent className="p-4">
+            <CompactRiskList 
+              items={releaseRisks}
+              title="Release Risks"
+              emptyMessage="No release risks identified"
+            />
           </CardContent>
         </Card>
       )}
