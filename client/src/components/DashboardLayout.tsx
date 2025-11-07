@@ -8,9 +8,11 @@ interface DashboardLayoutProps {
   children?: React.ReactNode;
   statusContent?: React.ReactNode;
   roadmapContent?: React.ReactNode;
+  featureRoadmapContent?: React.ReactNode;
+  storyCompletionContent?: React.ReactNode;
 }
 
-export default function DashboardLayout({ statusContent, roadmapContent }: DashboardLayoutProps) {
+export default function DashboardLayout({ statusContent, roadmapContent, featureRoadmapContent, storyCompletionContent }: DashboardLayoutProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const toggleTheme = () => {
@@ -50,6 +52,12 @@ export default function DashboardLayout({ statusContent, roadmapContent }: Dashb
               <TabsTrigger value="roadmap" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-roadmap">
                 Portfolio Roadmap
               </TabsTrigger>
+              <TabsTrigger value="feature-roadmap" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-feature-roadmap">
+                Feature Roadmap
+              </TabsTrigger>
+              <TabsTrigger value="story-completion" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-story-completion">
+                Story Completion
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -59,6 +67,14 @@ export default function DashboardLayout({ statusContent, roadmapContent }: Dashb
 
           <TabsContent value="roadmap" className="flex-1 overflow-hidden m-0">
             {roadmapContent}
+          </TabsContent>
+
+          <TabsContent value="feature-roadmap" className="flex-1 overflow-hidden m-0">
+            {featureRoadmapContent}
+          </TabsContent>
+
+          <TabsContent value="story-completion" className="flex-1 overflow-auto m-0">
+            {storyCompletionContent}
           </TabsContent>
         </Tabs>
       </main>

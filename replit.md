@@ -2,20 +2,79 @@
 
 ## Overview
 
-A full-stack enterprise roadmap visualization application for tracking strategic themes, initiatives, and project hierarchies. The application provides interactive Gantt charts and hierarchical tree views to visualize project timelines and dependencies across multiple organizational levels.
+A full-stack enterprise roadmap visualization application for tracking strategic themes, initiatives, and project hierarchies. The application provides multiple specialized dashboard views designed for different organizational levels, with consistent visual design and interactive timeline visualizations.
 
-**Core Purpose:** Enable portfolio managers and stakeholders to visualize and track multi-level project hierarchies from strategic themes down to individual stories, with timeline visualization and status tracking.
+**Core Purpose:** Enable portfolio managers and stakeholders to visualize and track multi-level project hierarchies from strategic themes down to individual stories, with timeline visualization, status tracking, and role-based access preparation.
 
 **Key Capabilities:**
-- Multi-level hierarchy visualization (Theme → Initiative → Business Request → Epic → Feature → Story/Bug/Incident → Subtask)
+- **Four Dashboard Views:**
+  - Portfolio Dashboard: Strategic initiative overview with circular gauges and theme filtering
+  - Portfolio Roadmap (Epic View): Interactive Gantt chart with hierarchical tree navigation
+  - Feature Roadmap: Timeline view of strategic features with date ranges
+  - Story Completion Dashboard: Tactical view of stories grouped by fix version
+- Multi-level hierarchy visualization (Theme → Initiative → Business Request → Epic → Feature → Story)
 - Interactive Gantt timeline charts with date-based visualization
-- Dual-view interface: collapsible tree navigation and timeline chart
-- Portfolio dashboard with completion metrics and health indicators
+- Strategic Theme Spotlight for focused theme analysis
 - Filtering and search across hierarchy levels, status, and priority
+- Consistent design system across all views with shared components
+- Prepared for role-based access control (Executive, PM, Team Lead, Developer roles)
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+## Design System
+
+**Consistent Visual Language:**
+All four dashboard views follow the same design system to ensure cohesive user experience:
+
+- **Shared Color Palette:**
+  - Status colors: Green (done), Amber (in-progress), Red (blocked), Slate (not-started)
+  - Tinted backgrounds: 100/950 shades for light/dark mode
+  - Strong borders: 500 shades for status indicators
+  - Priority colors: Red (high), Amber (medium), Slate (low)
+
+- **Typography Scale:**
+  - Page titles: text-2xl font-semibold
+  - Section titles: text-xl font-semibold
+  - Card titles: text-lg
+  - Item titles: text-sm font-medium
+  - Metrics: text-2xl font-bold
+  - Body/captions: text-sm, text-xs
+
+- **Spacing System:**
+  - Page container: p-6
+  - Section gaps: space-y-6
+  - Card padding: p-4
+  - Consistent icon sizes: w-4 h-4 (inline), w-5 h-5 (headers)
+
+- **Shared Components:**
+  - Card, Badge (secondary/outline variants), Progress bars
+  - HoverCard for detailed information
+  - Tabs for navigation
+  - Lucide React icons throughout
+
+**View-Specific Layouts:**
+While maintaining visual consistency, each view uses the layout that best fits its data:
+- Portfolio Dashboard: Card grid with circular gauges
+- Portfolio Roadmap: Horizontal Gantt chart with hierarchy tree
+- Feature Roadmap: Horizontal Gantt chart (strategic level)
+- Story Completion: Grouped cards with story lists
+
+See `DASHBOARD_DESIGN_SPECIFICATION.md` for complete design documentation.
+
+## Recent Changes
+
+**November 7, 2025:**
+- ✅ Moved Strategic Theme Spotlight from Portfolio Roadmap to Portfolio Dashboard
+- ✅ Removed theme filtering from Portfolio Roadmap (now shows all items)
+- ✅ Created Feature Roadmap component with Gantt-style timeline view
+- ✅ Created Story Completion Dashboard with fix version grouping
+- ✅ Redesigned both new dashboards to match consistent design language
+- ✅ Added four-tab navigation in DashboardLayout
+- ✅ Created comprehensive design specification document
+- ✅ Added mock data for features and stories
+- ✅ Strategic Theme Spotlight now has smart visibility (shows only when specific theme selected)
 
 ## System Architecture
 
@@ -42,12 +101,16 @@ Preferred communication style: Simple, everyday language.
 - Focus on information density and scannable hierarchies
 
 **Key Component Structure:**
-- `DashboardLayout`: Main shell with tabbed navigation (Status/Roadmap views)
-- `RoadmapView`: Split-panel layout (30/70) for tree and Gantt chart
+- `DashboardLayout`: Main shell with four-tab navigation (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Story Completion)
+- `StatusDashboard`: Portfolio metrics with circular gauges and Strategic Theme Spotlight
+- `RoadmapView`: Split-panel layout (collapsible tree + Gantt chart) for epic/feature/story hierarchy
+- `FeatureRoadmap`: Gantt-style timeline for strategic features with hover cards
+- `StoryCompletionDashboard`: Card-based view grouping stories by fix version with metrics
 - `HierarchyTree`: Collapsible tree with expand/collapse, visual hierarchy differentiation
-- `GanttChart`: Timeline visualization with color-coded status bars
-- `StatusDashboard`: Portfolio metrics with circular gauge visualizations
+- `GanttChart`: Timeline visualization with color-coded status bars and completion overlays
+- `StrategicThemeSpotlight`: Theme-specific metrics banner (conditional visibility)
 - `FilterBar`: Multi-dimension filtering (type, status, priority, release, search)
+- `BusinessRequestGrid`: Compact grid view for business request tracking
 
 ### Backend Architecture
 
