@@ -2,7 +2,21 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Package, CheckCircle2, Circle, AlertCircle, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Button } from '@/components/ui/button';
+import { 
+  Package, 
+  CheckCircle2, 
+  Circle, 
+  AlertCircle, 
+  ArrowUp, 
+  ArrowDown, 
+  Minus,
+  ChevronDown,
+  ChevronRight,
+  Users,
+  ChevronRight as BreadcrumbIcon
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface Story {
@@ -15,6 +29,9 @@ export interface Story {
   fixVersion: string;
   storyPoints?: number;
   epicName: string;
+  featureName: string;
+  businessRequestName: string;
+  subtaskAssignees?: string[];
 }
 
 interface ReleaseDashboardProps {
@@ -22,10 +39,10 @@ interface ReleaseDashboardProps {
 }
 
 const statusConfig = {
-  todo: { icon: Circle, color: 'text-slate-500' },
-  'in-progress': { icon: Circle, color: 'text-amber-500' },
-  done: { icon: CheckCircle2, color: 'text-green-500' },
-  blocked: { icon: AlertCircle, color: 'text-red-500' },
+  todo: { icon: Circle, color: 'text-slate-500', label: 'To Do' },
+  'in-progress': { icon: Circle, color: 'text-amber-500', label: 'In Progress' },
+  done: { icon: CheckCircle2, color: 'text-green-500', label: 'Done' },
+  blocked: { icon: AlertCircle, color: 'text-red-500', label: 'Blocked' },
 };
 
 const priorityConfig = {
@@ -35,6 +52,8 @@ const priorityConfig = {
 };
 
 export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
+  const [expandedVersions, setExpandedVersions] = useState<Record<string, boolean>>({});
+
   const groupedByFixVersion = useMemo(() => {
     const groups = stories.reduce((acc, story) => {
       if (!acc[story.fixVersion]) {
@@ -46,6 +65,13 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
 
     return groups;
   }, [stories]);
+
+  const toggleVersion = (version: string) => {
+    setExpandedVersions(prev => ({
+      ...prev,
+      [version]: !prev[version]
+    }));
+  };
 
   const getVersionMetrics = (versionStories: Story[]) => {
     const total = versionStories.length;
@@ -74,25 +100,47 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
         <p className="text-muted-foreground">Track story progress by release version</p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {Object.entries(groupedByFixVersion).map(([version, versionStories]) => {
           const metrics = getVersionMetrics(versionStories);
+          const isExpanded = expandedVersions[version];
 
           return (
             <Card key={version} data-testid={`version-card-${version}`}>
-              <CardHeader className="pb-4">
+              <CardHeader 
+                className="pb-4 cursor-pointer hover-elevate transition-colors"
+                onClick={() => toggleVersion(version)}
+              >
                 <div className="flex items-center justify-between gap-4 flex-wrap">
-                  <div className="flex items-center gap-3">
-                    <Package className="w-5 h-5 text-primary" />
-                    <div>
+                  <div className="flex items-center gap-3 flex-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="h-8 w-8 flex-shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleVersion(version);
+                      }}
+                      data-testid={`button-toggle-${version}`}
+                    >
+                      {isExpanded ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                    </Button>
+                    
+                    <Package className="w-5 h-5 text-primary flex-shrink-0" />
+                    
+                    <div className="flex-1 min-w-0">
                       <CardTitle className="text-lg">{version}</CardTitle>
                       <p className="text-xs text-muted-foreground mt-1">
-                        {metrics.total} stories · {metrics.donePoints}/{metrics.totalPoints} points
+                        {metrics.total} {metrics.total === 1 ? 'story' : 'stories'} · {metrics.donePoints}/{metrics.totalPoints} points
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-shrink-0">
                     <div className="flex items-center gap-3 text-sm">
                       <div className="flex items-center gap-1">
                         <CheckCircle2 className="w-4 h-4 text-green-500" />
@@ -120,52 +168,111 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
                 <Progress value={metrics.pointsCompletion} className="h-2 mt-4" />
               </CardHeader>
 
-              <CardContent className="pt-0">
-                <div className="space-y-2">
+              {isExpanded && (
+                <CardContent className="pt-0 space-y-2">
                   {versionStories.map((story) => {
                     const StatusIcon = statusConfig[story.status].icon;
                     const PriorityIcon = priorityConfig[story.priority].icon;
+                    const hasResources = story.subtaskAssignees && story.subtaskAssignees.length > 0;
 
                     return (
-                      <div 
-                        key={story.id}
-                        className="flex items-center gap-3 p-3 rounded-md border hover-elevate"
-                        data-testid={`story-item-${story.key}`}
-                      >
-                        <PriorityIcon className={cn("w-3.5 h-3.5 flex-shrink-0", priorityConfig[story.priority].color)} />
-                        
-                        <code className="text-xs font-mono font-semibold text-primary w-24 flex-shrink-0">
-                          {story.key}
-                        </code>
-                        
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium truncate">{story.title}</p>
-                          <p className="text-xs text-muted-foreground truncate">{story.epicName}</p>
-                        </div>
+                      <HoverCard key={story.id} openDelay={300}>
+                        <HoverCardTrigger asChild>
+                          <div 
+                            className="p-3 rounded-md border hover-elevate transition-all cursor-pointer group"
+                            data-testid={`story-item-${story.key}`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <PriorityIcon className={cn("w-3.5 h-3.5 flex-shrink-0 mt-0.5", priorityConfig[story.priority].color)} />
+                              
+                              <div className="flex-1 min-w-0 space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <code className="text-xs font-mono font-semibold text-primary">
+                                    {story.key}
+                                  </code>
+                                  <div className="flex items-center gap-1.5">
+                                    <StatusIcon className={cn("w-3.5 h-3.5", statusConfig[story.status].color)} />
+                                    <span className="text-xs text-muted-foreground">{statusConfig[story.status].label}</span>
+                                  </div>
+                                </div>
 
-                        <div className="flex items-center gap-3 flex-shrink-0">
-                          <div className="flex items-center gap-1.5">
-                            <StatusIcon className={cn("w-4 h-4", statusConfig[story.status].color)} />
-                            <span className="text-xs capitalize">{story.status.replace('-', ' ')}</span>
+                                <p className="text-sm font-medium leading-snug">{story.title}</p>
+
+                                {/* Breadcrumb Navigation */}
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-wrap">
+                                  <span className="truncate max-w-[200px]">{story.businessRequestName}</span>
+                                  <BreadcrumbIcon className="w-3 h-3 flex-shrink-0" />
+                                  <span className="truncate max-w-[200px]">{story.featureName}</span>
+                                  <BreadcrumbIcon className="w-3 h-3 flex-shrink-0" />
+                                  <span className="truncate max-w-[200px] font-medium">{story.epicName}</span>
+                                </div>
+                              </div>
+
+                              {hasResources && (
+                                <div className="flex items-center gap-1 text-muted-foreground flex-shrink-0">
+                                  <Users className="w-3.5 h-3.5" />
+                                  <span className="text-xs font-semibold">{story.subtaskAssignees?.length || 0}</span>
+                                </div>
+                              )}
+                            </div>
                           </div>
+                        </HoverCardTrigger>
+                        
+                        {hasResources && (
+                          <HoverCardContent 
+                            className="w-80 p-4 z-[100]"
+                            side="top"
+                            align="end"
+                          >
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-2 pb-2 border-b">
+                                <Users className="w-4 h-4 text-primary" />
+                                <h4 className="font-semibold text-sm">Resources Working on This Story</h4>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-muted-foreground">Story</span>
+                                  <code className="font-mono font-semibold text-primary">{story.key}</code>
+                                </div>
+                                <p className="text-sm font-medium">{story.title}</p>
+                              </div>
 
-                          {story.storyPoints && (
-                            <Badge variant="outline" className="text-xs">
-                              {story.storyPoints} pts
-                            </Badge>
-                          )}
+                              <div className="pt-2 border-t">
+                                <p className="text-xs text-muted-foreground mb-2">Team Members ({story.subtaskAssignees?.length || 0}):</p>
+                                <div className="space-y-1.5">
+                                  {story.subtaskAssignees?.map((assignee, index) => (
+                                    <div 
+                                      key={index}
+                                      className="flex items-center gap-2 p-2 rounded-md bg-muted/30"
+                                    >
+                                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                        <span className="text-xs font-semibold text-primary">
+                                          {assignee.split(' ').map(n => n[0]).join('')}
+                                        </span>
+                                      </div>
+                                      <span className="text-sm">{assignee}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
 
-                          {story.assignee && (
-                            <span className="text-xs text-muted-foreground w-28 truncate text-right">
-                              {story.assignee}
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                              {story.storyPoints && (
+                                <div className="pt-2 border-t flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">Story Points</span>
+                                  <Badge variant="outline" className="text-xs">
+                                    {story.storyPoints} pts
+                                  </Badge>
+                                </div>
+                              )}
+                            </div>
+                          </HoverCardContent>
+                        )}
+                      </HoverCard>
                     );
                   })}
-                </div>
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
           );
         })}

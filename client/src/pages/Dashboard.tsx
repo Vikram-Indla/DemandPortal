@@ -98,6 +98,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.0',
     storyPoints: 8,
     epicName: 'User Authentication',
+    featureName: 'Security & Access Control',
+    businessRequestName: 'Customer Portal Modernization',
+    subtaskAssignees: ['John Smith', 'Sarah Jones', 'Mike Davis'],
   },
   {
     id: 's2',
@@ -109,6 +112,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.0',
     storyPoints: 5,
     epicName: 'User Authentication',
+    featureName: 'Security & Access Control',
+    businessRequestName: 'Customer Portal Modernization',
+    subtaskAssignees: ['Sarah Jones', 'Emily Chen'],
   },
   {
     id: 's3',
@@ -120,6 +126,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.0',
     storyPoints: 3,
     epicName: 'User Authentication',
+    featureName: 'Security & Access Control',
+    businessRequestName: 'Customer Portal Modernization',
+    subtaskAssignees: ['Mike Davis'],
   },
   {
     id: 's4',
@@ -131,6 +140,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.0',
     storyPoints: 5,
     epicName: 'Dashboard UI',
+    featureName: 'User Experience Enhancement',
+    businessRequestName: 'Customer Portal Modernization',
+    subtaskAssignees: ['Emily Chen', 'Tom Wilson'],
   },
   {
     id: 's5',
@@ -142,6 +154,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.0',
     storyPoints: 8,
     epicName: 'Dashboard UI',
+    featureName: 'User Experience Enhancement',
+    businessRequestName: 'Customer Portal Modernization',
+    subtaskAssignees: ['Tom Wilson', 'John Smith', 'Lisa Anderson'],
   },
 
   // Version 1.1 - In Progress
@@ -155,6 +170,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.1',
     storyPoints: 13,
     epicName: 'Real-time Features',
+    featureName: 'Live Data Streaming',
+    businessRequestName: 'Real-time Analytics Dashboard',
+    subtaskAssignees: ['John Smith', 'Sarah Jones', 'David Park'],
   },
   {
     id: 's7',
@@ -166,6 +184,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.1',
     storyPoints: 8,
     epicName: 'Real-time Features',
+    featureName: 'Live Data Streaming',
+    businessRequestName: 'Real-time Analytics Dashboard',
+    subtaskAssignees: ['Sarah Jones', 'Mike Davis'],
   },
   {
     id: 's8',
@@ -177,6 +198,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.1',
     storyPoints: 5,
     epicName: 'Notifications',
+    featureName: 'Alert & Notification Engine',
+    businessRequestName: 'Real-time Analytics Dashboard',
+    subtaskAssignees: ['Mike Davis', 'Emily Chen', 'Tom Wilson'],
   },
   {
     id: 's9',
@@ -188,6 +212,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.1',
     storyPoints: 3,
     epicName: 'Notifications',
+    featureName: 'Alert & Notification Engine',
+    businessRequestName: 'Real-time Analytics Dashboard',
+    subtaskAssignees: ['Emily Chen'],
   },
   {
     id: 's10',
@@ -199,6 +226,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.1',
     storyPoints: 5,
     epicName: 'Notifications',
+    featureName: 'Alert & Notification Engine',
+    businessRequestName: 'Real-time Analytics Dashboard',
+    subtaskAssignees: ['Tom Wilson', 'Sarah Jones'],
   },
   {
     id: 's11',
@@ -209,6 +239,9 @@ const mockStories: Story[] = [
     fixVersion: 'v1.1',
     storyPoints: 3,
     epicName: 'Notifications',
+    featureName: 'Alert & Notification Engine',
+    businessRequestName: 'Real-time Analytics Dashboard',
+    subtaskAssignees: ['David Park', 'Emily Chen'],
   },
 
   // Version 2.0 - Planned
@@ -222,6 +255,9 @@ const mockStories: Story[] = [
     fixVersion: 'v2.0',
     storyPoints: 8,
     epicName: 'Advanced Reporting',
+    featureName: 'Business Intelligence Suite',
+    businessRequestName: 'API Integration Platform',
+    subtaskAssignees: ['Sarah Jones', 'Emily Chen', 'Lisa Anderson'],
   },
   {
     id: 's13',
@@ -233,6 +269,9 @@ const mockStories: Story[] = [
     fixVersion: 'v2.0',
     storyPoints: 13,
     epicName: 'Advanced Reporting',
+    featureName: 'Business Intelligence Suite',
+    businessRequestName: 'API Integration Platform',
+    subtaskAssignees: ['John Smith', 'Mike Davis', 'Tom Wilson'],
   },
   {
     id: 's14',
@@ -244,6 +283,9 @@ const mockStories: Story[] = [
     fixVersion: 'v2.0',
     storyPoints: 5,
     epicName: 'Advanced Reporting',
+    featureName: 'Business Intelligence Suite',
+    businessRequestName: 'API Integration Platform',
+    subtaskAssignees: ['Mike Davis', 'Sarah Jones'],
   },
   {
     id: 's15',
@@ -254,6 +296,9 @@ const mockStories: Story[] = [
     fixVersion: 'v2.0',
     storyPoints: 8,
     epicName: 'Advanced Reporting',
+    featureName: 'Business Intelligence Suite',
+    businessRequestName: 'API Integration Platform',
+    subtaskAssignees: ['Tom Wilson', 'David Park'],
   },
   {
     id: 's16',
@@ -265,6 +310,9 @@ const mockStories: Story[] = [
     fixVersion: 'v2.0',
     storyPoints: 21,
     epicName: 'Platform Infrastructure',
+    featureName: 'Enterprise Architecture',
+    businessRequestName: 'Security Compliance Framework',
+    subtaskAssignees: ['Emily Chen', 'John Smith', 'David Park', 'Michael Chen'],
   },
   {
     id: 's17',
@@ -276,6 +324,9 @@ const mockStories: Story[] = [
     fixVersion: 'v2.0',
     storyPoints: 13,
     epicName: 'Platform Infrastructure',
+    featureName: 'Enterprise Architecture',
+    businessRequestName: 'Security Compliance Framework',
+    subtaskAssignees: ['Tom Wilson', 'Mike Davis', 'Emily Chen'],
   },
 ];
 
