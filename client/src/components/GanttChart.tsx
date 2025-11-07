@@ -212,7 +212,7 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
                       )}
                     </div>
                   </HoverCardTrigger>
-                  <HoverCardContent className="w-72 z-50" align="start" side="top">
+                  <HoverCardContent className="w-72 z-[9999]" align="start" side="top">
                     <div className="space-y-3">
                       <div>
                         <h4 className="font-semibold text-sm mb-1 leading-tight">{item.title}</h4>
