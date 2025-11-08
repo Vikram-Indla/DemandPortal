@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Progress } from '@/components/ui/progress';
-import { Calendar, Users, Target, Layers } from 'lucide-react';
+import { Calendar, Users, Target, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface Epic {
@@ -50,47 +50,62 @@ const statusColors: Record<string, { bg: string; border: string; text: string }>
   },
 };
 
+// Helper to get Monday of a given date
+const getMonday = (date: Date): Date => {
+  const d = new Date(date);
+  const dayOfWeek = d.getDay();
+  const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  d.setDate(d.getDate() + daysToMonday);
+  return d;
+};
+
 export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
   const [timelineView, setTimelineView] = useState<TimelineView>('bi-weekly');
+  
+  // Initialize window start date to the Monday of the current week
+  const [windowStartDate, setWindowStartDate] = useState<Date>(() => getMonday(new Date()));
 
-  const { periods, startDate, endDate } = useMemo(() => {
-    if (epics.length === 0) return { periods: [], startDate: new Date(), endDate: new Date() };
+  // Navigation functions
+  const goToPreviousWindow = () => {
+    setWindowStartDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setDate(newDate.getDate() - 56); // 8 weeks
+      return newDate;
+    });
+  };
 
-    const allDates = epics.flatMap(e => [e.startDate, e.endDate]);
-    const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
-    const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
+  const goToNextWindow = () => {
+    setWindowStartDate(prev => {
+      const newDate = new Date(prev);
+      newDate.setDate(newDate.getDate() + 56); // 8 weeks
+      return newDate;
+    });
+  };
 
-    let alignedStartDate: Date;
-    let alignedEndDate: Date;
+  const goToToday = () => {
+    setWindowStartDate(getMonday(new Date()));
+  };
 
-    if (timelineView === 'monthly') {
-      // Monthly alignment
-      alignedStartDate = new Date(minDate);
-      alignedStartDate.setDate(1);
-      
-      alignedEndDate = new Date(maxDate);
-      alignedEndDate.setMonth(alignedEndDate.getMonth() + 1);
-      alignedEndDate.setDate(0);
-    } else {
-      // Weekly or bi-weekly alignment
-      alignedStartDate = new Date(minDate);
-      // Align to Monday
-      const dayOfWeek = alignedStartDate.getDay();
-      const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-      alignedStartDate.setDate(alignedStartDate.getDate() + daysToMonday);
+  const { periods, startDate, endDate, visibleEpics } = useMemo(() => {
+    // Fixed 8-week (56-day) window
+    const alignedStartDate = new Date(windowStartDate);
+    alignedStartDate.setHours(0, 0, 0, 0); // Normalize to midnight
+    
+    const alignedEndDate = new Date(windowStartDate);
+    alignedEndDate.setDate(alignedEndDate.getDate() + 55); // 56 days inclusive (0-55)
+    alignedEndDate.setHours(23, 59, 59, 999); // Normalize to end of day
 
-      alignedEndDate = new Date(maxDate);
-      // Align to Sunday
-      const endDayOfWeek = alignedEndDate.getDay();
-      const daysToSunday = endDayOfWeek === 0 ? 0 : 7 - endDayOfWeek;
-      alignedEndDate.setDate(alignedEndDate.getDate() + daysToSunday);
-    }
+    // Filter epics that overlap with the window
+    const filtered = epics.filter(e => {
+      return e.endDate >= alignedStartDate && e.startDate <= alignedEndDate;
+    });
 
     const periodsList: { label: string; date: Date }[] = [];
 
     if (timelineView === 'weekly') {
+      // 8 weeks = 8 columns
       const current = new Date(alignedStartDate);
-      while (current <= alignedEndDate) {
+      for (let i = 0; i < 8; i++) {
         const weekStart = new Date(current);
         const weekEnd = new Date(current);
         weekEnd.setDate(weekEnd.getDate() + 6);
@@ -102,8 +117,9 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
         current.setDate(current.getDate() + 7);
       }
     } else if (timelineView === 'bi-weekly') {
+      // 8 weeks = 4 columns
       const current = new Date(alignedStartDate);
-      while (current <= alignedEndDate) {
+      for (let i = 0; i < 4; i++) {
         const biWeekStart = new Date(current);
         const biWeekEnd = new Date(current);
         biWeekEnd.setDate(biWeekEnd.getDate() + 13);
@@ -115,8 +131,10 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
         current.setDate(current.getDate() + 14);
       }
     } else {
-      // Monthly
+      // Monthly: cover months that intersect the 8-week window
       const current = new Date(alignedStartDate);
+      current.setDate(1); // Start of month
+      
       while (current <= alignedEndDate) {
         periodsList.push({
           label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
@@ -126,17 +144,25 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
       }
     }
 
-    return { periods: periodsList, startDate: alignedStartDate, endDate: alignedEndDate };
-  }, [epics, timelineView]);
+    return { 
+      periods: periodsList, 
+      startDate: alignedStartDate, 
+      endDate: alignedEndDate,
+      visibleEpics: filtered
+    };
+  }, [windowStartDate, epics, timelineView]);
 
-  const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  // Fixed to 56 days for 8 weeks
+  const totalDays = 56;
 
   const getBarPosition = (epic: Epic) => {
+    const DAY_MS = 1000 * 60 * 60 * 24;
     const itemStart = Math.max(epic.startDate.getTime(), startDate.getTime());
     const itemEnd = Math.min(epic.endDate.getTime(), endDate.getTime());
 
-    const startOffset = Math.ceil((itemStart - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const duration = Math.max(1, Math.ceil((itemEnd - itemStart) / (1000 * 60 * 60 * 24)));
+    const startOffset = Math.ceil((itemStart - startDate.getTime()) / DAY_MS);
+    // Add 1 day to make the duration inclusive (end date is part of the span)
+    const duration = Math.max(1, Math.ceil((itemEnd - itemStart + DAY_MS) / DAY_MS));
 
     const left = (startOffset / totalDays) * 100;
     const width = (duration / totalDays) * 100;
@@ -152,33 +178,70 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
     );
   }
 
+  const hasVisibleEpics = visibleEpics.length > 0;
+
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
-      <div className="p-2 border-b flex items-center justify-center gap-2">
-        <Button
-          variant={timelineView === 'weekly' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setTimelineView('weekly')}
-          data-testid="button-weekly-view"
-        >
-          Weekly
-        </Button>
-        <Button
-          variant={timelineView === 'bi-weekly' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setTimelineView('bi-weekly')}
-          data-testid="button-bi-weekly-view"
-        >
-          Bi-Weekly
-        </Button>
-        <Button
-          variant={timelineView === 'monthly' ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setTimelineView('monthly')}
-          data-testid="button-monthly-view"
-        >
-          Monthly
-        </Button>
+      <div className="p-2 border-b flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={goToPreviousWindow}
+            data-testid="button-prev-window"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Prev 8 Weeks
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={goToToday}
+            data-testid="button-today"
+          >
+            Today
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={goToNextWindow}
+            data-testid="button-next-window"
+          >
+            Next 8 Weeks
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant={timelineView === 'weekly' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setTimelineView('weekly')}
+            data-testid="button-weekly-view"
+          >
+            Weekly
+          </Button>
+          <Button
+            variant={timelineView === 'bi-weekly' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setTimelineView('bi-weekly')}
+            data-testid="button-bi-weekly-view"
+          >
+            Bi-Weekly
+          </Button>
+          <Button
+            variant={timelineView === 'monthly' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setTimelineView('monthly')}
+            data-testid="button-monthly-view"
+          >
+            Monthly
+          </Button>
+        </div>
+
+        <div className="text-sm text-muted-foreground">
+          {startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} - {endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+        </div>
       </div>
 
       <div className="flex-1 overflow-auto">
@@ -199,7 +262,12 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
         </div>
 
       <div className="relative">
-        {epics.map((epic) => {
+        {!hasVisibleEpics && (
+          <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+            No epics in this 8-week window. Use navigation to view other periods.
+          </div>
+        )}
+        {visibleEpics.map((epic) => {
           const statusColor = statusColors[epic.status];
           
           return (
