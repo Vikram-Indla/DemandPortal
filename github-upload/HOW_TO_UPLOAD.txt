@@ -1,0 +1,66 @@
+================================================================================
+  MANUAL UPLOAD TO GITHUB - QUICK GUIDE
+================================================================================
+
+Repository: https://github.com/demandportal/roadmap-dashboard
+
+EASIEST METHOD: Upload all files from this folder directly to GitHub
+--------------------------------------------------------------------------------
+
+STEP 1: Select All Files in Replit
+-----------------------------------
+1. In Replit, navigate to the "github-upload" folder (you're here now!)
+2. You'll see all these folders and files:
+   - src/
+   - supabase/
+   - README.md
+   - SETUP_GUIDE.md
+   - QUICK_START.md
+   - package.json
+   - tailwind.config.ts
+   - .gitignore
+
+STEP 2: Download Files to Your Computer
+----------------------------------------
+Option A: Download individual files
+   - Right-click each file/folder → "Download"
+   
+Option B: Download the archive (recommended)
+   - In the root folder, find: roadmap-dashboard-upload.tar.gz
+   - Right-click → Download
+   - Extract it on your computer
+
+STEP 3: Upload to GitHub
+-------------------------
+1. Go to: https://github.com/demandportal/roadmap-dashboard
+2. Click "Add file" → "Upload files"
+3. Drag ALL files and folders into the upload area
+4. Commit message: "Initial dashboard import - 6 specialized views"
+5. Click "Commit changes"
+
+WHAT TO UPLOAD (79 files):
+--------------------------
+✓ All files from the github-upload folder
+✓ Maintain folder structure (src/, supabase/, etc.)
+✓ Include all .tsx, .ts, .sql, .md, and .json files
+
+VERIFY AFTER UPLOAD:
+-------------------
+On GitHub, you should see:
+✓ src/ folder with pages/, components/, integrations/, lib/, types/
+✓ supabase/ folder with migrations/
+✓ Root files: README.md, package.json, etc.
+✓ Total: 79 files
+
+NEXT STEPS:
+-----------
+After successful upload:
+1. Open QUICK_START.md on GitHub
+2. Follow steps to import into Lovable
+3. Setup Supabase database
+4. Run migrations
+5. Test all 6 dashboards
+
+================================================================================
+NEED HELP? Read MANUAL_UPLOAD_GUIDE.md in the root folder
+================================================================================
