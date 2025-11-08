@@ -5,11 +5,11 @@
 A full-stack enterprise roadmap visualization application for tracking strategic themes, initiatives, and project hierarchies. The application provides multiple specialized dashboard views designed for different organizational levels, with consistent visual design and interactive timeline visualizations. Its core purpose is to enable portfolio managers and stakeholders to visualize and track multi-level project hierarchies from strategic themes down to individual stories, with timeline visualization, status tracking, and role-based access preparation.
 
 Key capabilities include:
-- Six specialized dashboard views (Portfolio Dashboard, Portfolio Roadmap, Feature Roadmap, Epic Roadmap, Release Dashboard, Roadmap Guide)
+- Six specialized dashboard views (Portfolio Dashboard, Business Roadmap, Feature Roadmap, Epic Roadmap, Release Dashboard, Roadmap Guide)
 - Multi-level hierarchy visualization (Theme → Initiative → Business Request → Epic → Feature → Story → Subtask)
 - Interactive Gantt timeline charts with date-based visualization and explicit status badges
 - Strategic Theme Spotlight with circular gauge for completion percentage
-- Filtering and search capabilities
+- Filtering and search capabilities with recursive tree filtering
 - Consistent design system across all views
 - Prepared for role-based access control.
 
@@ -26,9 +26,12 @@ The frontend is built with React 18 and TypeScript, using Vite as the build tool
 Key components include:
 - `DashboardLayout` with six-tab navigation
 - `StatusDashboard` for portfolio metrics
-- Various roadmap views (`RoadmapView`, `FeatureRoadmap`, `EpicRoadmap`) for timeline visualizations
+- `RoadmapView` (Business Roadmap) for Business Request → Epic → Story hierarchy with timeline visualizations
+- `FeatureRoadmap` and `EpicRoadmap` for feature/epic-specific timeline visualizations
 - `ReleaseDashboard` for release-version grouping
-- `RoadmapGuide` for educational hierarchy visualization with executive commentary via a centered modal dialog.
+- `RoadmapGuide` for educational hierarchy visualization with executive commentary via a centered modal dialog
+- `FilterBar` with configurable filters for level, status, priority, release, and search
+- `HierarchyTree` and `GanttChart` supporting multiple work item types including business-request.
 
 ### Backend Architecture
 
@@ -37,6 +40,12 @@ The backend is built with Express.js on Node.js using TypeScript. It features RE
 ### Data Storage Solutions
 
 The project is configured to use Drizzle ORM for PostgreSQL (specifically via `@neondatabase/serverless`). While currently using `MemStorage` (in-memory) for development, the design allows for easy swapping to persistent PostgreSQL. The intended data model supports hierarchical project items (Theme to Subtask) with parent-child relationships and attributes like dates, status, priority, and completion percentage.
+
+**Mock Data:**
+- Business Roadmap uses externalized mock data from `client/src/data/businessRoadmapMock.ts`
+- Contains 4 business requests with child epics and stories spanning Q1-Q3 2025
+- Organized by themes: Compliance & Security, Customer Experience, Platform Reliability
+- Designed for easy replacement with real Jira API data
 
 ### Authentication and Authorization
 
