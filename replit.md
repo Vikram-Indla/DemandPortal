@@ -55,7 +55,11 @@ Key components include:
 - `RoadmapGuide` for educational hierarchy visualization with executive commentary via a centered modal dialog
   - 7-level hierarchy: Strategic Theme → Initiative → Business Request → Feature → Epic → Story → Subtask
   - Business Request layer (Business Owner) positioned between Initiative and Feature
-  - Business Request can have Features, Epics, or Stories as direct children (flexible hierarchy)
+  - **Branching visualization** shows three possible execution paths from Business Request:
+    - Path 1: Business Request → Feature → Epic → Story → Subtask (full hierarchy)
+    - Path 2: Business Request → Epic → Story → Subtask (skips Feature)
+    - Path 3: Business Request → Story → Subtask (skips Feature and Epic)
+  - Visual branching diagram with dashed orange border displays all three paths side-by-side
   - No time duration constraints shown for Business Request (only count badge)
 - `FilterBar` with configurable filters for level, status, priority, release, and search
 - `HierarchyTree` and `GanttChart` supporting multiple work item types including business-request with quarterly/monthly timeline modes.
