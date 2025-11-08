@@ -26,12 +26,17 @@ The frontend is built with React 18 and TypeScript, using Vite as the build tool
 Key components include:
 - `DashboardLayout` with six-tab navigation
 - `StatusDashboard` for portfolio metrics
-- `RoadmapView` (Business Roadmap) for Business Request → Epic → Story hierarchy with timeline visualizations
+- `RoadmapView` (Business Roadmap) displays only business requests with quarterly/monthly timeline toggle
+  - Tree view hidden by default (can be toggled visible)
+  - Shows only business requests in Gantt chart (no child epics/stories visible)
+  - Timeline defaults to quarterly view with quarter-aligned headers (Q4 2024, Q1 2025, etc.)
+  - Toggle button allows switching between quarterly and monthly timeline views
+  - Item counter displays filtered count relative to total business requests (e.g., "Showing 4 of 4 items")
 - `FeatureRoadmap` and `EpicRoadmap` for feature/epic-specific timeline visualizations
 - `ReleaseDashboard` for release-version grouping
 - `RoadmapGuide` for educational hierarchy visualization with executive commentary via a centered modal dialog
 - `FilterBar` with configurable filters for level, status, priority, release, and search
-- `HierarchyTree` and `GanttChart` supporting multiple work item types including business-request.
+- `HierarchyTree` and `GanttChart` supporting multiple work item types including business-request with quarterly/monthly timeline modes.
 
 ### Backend Architecture
 
@@ -43,9 +48,13 @@ The project is configured to use Drizzle ORM for PostgreSQL (specifically via `@
 
 **Mock Data:**
 - Business Roadmap uses externalized mock data from `client/src/data/businessRoadmapMock.ts`
-- Contains 4 business requests with child epics and stories spanning Q1-Q3 2025
+- Contains 4 business requests with child epics and stories spanning Q4 2024 - Q3 2025
 - Organized by themes: Compliance & Security, Customer Experience, Platform Reliability
 - Designed for easy replacement with real Jira API data
+- Recent improvements:
+  - Fixed quarterly timeline alignment to ensure grid columns match timeline range
+  - Fixed item counter to show business request count only (not including child items)
+  - Added quarterly/monthly toggle with default quarterly view
 
 ### Authentication and Authorization
 
