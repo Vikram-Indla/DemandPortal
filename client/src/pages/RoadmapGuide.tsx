@@ -66,6 +66,27 @@ const hierarchyLevels: HierarchyLevel[] = [
     padding: "px-7 py-4"
   },
   {
+    id: "business-request",
+    name: "Business Request",
+    icon: Briefcase,
+    color: "text-orange-600 dark:text-orange-400",
+    bgColor: "bg-orange-500/10 dark:bg-orange-500/20",
+    borderColor: "border-orange-500/50",
+    owner: "Business Owner",
+    executiveCommentary: "Business Requests represent stakeholder-driven work items that bridge strategic initiatives to delivery. These can contain Features, Epics, or Stories as direct children, providing flexible hierarchy to match business reality. Business Owners maintain accountability for business value delivery and stakeholder communication throughout.",
+    characteristics: [
+      "Stakeholder-driven initiatives",
+      "Flexible child structure (Feature, Epic, or Story)",
+      "Business value and ROI focused",
+      "Business Owner accountability"
+    ],
+    examples: ["GDPR Compliance", "Customer Dashboard Modernization", "API Rate Limiting"],
+    typicalDuration: "",
+    typicalCount: "4-12 per initiative",
+    width: "w-[85%] max-w-lg",
+    padding: "px-6 py-4"
+  },
+  {
     id: "feature",
     name: "Feature",
     icon: Target,
@@ -151,24 +172,6 @@ const hierarchyLevels: HierarchyLevel[] = [
   }
 ];
 
-const businessRequestInfo = {
-  id: "business-request",
-  name: "Business Request",
-  icon: Briefcase,
-  color: "text-orange-600 dark:text-orange-400",
-  bgColor: "bg-orange-500/10 dark:bg-orange-500/20",
-  borderColor: "border-orange-500/50",
-  owner: "Business Owner",
-  executiveCommentary: "Business Requests represent stakeholder-driven work items that can exist at multiple hierarchy levels. These span from Feature-level strategic requests down to Subtask-level tactical changes. Business Owners maintain accountability throughout the delivery lifecycle.",
-  characteristics: [
-    "Stakeholder-driven initiatives",
-    "Can span multiple hierarchy levels",
-    "Business value focused",
-    "Business Owner accountability"
-  ],
-  examples: ["Compliance Requirement", "Customer Enhancement Request", "Process Improvement"],
-  scope: "Feature → Epic → Story → Subtask"
-};
 
 export default function RoadmapGuide() {
   const [hoveredLevel, setHoveredLevel] = useState<string | null>(null);
@@ -215,10 +218,12 @@ export default function RoadmapGuide() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
-                            <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {level.typicalDuration}
-                            </Badge>
+                            {level.typicalDuration && (
+                              <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {level.typicalDuration}
+                              </Badge>
+                            )}
                             <Badge variant="outline" className="text-xs">
                               {level.typicalCount}
                             </Badge>
@@ -296,66 +301,6 @@ export default function RoadmapGuide() {
           {/* Instruction text */}
           <div className="text-center pb-4 text-muted-foreground text-sm">
             Click any hierarchy level to view executive commentary and details
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Business Request Section */}
-      <Card 
-        className={cn(
-          "border-2",
-          businessRequestInfo.borderColor,
-          businessRequestInfo.bgColor
-        )}
-      >
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Briefcase className={cn("w-5 h-5", businessRequestInfo.color)} />
-            <CardTitle>Business Request (Cross-Level Work Item)</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col">
-                  <span className="font-semibold text-base">{businessRequestInfo.name}</span>
-                  <span className="text-xs font-medium text-muted-foreground">Owner: {businessRequestInfo.owner}</span>
-                </div>
-              </div>
-              <Badge variant="outline" className="text-xs">
-                Scope: {businessRequestInfo.scope}
-              </Badge>
-            </div>
-
-            <div className="text-sm text-muted-foreground">
-              {businessRequestInfo.executiveCommentary}
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4 pt-2">
-              <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Key Characteristics</h4>
-                <ul className="space-y-1">
-                  {businessRequestInfo.characteristics.map((char, idx) => (
-                    <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
-                      <span className="text-primary mt-0.5">•</span>
-                      <span>{char}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Examples</h4>
-                <div className="flex flex-wrap gap-2">
-                  {businessRequestInfo.examples.map((example, idx) => (
-                    <Badge key={idx} variant="secondary" className="text-xs">
-                      {example}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
