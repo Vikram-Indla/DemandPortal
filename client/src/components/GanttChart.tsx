@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 export interface GanttItem {
   id: string;
   title: string;
-  type: 'feature' | 'epic' | 'story';
+  type: 'feature' | 'epic' | 'story' | 'business-request';
   status: 'done' | 'in-progress' | 'blocked' | 'not-started';
   priority: 'high' | 'medium' | 'low';
   releaseLabel?: string;
@@ -58,6 +58,7 @@ const typeLabels: Record<string, string> = {
   feature: 'Feature',
   epic: 'Epic',
   story: 'Story',
+  'business-request': 'Business Request',
 };
 
 export default function GanttChart({ items, onItemClick }: GanttChartProps) {

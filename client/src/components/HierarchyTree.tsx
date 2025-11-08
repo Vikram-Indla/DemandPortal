@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 export interface TreeNode {
   id: string;
   title: string;
-  type: 'feature' | 'epic' | 'story';
+  type: 'feature' | 'epic' | 'story' | 'business-request';
   status: 'done' | 'in-progress' | 'blocked' | 'not-started';
   priority: 'high' | 'medium' | 'low';
   releaseLabel?: string;
@@ -23,6 +23,7 @@ const typeLabels: Record<string, string> = {
   feature: 'Feature',
   epic: 'Epic',
   story: 'Story',
+  'business-request': 'Business Request',
 };
 
 const statusColors: Record<string, string> = {
@@ -97,11 +98,16 @@ function TreeNodeItem({ node, level = 0, onNodeClick }: { node: TreeNode; level?
 }
 
 export default function HierarchyTree({ nodes, onNodeClick }: HierarchyTreeProps) {
+  const hasBusinessRequests = nodes.some(node => node.type === 'business-request');
+  const hierarchyDescription = hasBusinessRequests 
+    ? 'Business Requests with epics and stories' 
+    : 'Feature → Epic → Story hierarchy';
+
   return (
     <div className="h-full overflow-auto p-4 bg-card">
       <div className="mb-4 px-3">
         <h3 className="text-lg font-semibold mb-1">Work Items</h3>
-        <p className="text-xs text-muted-foreground">Feature → Epic → Story hierarchy</p>
+        <p className="text-xs text-muted-foreground">{hierarchyDescription}</p>
       </div>
       <div className="space-y-1">
         {nodes.map((node) => (
