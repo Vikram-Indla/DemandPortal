@@ -27,6 +27,14 @@ Key components include:
 - `DashboardLayout` with six-tab navigation
 - `StatusDashboard` (Portfolio Dashboard) for portfolio metrics
   - Initiative Progress section with compact circular gauges (6 per row on large screens)
+  - **Strategic Theme Spotlight** card (visible when specific theme selected):
+    - Clear "THEME" label for executive identification
+    - Compact two-column layout: 130px circular gauge (left) + status matrices (right)
+    - Business Requests status matrix: Done/In Progress/Blocked/Not Started counts
+    - Initiatives status matrix: Done/In Progress/Blocked/Not Started counts
+    - Single-pass O(n) categorization with defensive null handling
+    - Each item categorized into exactly one status bucket (blocked > done > not-started > in-progress)
+    - Null-safe for missing breakdown sections (features/epics/stories)
   - Business Requests section displaying BR-XXX formatted numbers
   - Business request grid shows breakdown by Features, Epics, and Stories with status counts
   - Status indicators: Done (green check), In Progress (blue play), Blocked (red alert), Not Started (gray circle)
