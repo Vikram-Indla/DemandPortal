@@ -34,6 +34,11 @@ Key components include:
   - Item counter displays filtered count relative to total business requests (e.g., "Showing 4 of 4 items")
   - Filter dropdowns removed (All Types, All Status, All Priority, All Releases) - only search and export remain
 - `FeatureRoadmap` and `EpicRoadmap` for feature/epic-specific timeline visualizations
+  - Support weekly, bi-weekly (default), and monthly timeline views with toggle buttons
+  - Weekly view: Shows 7-day periods aligned to Monday-Sunday with date range labels
+  - Bi-weekly view: Shows 14-day periods aligned to Monday with date range labels
+  - Monthly view: Shows monthly periods with month/year labels
+  - Minimum 1-day width for single-day items (milestones) to ensure visibility
 - `ReleaseDashboard` for release-version grouping
 - `RoadmapGuide` for educational hierarchy visualization with executive commentary via a centered modal dialog
 - `FilterBar` with configurable filters for level, status, priority, release, and search
