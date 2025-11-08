@@ -388,6 +388,39 @@ export default function RoadmapView() {
     });
   }, [searchTerm, levelFilter, statusFilter, priorityFilter, releaseFilter]);
 
+  // Filter tree data recursively
+  const filteredTreeData = useMemo(() => {
+    const filterNode = (node: TreeNode): TreeNode | null => {
+      const matchesSearch = node.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesLevel = levelFilter === 'all' || node.type === levelFilter;
+      const matchesStatus = statusFilter === 'all' || node.status === statusFilter;
+      const matchesPriority = priorityFilter === 'all' || node.priority === priorityFilter;
+      const matchesRelease = releaseFilter === 'all' || !node.releaseLabel || node.releaseLabel === releaseFilter;
+
+      // Filter children recursively
+      const filteredChildren = node.children
+        ?.map(child => filterNode(child))
+        .filter((child): child is TreeNode => child !== null);
+
+      // Show node if it matches filters OR if any of its children match
+      const nodeMatches = matchesSearch && matchesLevel && matchesStatus && matchesPriority && matchesRelease;
+      const hasMatchingChildren = filteredChildren && filteredChildren.length > 0;
+
+      if (nodeMatches || hasMatchingChildren) {
+        return {
+          ...node,
+          children: filteredChildren,
+        };
+      }
+
+      return null;
+    };
+
+    return mockTreeData
+      .map(node => filterNode(node))
+      .filter((node): node is TreeNode => node !== null);
+  }, [searchTerm, levelFilter, statusFilter, priorityFilter, releaseFilter]);
+
   const handleExport = () => {
     toast({
       title: 'Export Started',
@@ -411,7 +444,7 @@ export default function RoadmapView() {
         {isTreeVisible && (
           <div className="w-96 border-r flex-shrink-0 overflow-hidden">
             <HierarchyTree
-              nodes={mockTreeData}
+              nodes={filteredTreeData}
               onNodeClick={(node) => {
                 toast({
                   title: 'Item Selected',
