@@ -56,13 +56,26 @@ The backend is built with Express.js on Node.js using TypeScript. It features RE
 
 ### Data Storage Solutions
 
-The project is configured to use Drizzle ORM for PostgreSQL (specifically via `@neondatabase/serverless`). While currently using `MemStorage` (in-memory) for development, the design allows for easy swapping to persistent PostgreSQL. The intended data model supports hierarchical project items (Theme to Subtask) with parent-child relationships and attributes like dates, status, priority, and completion percentage.
+The project is configured to use Drizzle ORM for PostgreSQL (specifically via `@neondatabase/serverless`). While currently using `MemStorage` (in-memory) for development, the design allows for easy swapping to persistent PostgreSQL. 
+
+**Data Model Architecture:**
+- **Hierarchical Items**: Theme → Initiative → Feature → Epic → Story → Subtask (traditional hierarchy)
+- **Business Request Linking**: Business requests are NOT hierarchical parents but linking/tagging mechanisms
+  - Work items (features, epics, stories) can directly link to business requests via `businessRequestId`
+  - Flexible association model: A feature/epic/story can be linked to a business request without strict parent-child relationships
+  - This reflects real-world Jira usage where business requests serve as organizational tags/categories
+  - Supports many-to-one relationships: multiple work items can link to a single business request
 
 **Mock Data:**
 All mock data is organized in `client/src/data/` for easy maintenance and eventual replacement with Jira API:
-- **businessRoadmapMock.ts**: Business requests with child epics and stories (Q4 2024 - Q3 2025)
+- **businessRoadmapMock.ts**: Business requests with linked work items (Q4 2024 - Q3 2025)
+  - **IMPORTANT**: Business requests are LINKING mechanisms, not hierarchical parents
+  - Features, epics, and stories link to business requests via `businessRequestId` field
+  - Direct linking model allows flexible associations without strict parent-child relationships
   - 4 business requests across themes: Compliance & Security, Customer Experience, Platform Reliability
+  - 14 linked work items (epics and stories) associated with business requests
   - Quarterly/monthly timeline support
+  - Helper functions: `getLinkedItems()`, `buildBusinessRequestTree()` for tree visualization
 - **featureRoadmapMock.ts**: 12 features spanning Sept 2024 - March 2026
   - Includes completed, in-progress, blocked, and not-started features
   - Contains milestone feature (single-day) to test minimum width rendering
