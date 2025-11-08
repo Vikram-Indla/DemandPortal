@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Progress } from '@/components/ui/progress';
 import { Calendar, Users, Target, Layers } from 'lucide-react';
@@ -23,6 +24,8 @@ export interface Epic {
 interface EpicRoadmapProps {
   epics: Epic[];
 }
+
+type TimelineView = 'weekly' | 'bi-weekly' | 'monthly';
 
 const statusColors: Record<string, { bg: string; border: string; text: string }> = {
   done: { 
@@ -48,30 +51,83 @@ const statusColors: Record<string, { bg: string; border: string; text: string }>
 };
 
 export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
-  const { months, startDate, endDate } = useMemo(() => {
-    if (epics.length === 0) return { months: [], startDate: new Date(), endDate: new Date() };
+  const [timelineView, setTimelineView] = useState<TimelineView>('bi-weekly');
+
+  const { periods, startDate, endDate } = useMemo(() => {
+    if (epics.length === 0) return { periods: [], startDate: new Date(), endDate: new Date() };
 
     const allDates = epics.flatMap(e => [e.startDate, e.endDate]);
     const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
     const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
 
-    minDate.setDate(1);
-    const end = new Date(maxDate);
-    end.setMonth(end.getMonth() + 1);
-    end.setDate(0);
+    let alignedStartDate: Date;
+    let alignedEndDate: Date;
 
-    const monthsList: { label: string; date: Date }[] = [];
-    const current = new Date(minDate);
-    while (current <= end) {
-      monthsList.push({
-        label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        date: new Date(current),
-      });
-      current.setMonth(current.getMonth() + 1);
+    if (timelineView === 'monthly') {
+      // Monthly alignment
+      alignedStartDate = new Date(minDate);
+      alignedStartDate.setDate(1);
+      
+      alignedEndDate = new Date(maxDate);
+      alignedEndDate.setMonth(alignedEndDate.getMonth() + 1);
+      alignedEndDate.setDate(0);
+    } else {
+      // Weekly or bi-weekly alignment
+      alignedStartDate = new Date(minDate);
+      // Align to Monday
+      const dayOfWeek = alignedStartDate.getDay();
+      const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      alignedStartDate.setDate(alignedStartDate.getDate() + daysToMonday);
+
+      alignedEndDate = new Date(maxDate);
+      // Align to Sunday
+      const endDayOfWeek = alignedEndDate.getDay();
+      const daysToSunday = endDayOfWeek === 0 ? 0 : 7 - endDayOfWeek;
+      alignedEndDate.setDate(alignedEndDate.getDate() + daysToSunday);
     }
 
-    return { months: monthsList, startDate: minDate, endDate: end };
-  }, [epics]);
+    const periodsList: { label: string; date: Date }[] = [];
+
+    if (timelineView === 'weekly') {
+      const current = new Date(alignedStartDate);
+      while (current <= alignedEndDate) {
+        const weekStart = new Date(current);
+        const weekEnd = new Date(current);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        
+        periodsList.push({
+          label: `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+          date: new Date(current),
+        });
+        current.setDate(current.getDate() + 7);
+      }
+    } else if (timelineView === 'bi-weekly') {
+      const current = new Date(alignedStartDate);
+      while (current <= alignedEndDate) {
+        const biWeekStart = new Date(current);
+        const biWeekEnd = new Date(current);
+        biWeekEnd.setDate(biWeekEnd.getDate() + 13);
+        
+        periodsList.push({
+          label: `${biWeekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${biWeekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+          date: new Date(current),
+        });
+        current.setDate(current.getDate() + 14);
+      }
+    } else {
+      // Monthly
+      const current = new Date(alignedStartDate);
+      while (current <= alignedEndDate) {
+        periodsList.push({
+          label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+          date: new Date(current),
+        });
+        current.setMonth(current.getMonth() + 1);
+      }
+    }
+
+    return { periods: periodsList, startDate: alignedStartDate, endDate: alignedEndDate };
+  }, [epics, timelineView]);
 
   const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
@@ -80,7 +136,7 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
     const itemEnd = Math.min(epic.endDate.getTime(), endDate.getTime());
 
     const startOffset = Math.ceil((itemStart - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const duration = Math.ceil((itemEnd - itemStart) / (1000 * 60 * 60 * 24));
+    const duration = Math.max(1, Math.ceil((itemEnd - itemStart) / (1000 * 60 * 60 * 24)));
 
     const left = (startOffset / totalDays) * 100;
     const width = (duration / totalDays) * 100;
@@ -97,22 +153,50 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
   }
 
   return (
-    <div className="h-full overflow-auto bg-background">
-      <div className="sticky top-0 z-[5] bg-card border-b">
-        <div className="flex h-12 items-center">
-          <div className="w-80 px-4 font-semibold text-sm border-r flex-shrink-0">Epic</div>
-          <div className="flex-1 flex">
-            {months.map((month, idx) => (
-              <div
-                key={idx}
-                className="flex-1 px-2 py-3 text-center text-xs font-medium border-r last:border-r-0"
-              >
-                {month.label}
-              </div>
-            ))}
+    <div className="h-full flex flex-col overflow-hidden bg-background">
+      <div className="p-2 border-b flex items-center justify-center gap-2">
+        <Button
+          variant={timelineView === 'weekly' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setTimelineView('weekly')}
+          data-testid="button-weekly-view"
+        >
+          Weekly
+        </Button>
+        <Button
+          variant={timelineView === 'bi-weekly' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setTimelineView('bi-weekly')}
+          data-testid="button-bi-weekly-view"
+        >
+          Bi-Weekly
+        </Button>
+        <Button
+          variant={timelineView === 'monthly' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setTimelineView('monthly')}
+          data-testid="button-monthly-view"
+        >
+          Monthly
+        </Button>
+      </div>
+
+      <div className="flex-1 overflow-auto">
+        <div className="sticky top-0 z-[5] bg-card border-b">
+          <div className="flex h-12 items-center">
+            <div className="w-80 px-4 font-semibold text-sm border-r flex-shrink-0">Epic</div>
+            <div className="flex-1 flex">
+              {periods.map((period, idx) => (
+                <div
+                  key={idx}
+                  className="flex-1 px-2 py-3 text-center text-xs font-medium border-r last:border-r-0"
+                >
+                  {period.label}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
       <div className="relative">
         {epics.map((epic) => {
@@ -140,7 +224,7 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
               
               <div className="flex-1 relative py-3">
                 <div className="absolute inset-0 flex">
-                  {months.map((_, idx) => (
+                  {periods.map((_, idx) => (
                     <div key={idx} className="flex-1 border-r last:border-r-0" />
                   ))}
                 </div>
@@ -241,6 +325,7 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );
