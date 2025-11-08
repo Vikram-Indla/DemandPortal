@@ -1,11 +1,11 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Target, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Target, CheckCircle2, Play, AlertCircle, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 function CircularGauge({ 
   percentage, 
-  size = 140,
+  size = 130,
   strokeWidth = 10 
 }: { 
   percentage: number; 
@@ -49,127 +49,171 @@ function CircularGauge({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold">{percentage}%</span>
+        <span className="text-2xl font-bold">{percentage}%</span>
         <span className="text-[10px] text-muted-foreground mt-0.5">Complete</span>
       </div>
     </div>
   );
 }
 
+interface StatusBreakdown {
+  done: number;
+  inProgress: number;
+  blocked: number;
+  notStarted: number;
+}
+
 interface ThemeMetrics {
   themeName: string;
   completionPercentage: number;
-  totalInitiatives: number;
-  completedInitiatives: number;
-  totalItems: number;
-  completedItems: number;
-  atRiskItems: number;
-  trend: 'up' | 'down' | 'stable';
+  businessRequests: StatusBreakdown;
+  initiatives: StatusBreakdown;
+  status: 'on-track' | 'in-progress' | 'at-risk';
 }
 
 interface StrategicThemeSpotlightProps {
   metrics: ThemeMetrics;
 }
 
+function StatusMatrixRow({ 
+  icon: Icon, 
+  label, 
+  count, 
+  color 
+}: { 
+  icon: typeof CheckCircle2; 
+  label: string; 
+  count: number; 
+  color: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-1.5">
+        <Icon className={cn("w-3.5 h-3.5", color)} />
+        <span className="text-xs text-muted-foreground">{label}</span>
+      </div>
+      <span className="text-xs font-semibold">{count}</span>
+    </div>
+  );
+}
+
 export default function StrategicThemeSpotlight({ metrics }: StrategicThemeSpotlightProps) {
-  const getHealthStatus = () => {
-    if (metrics.completionPercentage >= 75) return { 
+  const getStatusBadge = () => {
+    if (metrics.status === 'on-track') return { 
       label: 'On Track', 
       variant: 'default' as const,
-      color: 'text-green-600 dark:text-green-400',
-      bgColor: 'bg-green-100 dark:bg-green-950/30',
-      icon: CheckCircle2
     };
-    if (metrics.completionPercentage >= 50) return { 
+    if (metrics.status === 'in-progress') return { 
       label: 'In Progress', 
       variant: 'secondary' as const,
-      color: 'text-amber-600 dark:text-amber-400',
-      bgColor: 'bg-amber-100 dark:bg-amber-950/30',
-      icon: TrendingUp
     };
     return { 
-      label: 'Needs Attention', 
+      label: 'At Risk', 
       variant: 'destructive' as const,
-      color: 'text-red-600 dark:text-red-400',
-      bgColor: 'bg-red-100 dark:bg-red-950/30',
-      icon: AlertTriangle
     };
   };
 
-  const health = getHealthStatus();
-  const HealthIcon = health.icon;
-  const TrendIcon = metrics.trend === 'up' ? TrendingUp : metrics.trend === 'down' ? TrendingDown : TrendingUp;
+  const statusBadge = getStatusBadge();
+  const totalBRs = metrics.businessRequests.done + metrics.businessRequests.inProgress + 
+                   metrics.businessRequests.blocked + metrics.businessRequests.notStarted;
+  const totalInits = metrics.initiatives.done + metrics.initiatives.inProgress + 
+                     metrics.initiatives.blocked + metrics.initiatives.notStarted;
 
   return (
     <Card className="border-l-4 border-l-primary" data-testid="banner-theme-progress">
-      <div className="flex items-center justify-between p-6 gap-8">
-        {/* Left: Theme Metadata */}
-        <div className="flex items-center gap-6 flex-1">
-          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
-            <Target className="w-8 h-8 text-primary" />
-          </div>
-          
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl font-bold" data-testid="text-theme-name">{metrics.themeName}</h2>
-              <Badge variant={health.variant} className="flex items-center gap-1" data-testid="badge-health-status">
-                <HealthIcon className="w-3 h-3" />
-                {health.label}
-              </Badge>
+      <div className="p-5">
+        {/* Header Row */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+              <Target className="w-5 h-5 text-primary" />
             </div>
-            
-            {/* KPI Strip */}
-            <div className="flex items-center gap-6 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">Initiatives:</span>
-                <span className="font-semibold" data-testid="text-initiatives-count">
-                  {metrics.completedInitiatives} / {metrics.totalInitiatives}
-                </span>
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0">THEME</Badge>
+                <h2 className="text-lg font-bold" data-testid="text-theme-name">{metrics.themeName}</h2>
               </div>
-              
-              <div className="h-4 w-px bg-border" />
-              
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">Items:</span>
-                <span className="font-semibold" data-testid="text-items-count">
-                  {metrics.completedItems} / {metrics.totalItems}
-                </span>
-              </div>
-              
-              {metrics.atRiskItems > 0 && (
-                <>
-                  <div className="h-4 w-px bg-border" />
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-red-500" />
-                    <span className="font-semibold text-red-600 dark:text-red-400" data-testid="text-at-risk">
-                      {metrics.atRiskItems} at risk
-                    </span>
-                  </div>
-                </>
-              )}
+              <Badge variant={statusBadge.variant} className="text-[10px]" data-testid="badge-health-status">
+                {statusBadge.label}
+              </Badge>
             </div>
           </div>
         </div>
 
-        {/* Right: Primary KPI with Circular Gauge */}
-        <div className="flex items-center gap-6">
-          {/* Circular Gauge */}
-          <CircularGauge percentage={metrics.completionPercentage} size={140} strokeWidth={10} />
+        {/* Two-Column Layout */}
+        <div className="flex gap-6">
+          {/* Left Column: Circular Gauge */}
+          <div className="flex flex-col items-center justify-center gap-2">
+            <CircularGauge percentage={metrics.completionPercentage} size={130} strokeWidth={10} />
+          </div>
 
-          {/* Metadata */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2">
-              <TrendIcon className={cn("w-4 h-4", health.color)} />
-              <span className="text-sm text-muted-foreground font-medium">Theme Progress</span>
-            </div>
-            <div className="text-xs text-muted-foreground space-y-1">
-              <div className="flex justify-between gap-4">
-                <span>Completed:</span>
-                <span className="font-semibold text-foreground">{metrics.completedItems} items</span>
+          {/* Right Column: Status Matrices */}
+          <div className="flex-1 grid grid-cols-2 gap-4">
+            {/* Business Requests Matrix */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between border-b pb-1.5">
+                <span className="text-xs font-semibold text-muted-foreground">Business Requests</span>
+                <span className="text-xs font-bold">{totalBRs}</span>
               </div>
-              <div className="flex justify-between gap-4">
-                <span>Remaining:</span>
-                <span className="font-semibold text-foreground">{metrics.totalItems - metrics.completedItems} items</span>
+              <div className="space-y-1.5">
+                <StatusMatrixRow 
+                  icon={CheckCircle2} 
+                  label="Done" 
+                  count={metrics.businessRequests.done} 
+                  color="text-green-600 dark:text-green-400" 
+                />
+                <StatusMatrixRow 
+                  icon={Play} 
+                  label="In Progress" 
+                  count={metrics.businessRequests.inProgress} 
+                  color="text-blue-600 dark:text-blue-400" 
+                />
+                <StatusMatrixRow 
+                  icon={AlertCircle} 
+                  label="Blocked" 
+                  count={metrics.businessRequests.blocked} 
+                  color="text-red-600 dark:text-red-400" 
+                />
+                <StatusMatrixRow 
+                  icon={Circle} 
+                  label="Not Started" 
+                  count={metrics.businessRequests.notStarted} 
+                  color="text-gray-400 dark:text-gray-500" 
+                />
+              </div>
+            </div>
+
+            {/* Initiatives Matrix */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between border-b pb-1.5">
+                <span className="text-xs font-semibold text-muted-foreground">Initiatives</span>
+                <span className="text-xs font-bold">{totalInits}</span>
+              </div>
+              <div className="space-y-1.5">
+                <StatusMatrixRow 
+                  icon={CheckCircle2} 
+                  label="Done" 
+                  count={metrics.initiatives.done} 
+                  color="text-green-600 dark:text-green-400" 
+                />
+                <StatusMatrixRow 
+                  icon={Play} 
+                  label="In Progress" 
+                  count={metrics.initiatives.inProgress} 
+                  color="text-blue-600 dark:text-blue-400" 
+                />
+                <StatusMatrixRow 
+                  icon={AlertCircle} 
+                  label="Blocked" 
+                  count={metrics.initiatives.blocked} 
+                  color="text-red-600 dark:text-red-400" 
+                />
+                <StatusMatrixRow 
+                  icon={Circle} 
+                  label="Not Started" 
+                  count={metrics.initiatives.notStarted} 
+                  color="text-gray-400 dark:text-gray-500" 
+                />
               </div>
             </div>
           </div>

@@ -222,19 +222,52 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
     
     const totalThemeItems = themeInitiatives.reduce((sum, init) => sum + init.totalItems, 0);
     const completedThemeItems = themeInitiatives.reduce((sum, init) => sum + init.completedItems, 0);
-    const atRisk = themeRequests.reduce((sum, br) => 
-      sum + br.features.blocked + br.epics.blocked + br.stories.blocked, 0);
-    const completedInits = themeInitiatives.filter(i => i.completionPercentage === 100).length;
+    const completionPercentage = totalThemeItems > 0 ? Math.round((completedThemeItems / totalThemeItems) * 100) : 0;
+    
+    // Calculate Business Requests status breakdown
+    // Single-pass categorization: each BR goes into exactly one bucket
+    const brStatusBreakdown = themeRequests.reduce((acc, br) => {
+      // Defensive: handle missing or undefined breakdown sections
+      const featuresBlocked = br.features?.blocked ?? 0;
+      const epicsBlocked = br.epics?.blocked ?? 0;
+      const storiesBlocked = br.stories?.blocked ?? 0;
+      const hasBlocked = featuresBlocked > 0 || epicsBlocked > 0 || storiesBlocked > 0;
+      const completion = br.completionPercentage ?? 0;
+      
+      if (hasBlocked) {
+        acc.blocked++;
+      } else if (completion === 100) {
+        acc.done++;
+      } else if (completion === 0) {
+        acc.notStarted++;
+      } else {
+        acc.inProgress++;
+      }
+      
+      return acc;
+    }, { done: 0, inProgress: 0, blocked: 0, notStarted: 0 });
+    
+    // Calculate Initiatives status breakdown
+    const initStatusBreakdown = {
+      done: themeInitiatives.filter(init => init.completionPercentage === 100).length,
+      inProgress: themeInitiatives.filter(init => init.completionPercentage > 0 && init.completionPercentage < 100).length,
+      blocked: 0, // No blocked field in InitiativeMetrics, could be derived from BRs if needed
+      notStarted: themeInitiatives.filter(init => init.completionPercentage === 0).length,
+    };
+    
+    // Determine overall theme status
+    const status = brStatusBreakdown.blocked > 0 || completionPercentage < 25 
+      ? 'at-risk' as const
+      : completionPercentage >= 75 
+      ? 'on-track' as const 
+      : 'in-progress' as const;
     
     return {
       themeName: selectedTheme,
-      completionPercentage: totalThemeItems > 0 ? Math.round((completedThemeItems / totalThemeItems) * 100) : 0,
-      totalInitiatives: themeInitiatives.length,
-      completedInitiatives: completedInits,
-      totalItems: totalThemeItems,
-      completedItems: completedThemeItems,
-      atRiskItems: atRisk,
-      trend: completedThemeItems > totalThemeItems * 0.5 ? 'up' as const : completedThemeItems > 0 ? 'stable' as const : 'down' as const,
+      completionPercentage,
+      businessRequests: brStatusBreakdown,
+      initiatives: initStatusBreakdown,
+      status,
     };
   }, [selectedTheme, defaultInitiatives, defaultBusinessRequests]);
 
