@@ -1,0 +1,295 @@
+import { useMemo } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
+import { Progress } from '@/components/ui/progress';
+import { AlertCircle, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export interface GanttItem {
+  id: string;
+  title: string;
+  type: 'feature' | 'epic' | 'story' | 'business-request';
+  status: 'done' | 'in-progress' | 'blocked' | 'not-started';
+  priority: 'high' | 'medium' | 'low';
+  releaseLabel?: string;
+  targetStartDate: Date;
+  targetEndDate: Date;
+  completionPercentage: number;
+  themeName: string;
+  initiativeName: string;
+  storyPoints?: number;
+}
+
+interface GanttChartProps {
+  items: GanttItem[];
+  onItemClick?: (item: GanttItem) => void;
+  timelineView?: 'quarterly' | 'monthly';
+}
+
+const statusColors: Record<string, { bg: string; border: string; text: string }> = {
+  done: { 
+    bg: 'bg-green-100 dark:bg-green-950/30', 
+    border: 'border-green-500',
+    text: 'text-green-800 dark:text-green-300'
+  },
+  'in-progress': { 
+    bg: 'bg-amber-100 dark:bg-amber-950/30', 
+    border: 'border-amber-500',
+    text: 'text-amber-900 dark:text-amber-300'
+  },
+  blocked: { 
+    bg: 'bg-red-100 dark:bg-red-950/30', 
+    border: 'border-red-500',
+    text: 'text-red-900 dark:text-red-300'
+  },
+  'not-started': { 
+    bg: 'bg-slate-100 dark:bg-slate-800/30', 
+    border: 'border-slate-400',
+    text: 'text-slate-800 dark:text-slate-300'
+  },
+};
+
+const priorityConfig: Record<string, { icon: any; color: string }> = {
+  high: { icon: ArrowUp, color: 'text-red-600 dark:text-red-400' },
+  medium: { icon: Minus, color: 'text-amber-600 dark:text-amber-400' },
+  low: { icon: ArrowDown, color: 'text-slate-600 dark:text-slate-400' },
+};
+
+const typeLabels: Record<string, string> = {
+  feature: 'Feature',
+  epic: 'Epic',
+  story: 'Story',
+  'business-request': 'Business Request',
+};
+
+export default function GanttChart({ items, onItemClick, timelineView = 'monthly' }: GanttChartProps) {
+  const { months, startDate, endDate } = useMemo(() => {
+    if (items.length === 0) return { months: [], startDate: new Date(), endDate: new Date() };
+
+    const allDates = items.flatMap(item => [item.targetStartDate, item.targetEndDate]);
+    const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
+    const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
+
+    let alignedStartDate: Date;
+    let alignedEndDate: Date;
+    
+    if (timelineView === 'quarterly') {
+      // Align start to quarter boundary
+      alignedStartDate = new Date(minDate);
+      alignedStartDate.setDate(1);
+      const startQuarter = Math.floor(alignedStartDate.getMonth() / 3) * 3;
+      alignedStartDate.setMonth(startQuarter);
+      
+      // Align end to quarter boundary
+      alignedEndDate = new Date(maxDate);
+      alignedEndDate.setDate(1);
+      const endQuarter = Math.floor(alignedEndDate.getMonth() / 3) * 3;
+      alignedEndDate.setMonth(endQuarter + 3);
+      alignedEndDate.setDate(0); // Last day of previous month
+    } else {
+      // Monthly alignment
+      alignedStartDate = new Date(minDate);
+      alignedStartDate.setDate(1);
+      
+      alignedEndDate = new Date(maxDate);
+      alignedEndDate.setMonth(alignedEndDate.getMonth() + 1);
+      alignedEndDate.setDate(0);
+    }
+
+    const periodsList: { label: string; date: Date }[] = [];
+    
+    if (timelineView === 'quarterly') {
+      // Generate quarterly periods
+      const current = new Date(alignedStartDate);
+      
+      while (current <= alignedEndDate) {
+        const quarter = Math.floor(current.getMonth() / 3) + 1;
+        const year = current.getFullYear();
+        periodsList.push({
+          label: `Q${quarter} ${year}`,
+          date: new Date(current),
+        });
+        current.setMonth(current.getMonth() + 3);
+      }
+    } else {
+      // Generate monthly periods
+      const current = new Date(alignedStartDate);
+      while (current <= alignedEndDate) {
+        periodsList.push({
+          label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+          date: new Date(current),
+        });
+        current.setMonth(current.getMonth() + 1);
+      }
+    }
+
+    return { months: periodsList, startDate: alignedStartDate, endDate: alignedEndDate };
+  }, [items, timelineView]);
+
+  const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  const getBarPosition = (item: GanttItem) => {
+    const itemStart = Math.max(item.targetStartDate.getTime(), startDate.getTime());
+    const itemEnd = Math.min(item.targetEndDate.getTime(), endDate.getTime());
+
+    const startOffset = Math.ceil((itemStart - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const duration = Math.ceil((itemEnd - itemStart) / (1000 * 60 * 60 * 24));
+
+    const left = (startOffset / totalDays) * 100;
+    const width = (duration / totalDays) * 100;
+
+    return { left: `${left}%`, width: `${width}%` };
+  };
+
+  if (items.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground">
+        No items to display
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full overflow-auto bg-background">
+      <div className="sticky top-0 z-[5] bg-card border-b">
+        <div className="flex h-12 items-center">
+          <div className="w-80 px-4 font-semibold text-sm border-r flex-shrink-0">Item</div>
+          <div className="flex-1 flex">
+            {months.map((month, idx) => (
+              <div
+                key={idx}
+                className="flex-1 px-2 py-3 text-center text-xs font-medium border-r last:border-r-0"
+              >
+                {month.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="relative">
+        {items.map((item) => {
+          const PriorityIcon = priorityConfig[item.priority]?.icon || Minus;
+          const statusColor = statusColors[item.status];
+          
+          return (
+            <div key={item.id} className="flex h-20 border-b hover-elevate" data-testid={`gantt-item-${item.id}`}>
+              <div className="w-80 px-4 py-3 flex flex-col gap-2 border-r flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <PriorityIcon className={cn("w-3 h-3 flex-shrink-0", priorityConfig[item.priority]?.color || 'text-gray-600')} />
+                  <span className="text-sm font-medium truncate flex-1">{item.title}</span>
+                  <Badge variant="secondary" className="text-xs">{typeLabels[item.type]}</Badge>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className={cn("text-xs h-5", statusColor.bg, statusColor.text)}>
+                    {item.status.charAt(0).toUpperCase() + item.status.slice(1).replace('-', ' ')}
+                  </Badge>
+                  {item.releaseLabel && (
+                    <Badge variant="outline" className="text-xs h-5">
+                      {item.releaseLabel}
+                    </Badge>
+                  )}
+                  <span className="text-xs text-muted-foreground truncate">{item.initiativeName}</span>
+                </div>
+              </div>
+              
+              <div className="flex-1 relative py-3">
+                <div className="absolute inset-0 flex">
+                  {months.map((_, idx) => (
+                    <div key={idx} className="flex-1 border-r last:border-r-0" />
+                  ))}
+                </div>
+                
+                <HoverCard openDelay={200}>
+                  <HoverCardTrigger asChild>
+                    <div
+                      className="absolute top-3 h-14 cursor-pointer group"
+                      style={getBarPosition(item)}
+                      onClick={() => onItemClick?.(item)}
+                    >
+                      {/* Status color bar with completion progress */}
+                      <div className={cn(
+                        "absolute inset-0 rounded-md border-2 transition-all overflow-hidden",
+                        statusColor.bg,
+                        statusColor.border
+                      )}>
+                        {/* Completion progress overlay */}
+                        <div 
+                          className="h-full bg-foreground/8 transition-all"
+                          style={{ width: `${item.completionPercentage}%` }}
+                        />
+                      </div>
+                      
+                      {/* Information overlay - transparent text */}
+                      <div className="absolute inset-0 flex items-center justify-between px-3 pointer-events-none">
+                        {/* Left: Start date */}
+                        <div className="flex items-center gap-1.5">
+                          <span className={cn("text-xs font-semibold", statusColor.text)}>
+                            {item.targetStartDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                        
+                        {/* Center: Priority icon & Completion percentage */}
+                        <div className="flex items-center gap-1.5">
+                          <PriorityIcon className={cn("w-3.5 h-3.5", priorityConfig[item.priority]?.color)} />
+                          <span className={cn("text-sm font-bold", statusColor.text)}>
+                            {item.completionPercentage}%
+                          </span>
+                        </div>
+                        
+                        {/* Right: End date */}
+                        <div className="flex items-center gap-1.5">
+                          <span className={cn("text-xs font-semibold", statusColor.text)}>
+                            {item.targetEndDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Blocked indicator */}
+                      {item.status === 'blocked' && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="bg-red-500 rounded-full p-1">
+                            <AlertCircle className="w-4 h-4 text-white" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </HoverCardTrigger>
+                  <HoverCardContent className="w-72" align="start" side="top" sideOffset={8}>
+                    <div className="space-y-3">
+                      <div>
+                        <h4 className="font-semibold text-sm mb-1 leading-tight">{item.title}</h4>
+                        <p className="text-xs text-muted-foreground">{typeLabels[item.type]}</p>
+                      </div>
+                      
+                      <div className="space-y-2 pb-2 border-b">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Initiative</span>
+                          <span className="font-medium text-right">{item.initiativeName}</span>
+                        </div>
+                        {item.releaseLabel && (
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Release</span>
+                            <Badge variant="outline" className="text-xs h-5">{item.releaseLabel}</Badge>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground font-medium">Completion</span>
+                          <span className="text-sm font-semibold">{item.completionPercentage}%</span>
+                        </div>
+                        <Progress value={item.completionPercentage} className="h-2" />
+                      </div>
+                    </div>
+                  </HoverCardContent>
+                </HoverCard>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
