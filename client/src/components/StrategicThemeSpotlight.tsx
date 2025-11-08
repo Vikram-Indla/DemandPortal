@@ -149,40 +149,6 @@ export default function StrategicThemeSpotlight({ metrics }: StrategicThemeSpotl
 
           {/* Right Column: Status Matrices */}
           <div className="flex-1 grid grid-cols-2 gap-4">
-            {/* Business Requests Matrix */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between border-b pb-1.5">
-                <span className="text-xs font-semibold text-muted-foreground">Business Requests</span>
-                <span className="text-xs font-bold">{totalBRs}</span>
-              </div>
-              <div className="space-y-1.5">
-                <StatusMatrixRow 
-                  icon={CheckCircle2} 
-                  label="Done" 
-                  count={metrics.businessRequests.done} 
-                  color="text-green-600 dark:text-green-400" 
-                />
-                <StatusMatrixRow 
-                  icon={Play} 
-                  label="In Progress" 
-                  count={metrics.businessRequests.inProgress} 
-                  color="text-blue-600 dark:text-blue-400" 
-                />
-                <StatusMatrixRow 
-                  icon={AlertCircle} 
-                  label="Blocked" 
-                  count={metrics.businessRequests.blocked} 
-                  color="text-red-600 dark:text-red-400" 
-                />
-                <StatusMatrixRow 
-                  icon={Circle} 
-                  label="Not Started" 
-                  count={metrics.businessRequests.notStarted} 
-                  color="text-gray-400 dark:text-gray-500" 
-                />
-              </div>
-            </div>
-
             {/* Initiatives Matrix */}
             <div className="space-y-2">
               <div className="flex items-center justify-between border-b pb-1.5">
@@ -212,6 +178,40 @@ export default function StrategicThemeSpotlight({ metrics }: StrategicThemeSpotl
                   icon={Circle} 
                   label="Not Started" 
                   count={metrics.initiatives.notStarted} 
+                  color="text-gray-400 dark:text-gray-500" 
+                />
+              </div>
+            </div>
+
+            {/* Business Requests Matrix */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between border-b pb-1.5">
+                <span className="text-xs font-semibold text-muted-foreground">Business Requests</span>
+                <span className="text-xs font-bold">{totalBRs}</span>
+              </div>
+              <div className="space-y-1.5">
+                <StatusMatrixRow 
+                  icon={CheckCircle2} 
+                  label="Done" 
+                  count={metrics.businessRequests.done} 
+                  color="text-green-600 dark:text-green-400" 
+                />
+                <StatusMatrixRow 
+                  icon={Play} 
+                  label="In Progress" 
+                  count={metrics.businessRequests.inProgress} 
+                  color="text-blue-600 dark:text-blue-400" 
+                />
+                <StatusMatrixRow 
+                  icon={AlertCircle} 
+                  label="Blocked" 
+                  count={metrics.businessRequests.blocked} 
+                  color="text-red-600 dark:text-red-400" 
+                />
+                <StatusMatrixRow 
+                  icon={Circle} 
+                  label="Not Started" 
+                  count={metrics.businessRequests.notStarted} 
                   color="text-gray-400 dark:text-gray-500" 
                 />
               </div>

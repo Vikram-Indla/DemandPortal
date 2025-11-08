@@ -30,8 +30,8 @@ Key components include:
   - **Strategic Theme Spotlight** card (visible when specific theme selected):
     - Clear "THEME" label for executive identification
     - Compact two-column layout: 130px circular gauge (left) + status matrices (right)
-    - Business Requests status matrix: Done/In Progress/Blocked/Not Started counts
-    - Initiatives status matrix: Done/In Progress/Blocked/Not Started counts
+    - Initiatives status matrix: Done/In Progress/Blocked/Not Started counts (displayed first)
+    - Business Requests status matrix: Done/In Progress/Blocked/Not Started counts (displayed second)
     - Single-pass O(n) categorization with defensive null handling
     - Each item categorized into exactly one status bucket (blocked > done > not-started > in-progress)
     - Null-safe for missing breakdown sections (features/epics/stories)
