@@ -364,7 +364,8 @@ const _oldMockGanttData: GanttItem[] = [
 ];
 
 export default function RoadmapView() {
-  const [isTreeVisible, setIsTreeVisible] = useState(true);
+  const [isTreeVisible, setIsTreeVisible] = useState(false);
+  const [timelineView, setTimelineView] = useState<'quarterly' | 'monthly'>('quarterly');
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -377,8 +378,17 @@ export default function RoadmapView() {
     return Array.from(uniqueReleases) as string[];
   }, []);
 
+  // Get all business requests (for total count)
+  const totalBusinessRequests = useMemo(() => {
+    return mockGanttData.filter(item => item.type === 'business-request').length;
+  }, []);
+
   const filteredGanttData = useMemo(() => {
+    // For Business Roadmap, show only business requests (no child items)
     return mockGanttData.filter(item => {
+      // Only show business requests at top level
+      if (item.type !== 'business-request') return false;
+      
       const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesLevel = levelFilter === 'all' || item.type === levelFilter;
       const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
@@ -457,32 +467,51 @@ export default function RoadmapView() {
 
         <div className="flex-1 flex flex-col overflow-hidden">
           <div className="p-2 border-b flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsTreeVisible(!isTreeVisible)}
-              data-testid="button-toggle-tree"
-            >
-              {isTreeVisible ? (
-                <>
-                  <PanelLeftClose className="w-4 h-4 mr-2" />
-                  Hide Hierarchy
-                </>
-              ) : (
-                <>
-                  <PanelLeft className="w-4 h-4 mr-2" />
-                  Show Hierarchy
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsTreeVisible(!isTreeVisible)}
+                data-testid="button-toggle-tree"
+              >
+                {isTreeVisible ? (
+                  <>
+                    <PanelLeftClose className="w-4 h-4 mr-2" />
+                    Hide Hierarchy
+                  </>
+                ) : (
+                  <>
+                    <PanelLeft className="w-4 h-4 mr-2" />
+                    Show Hierarchy
+                  </>
+                )}
+              </Button>
+              <Button
+                variant={timelineView === 'quarterly' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimelineView('quarterly')}
+                data-testid="button-quarterly-view"
+              >
+                Quarterly
+              </Button>
+              <Button
+                variant={timelineView === 'monthly' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTimelineView('monthly')}
+                data-testid="button-monthly-view"
+              >
+                Monthly
+              </Button>
+            </div>
             <span className="text-sm text-muted-foreground">
-              Showing {filteredGanttData.length} of {mockGanttData.length} items
+              Showing {filteredGanttData.length} of {totalBusinessRequests} items
             </span>
           </div>
 
           <div className="flex-1 overflow-hidden">
             <GanttChart
               items={filteredGanttData}
+              timelineView={timelineView}
               onItemClick={(item) => {
                 toast({
                   title: item.title,

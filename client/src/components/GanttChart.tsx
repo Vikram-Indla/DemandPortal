@@ -23,6 +23,7 @@ export interface GanttItem {
 interface GanttChartProps {
   items: GanttItem[];
   onItemClick?: (item: GanttItem) => void;
+  timelineView?: 'quarterly' | 'monthly';
 }
 
 const statusColors: Record<string, { bg: string; border: string; text: string }> = {
@@ -61,7 +62,7 @@ const typeLabels: Record<string, string> = {
   'business-request': 'Business Request',
 };
 
-export default function GanttChart({ items, onItemClick }: GanttChartProps) {
+export default function GanttChart({ items, onItemClick, timelineView = 'monthly' }: GanttChartProps) {
   const { months, startDate, endDate } = useMemo(() => {
     if (items.length === 0) return { months: [], startDate: new Date(), endDate: new Date() };
 
@@ -69,23 +70,61 @@ export default function GanttChart({ items, onItemClick }: GanttChartProps) {
     const minDate = new Date(Math.min(...allDates.map(d => d.getTime())));
     const maxDate = new Date(Math.max(...allDates.map(d => d.getTime())));
 
-    minDate.setDate(1);
-    const end = new Date(maxDate);
-    end.setMonth(end.getMonth() + 1);
-    end.setDate(0);
-
-    const monthsList: { label: string; date: Date }[] = [];
-    const current = new Date(minDate);
-    while (current <= end) {
-      monthsList.push({
-        label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-        date: new Date(current),
-      });
-      current.setMonth(current.getMonth() + 1);
+    let alignedStartDate: Date;
+    let alignedEndDate: Date;
+    
+    if (timelineView === 'quarterly') {
+      // Align start to quarter boundary
+      alignedStartDate = new Date(minDate);
+      alignedStartDate.setDate(1);
+      const startQuarter = Math.floor(alignedStartDate.getMonth() / 3) * 3;
+      alignedStartDate.setMonth(startQuarter);
+      
+      // Align end to quarter boundary
+      alignedEndDate = new Date(maxDate);
+      alignedEndDate.setDate(1);
+      const endQuarter = Math.floor(alignedEndDate.getMonth() / 3) * 3;
+      alignedEndDate.setMonth(endQuarter + 3);
+      alignedEndDate.setDate(0); // Last day of previous month
+    } else {
+      // Monthly alignment
+      alignedStartDate = new Date(minDate);
+      alignedStartDate.setDate(1);
+      
+      alignedEndDate = new Date(maxDate);
+      alignedEndDate.setMonth(alignedEndDate.getMonth() + 1);
+      alignedEndDate.setDate(0);
     }
 
-    return { months: monthsList, startDate: minDate, endDate: end };
-  }, [items]);
+    const periodsList: { label: string; date: Date }[] = [];
+    
+    if (timelineView === 'quarterly') {
+      // Generate quarterly periods
+      const current = new Date(alignedStartDate);
+      
+      while (current <= alignedEndDate) {
+        const quarter = Math.floor(current.getMonth() / 3) + 1;
+        const year = current.getFullYear();
+        periodsList.push({
+          label: `Q${quarter} ${year}`,
+          date: new Date(current),
+        });
+        current.setMonth(current.getMonth() + 3);
+      }
+    } else {
+      // Generate monthly periods
+      const current = new Date(alignedStartDate);
+      while (current <= alignedEndDate) {
+        periodsList.push({
+          label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+          date: new Date(current),
+        });
+        current.setMonth(current.getMonth() + 1);
+      }
+    }
+
+    return { months: periodsList, startDate: alignedStartDate, endDate: alignedEndDate };
+  }, [items, timelineView]);
 
   const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
