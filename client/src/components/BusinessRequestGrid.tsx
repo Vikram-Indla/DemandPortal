@@ -200,6 +200,28 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
             data-testid="input-search-requests"
           />
         </div>
+        
+        {/* Status Legend */}
+        <div className="flex items-center gap-4 text-sm">
+          <span className="font-semibold text-foreground">Legend:</span>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-green-600 dark:text-green-400" />
+            <span>Done</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <PlayCircle className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>In Progress</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+            <span>Blocked</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Circle className="w-3.5 h-3.5" />
+            <span>Not Started</span>
+          </div>
+        </div>
+        
         <div className="text-sm text-muted-foreground">
           Showing {filteredAndSortedRequests.length} of {requests.length} requests
         </div>
@@ -317,28 +339,6 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
           )}
         </CardContent>
       </Card>
-      
-      <div className="flex items-start gap-6 text-xs text-muted-foreground">
-        <div className="flex items-center gap-4">
-          <span className="font-semibold">Legend:</span>
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400" />
-            <span>Done</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <PlayCircle className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-            <span>In Progress</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <AlertCircle className="w-3 h-3 text-red-600 dark:text-red-400" />
-            <span>Blocked</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Circle className="w-3 h-3" />
-            <span>Not Started</span>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
