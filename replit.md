@@ -31,7 +31,7 @@ Key components include:
   - Business request grid shows breakdown by Features, Epics, and Stories with status counts
   - Status indicators: Done (green check), In Progress (blue play), Blocked (red alert), Not Started (gray circle)
   - Search, sort (priority defaults High-first), and expandable rows for details
-  - Legend explaining status icon meanings
+  - Status legend visible in header area (between search box and request count) for immediate reference
 - `RoadmapView` (Business Roadmap) displays only business requests with quarterly/monthly timeline toggle
   - Tree view hidden by default (can be toggled visible)
   - Shows only business requests in Gantt chart (no child epics/stories visible)
