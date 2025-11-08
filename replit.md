@@ -32,6 +32,7 @@ Key components include:
   - Timeline defaults to quarterly view with quarter-aligned headers (Q4 2024, Q1 2025, etc.)
   - Toggle button allows switching between quarterly and monthly timeline views
   - Item counter displays filtered count relative to total business requests (e.g., "Showing 4 of 4 items")
+  - Filter dropdowns removed (All Types, All Status, All Priority, All Releases) - only search and export remain
 - `FeatureRoadmap` and `EpicRoadmap` for feature/epic-specific timeline visualizations
 - `ReleaseDashboard` for release-version grouping
 - `RoadmapGuide` for educational hierarchy visualization with executive commentary via a centered modal dialog
