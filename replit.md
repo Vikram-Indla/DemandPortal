@@ -61,6 +61,12 @@ Key components include:
     - Path 3: Business Request → Story → Subtask (skips Feature and Epic)
   - Visual branching diagram with dashed orange border displays all three paths side-by-side
   - No time duration constraints shown for Business Request (only count badge)
+  - **PDF Export Feature**: Export button in header to download hierarchy visualization
+    - Filename: "roadmap-guide-hierarchy.pdf"
+    - Format: Letter size, portrait orientation, 0.5" margins
+    - Quality: High resolution (scale 2, JPEG 98% quality)
+    - Success/error toast notifications
+    - Loading state with disabled button during export
 - `FilterBar` with configurable filters for level, status, priority, release, and search
 - `HierarchyTree` and `GanttChart` supporting multiple work item types including business-request with quarterly/monthly timeline modes.
 
@@ -150,6 +156,7 @@ Authentication is not yet implemented but the infrastructure is prepared. This i
 - **date-fns:** For date manipulation in timeline calculations.
 - **embla-carousel-react:** For potential carousel functionalities.
 - **React Hook Form with Zod:** For form handling and validation.
+- **html2pdf.js:** Client-side HTML-to-PDF conversion for exporting visualizations.
 
 ### Development & Build Tools
 
