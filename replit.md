@@ -21,154 +21,43 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Architecture
 
-The frontend is built with React 18 and TypeScript, using Vite as the build tool. UI components leverage shadcn/ui (built on Radix UI primitives) and styled with Tailwind CSS, following a consistent design system. State management primarily uses TanStack Query for server state, with local component state for UI interactions. Wouter is used for client-side routing. The design emphasizes information density and scannable hierarchies, inspired by tools like Linear and Asana.
+The frontend is built with React 18 and TypeScript, using Vite. UI components leverage shadcn/ui (built on Radix UI) and styled with Tailwind CSS. State management uses TanStack Query for server state. Wouter is used for client-side routing. The design emphasizes information density and scannable hierarchies.
 
-Key components include:
-- `DashboardLayout` with six-tab navigation
-- `StatusDashboard` (Portfolio Dashboard) for portfolio metrics
-  - Initiative Progress section with compact circular gauges (6 per row on large screens)
-  - **Strategic Theme Spotlight** card (visible when specific theme selected):
-    - Clear "THEME" label for executive identification
-    - Compact two-column layout: 130px circular gauge (left) + status matrices (right)
-    - Initiatives status matrix: Done/In Progress/Blocked/Not Started counts (displayed first)
-    - Business Requests status matrix: Done/In Progress/Blocked/Not Started counts (displayed second)
-    - Single-pass O(n) categorization with defensive null handling
-    - Each item categorized into exactly one status bucket (blocked > done > not-started > in-progress)
-    - Null-safe for missing breakdown sections (features/epics/stories)
-  - Business Requests section displaying BR-XXX formatted numbers
-  - Business request grid shows breakdown by Features, Epics, and Stories with status counts
-  - Status indicators: Done (green check), In Progress (blue play), Blocked (red alert), Not Started (gray circle)
-  - Search, sort (priority defaults High-first), and expandable rows for details
-  - Status legend visible in header area (between search box and request count) for immediate reference
-- `RoadmapView` (Business Roadmap) displays only business requests with quarterly/monthly timeline toggle
-  - Tree view hidden by default (can be toggled visible)
-  - Shows only business requests in Gantt chart (no child epics/stories visible)
-  - Timeline defaults to quarterly view with quarter-aligned headers (Q4 2024, Q1 2025, etc.)
-  - Toggle button allows switching between quarterly and monthly timeline views
-  - Item counter displays filtered count relative to total business requests (e.g., "Showing 4 of 4 items")
-  - Filter dropdowns removed (All Types, All Status, All Priority, All Releases) - only search and export remain
-- `FeatureRoadmap` and `EpicRoadmap` for feature/epic-specific timeline visualizations
-  - Fixed 8-week (56-day) timeline window with navigation controls
-  - Navigation: "Prev 8 Weeks", "Today", "Next 8 Weeks" buttons to move through time
-  - Window always starts Monday at midnight, ends 55 days later at end-of-day
-  - Only items overlapping current 8-week window are displayed
-  - Support weekly, bi-weekly (default), and monthly timeline views with toggle buttons
-  - Weekly view: Shows exactly 8 columns (8 weeks) with date range labels
-  - Bi-weekly view: Shows exactly 4 columns (4 periods) with date range labels
-  - Monthly view: Shows 2-3 month columns depending on window alignment
-  - Date range display shows current window span (e.g., "Nov 4, 2024 - Dec 29, 2024")
-  - Minimum 1-day width for single-day items (milestones) to ensure visibility
-  - Inclusive duration calculation ensures both start and end dates are properly represented
-- `ReleaseDashboard` for release-version grouping
-- `RoadmapGuide` for educational hierarchy visualization with executive commentary via a centered modal dialog
-  - 7-level hierarchy: Strategic Theme → Initiative → Business Request → Feature → Epic → Story → Subtask
-  - Business Request layer (Business Owner) positioned between Initiative and Feature
-  - **Branching visualization** shows three possible execution paths from Business Request:
-    - Path 1: Business Request → Feature → Epic → Story → Subtask (full hierarchy)
-    - Path 2: Business Request → Epic → Story → Subtask (skips Feature)
-    - Path 3: Business Request → Story → Subtask (skips Feature and Epic)
-  - Visual branching diagram with dashed orange border displays all three paths side-by-side
-  - No time duration constraints shown for Business Request (only count badge)
-  - **PDF Export Feature**: Export button in header to download hierarchy visualization
-    - Filename: "roadmap-guide-hierarchy.pdf"
-    - Format: Letter size, portrait orientation, 0.5" margins
-    - Quality: High resolution (scale 2, JPEG 98% quality)
-    - Success/error toast notifications
-    - Loading state with disabled button during export
-- `FilterBar` with configurable filters for level, status, priority, release, and search
-- `HierarchyTree` and `GanttChart` supporting multiple work item types including business-request with quarterly/monthly timeline modes.
+Key features include:
+- **Six specialized dashboard views**: Portfolio, Business Roadmap, Feature Roadmap, Epic Roadmap, Release Dashboard, and Roadmap Guide.
+- **Portfolio Dashboard**: Displays initiative progress, a strategic theme spotlight with compact circular gauges and status matrices, and a business request grid with status breakdowns.
+- **Roadmap Views (Business, Feature, Epic)**: Interactive Gantt charts with configurable timeline windows (e.g., 8-week fixed window for Feature/Epic, quarterly/monthly for Business Roadmap) and navigation controls.
+- **Roadmap Guide**: Provides a visual, branching diagram of a 7-level hierarchy (Strategic Theme → Initiative → Business Request → Feature → Epic → Story → Subtask) with three possible execution paths from a Business Request. Includes a PDF export feature for the hierarchy visualization.
+- **Mixed Hierarchy Support**: Business Requests can contain both Features and direct Epics, with automated completion percentage calculations based on immediate children.
 
 ### Backend Architecture
 
-The backend is built with Express.js on Node.js using TypeScript. It features RESTful API endpoints, currently using an in-memory storage implementation for development but designed with an interface (`IStorage`) for future integration with persistent storage. The architecture is prepared for database integration and designed to integrate with external APIs like Jira.
+The backend is built with Express.js on Node.js using TypeScript. It features RESTful API endpoints and is designed with an `IStorage` interface for future integration with persistent storage. The architecture is prepared for database integration and designed to integrate with external APIs like Jira.
 
-### Data Storage Solutions
+### Data Model Architecture
 
-The project is configured to use Drizzle ORM for PostgreSQL (specifically via `@neondatabase/serverless`). While currently using `MemStorage` (in-memory) for development, the design allows for easy swapping to persistent PostgreSQL. 
-
-**Data Model Architecture:**
-- **Hierarchical Items**: Theme → Initiative → Feature → Epic → Story → Subtask (traditional hierarchy)
-- **Business Request Mixed Hierarchy**: Business Request can contain BOTH Features and direct Epics
-  - **Feature Path**: Business Request → Feature → Epic → Story
-  - **Direct Epic Path**: Business Request → Epic → Story (no feature parent)
-  - Uses discriminated union types with `type` field ('feature', 'epic', 'story')
-  - Type guards ensure type safety: `isFeature()`, `isEpic()`, `isStory()`
-  - Completion percentages automatically calculated from immediate children
-  - Business request % = average of ALL direct children (Features AND Epics)
-  - Feature % = average of child epics
-  - Epic % = average of child stories (or explicit value if no stories)
-  - Story % = explicit value
-  - Separate from Feature/Epic roadmaps to avoid coupling
-
-**Mock Data:**
-All mock data is organized in `client/src/data/` for easy maintenance and eventual replacement with Jira API:
-- **businessRoadmapMock.ts**: Business requests with mixed hierarchy (Q4 2024 - Q3 2025)
-  - **Mixed hierarchy model**: Business Request can have Features AND/OR direct Epics
-  - 4 business requests with diverse structures:
-    - BR-1: Has 1 Feature + 1 direct Epic (mixed children)
-    - BR-2: Has 2 Features (no direct epics)
-    - BR-3: Has 1 Feature with 2 Epics
-    - BR-4: Has only direct Epic (no features)
-  - Total: 4 Features, 7 Epics, 11 Stories
-  - **Discriminated union types**: BaseWorkItem, Story, Epic, Feature, BusinessRequest
-  - **Automatic percentage calculation**: Recursive averaging from immediate children
-    - Business request % = average of Features + direct Epics
-    - Feature % = average of child Epics
-    - Epic % = average of child Stories
-  - Type guards for type safety: `isFeature()`, `isEpic()`, `isStory()`
-  - Quarterly/monthly timeline support
-  - Helper functions: `buildBusinessRequestTree()`, `flattenToGanttItems()` for tree/timeline visualization
-  - Mirrors real-world Jira Advanced Roadmaps structure
-- **featureRoadmapMock.ts**: 12 features spanning Sept 2024 - March 2026
-  - Includes completed, in-progress, blocked, and not-started features
-  - Contains milestone feature (single-day) to test minimum width rendering
-  - Current period (Nov 2025) has multiple active features visible in default 8-week window
-  - Dates designed to test 8-week window navigation
-- **epicRoadmapMock.ts**: 20 epics spanning Sept 2024 - Feb 2026
-  - Epics linked to features with realistic completion percentages
-  - Includes milestone epic (single-day), blocked epics, and not-started epics
-  - Current period (Nov 2025) has 6 epics visible in default 8-week window with all status types
-  - Comprehensive coverage for 8-week window testing with status diversity
-- **portfolioMetricsMock.ts**: Portfolio Dashboard metrics
-  - 5 initiatives with aggregated metrics
-  - 8 business requests (BR-1 through BR-8) with detailed breakdowns:
-    - Each BR shows Features, Epics, and Stories counts
-    - Status breakdown for each item type (done, inProgress, blocked, notStarted)
-    - Realistic completion percentages and priority levels
-    - BR numbers formatted as BR-XXX (e.g., BR-1, BR-2)
-- **releaseDashboardMock.ts**: 25 stories across 4 release versions (v1.0, v1.1, v2.0, v2.1)
-  - Stories include subtasks with assignees
-  - Organized by fixVersion for release grouping
-  
-All mock data is temporary and will be replaced with real Jira API integration.
-
-### Authentication and Authorization
-
-Authentication is not yet implemented but the infrastructure is prepared. This includes a user schema, user CRUD methods in the storage interface, and session management dependencies (`connect-pg-simple`), indicating an intended session-based authentication approach with hashed passwords.
+The data model supports a multi-level hierarchy: Theme → Initiative → Feature → Epic → Story → Subtask. A "Business Request" can uniquely contain both Features and direct Epics, using discriminated union types for flexibility and type safety (`isFeature()`, `isEpic()`, `isStory()`). Completion percentages are calculated recursively based on immediate children.
 
 ## External Dependencies
 
 ### Third-Party Services
 
-- **Jira Integration (Planned):** For fetching hierarchical project data (themes, initiatives, epics, stories, bugs) using `@atlassian/jira-client` or axios.
+- **Jira Integration (Planned):** For fetching hierarchical project data.
 
 ### Database
 
-- **PostgreSQL via Neon:** Serverless PostgreSQL (`@neondatabase/serverless`) managed with Drizzle ORM for schema and queries.
+- **PostgreSQL via Neon:** Serverless PostgreSQL managed with Drizzle ORM.
 
 ### UI & Visualization Libraries
 
 - **Radix UI:** Accessible, unstyled primitives.
 - **shadcn/ui:** Pre-styled components built on Radix with Tailwind CSS.
 - **Lucide React:** Icon library.
-- **date-fns:** For date manipulation in timeline calculations.
-- **embla-carousel-react:** For potential carousel functionalities.
-- **React Hook Form with Zod:** For form handling and validation.
-- **html2pdf.js:** Client-side HTML-to-PDF conversion for exporting visualizations.
+- **date-fns:** For date manipulation.
+- **html2pdf.js:** Client-side HTML-to-PDF conversion.
 
 ### Development & Build Tools
 
-- **Vite:** Fast build tool with React plugin and HMR.
+- **Vite:** Fast build tool.
 - **TypeScript:** For type safety.
-- **Tailwind CSS:** For utility-first styling.
-- **esbuild:** For bundling the backend.
+- **Tailwind CSS:** For styling.
