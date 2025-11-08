@@ -1,12 +1,22 @@
 import DashboardLayout from '@/components/DashboardLayout';
 import StatusDashboard from '@/components/StatusDashboard';
 import RoadmapView from '@/components/RoadmapView';
-import FeatureRoadmap, { Feature } from '@/components/FeatureRoadmap';
-import EpicRoadmap, { Epic } from '@/components/EpicRoadmap';
-import ReleaseDashboard, { Story } from '@/components/ReleaseDashboard';
+import FeatureRoadmap from '@/components/FeatureRoadmap';
+import EpicRoadmap from '@/components/EpicRoadmap';
+import ReleaseDashboard from '@/components/ReleaseDashboard';
 import RoadmapGuide from '@/pages/RoadmapGuide';
 
-//todo: remove mock functionality - replace with real Jira data
+// Import mock seed data (temporary - will be replaced with real Jira data)
+import { featureRoadmapMock } from '@/data/featureRoadmapMock';
+import { epicRoadmapMock } from '@/data/epicRoadmapMock';
+import { releaseDashboardMock } from '@/data/releaseDashboardMock';
+import { 
+  initiativeMetricsMock, 
+  businessRequestMetricsMock 
+} from '@/data/portfolioMetricsMock';
+
+// Legacy inline mock data - replaced by organized files
+/*
 const mockFeatures: Feature[] = [
   {
     id: 'feat-1',
@@ -534,15 +544,21 @@ const mockStories: Story[] = [
     subtaskAssignees: ['Tom Wilson', 'Mike Davis', 'Emily Chen'],
   },
 ];
+*/
 
 export default function Dashboard() {
   return (
     <DashboardLayout
-      statusContent={<StatusDashboard />}
+      statusContent={
+        <StatusDashboard 
+          initiatives={initiativeMetricsMock}
+          businessRequests={businessRequestMetricsMock}
+        />
+      }
       roadmapContent={<RoadmapView />}
-      featureRoadmapContent={<FeatureRoadmap features={mockFeatures} />}
-      epicRoadmapContent={<EpicRoadmap epics={mockEpics} />}
-      storyCompletionContent={<ReleaseDashboard stories={mockStories} />}
+      featureRoadmapContent={<FeatureRoadmap features={featureRoadmapMock} />}
+      epicRoadmapContent={<EpicRoadmap epics={epicRoadmapMock} />}
+      storyCompletionContent={<ReleaseDashboard stories={releaseDashboardMock} />}
       roadmapGuideContent={<RoadmapGuide />}
     />
   );

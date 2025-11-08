@@ -59,14 +59,28 @@ The backend is built with Express.js on Node.js using TypeScript. It features RE
 The project is configured to use Drizzle ORM for PostgreSQL (specifically via `@neondatabase/serverless`). While currently using `MemStorage` (in-memory) for development, the design allows for easy swapping to persistent PostgreSQL. The intended data model supports hierarchical project items (Theme to Subtask) with parent-child relationships and attributes like dates, status, priority, and completion percentage.
 
 **Mock Data:**
-- Business Roadmap uses externalized mock data from `client/src/data/businessRoadmapMock.ts`
-- Contains 4 business requests with child epics and stories spanning Q4 2024 - Q3 2025
-- Organized by themes: Compliance & Security, Customer Experience, Platform Reliability
-- Designed for easy replacement with real Jira API data
-- Recent improvements:
-  - Fixed quarterly timeline alignment to ensure grid columns match timeline range
-  - Fixed item counter to show business request count only (not including child items)
-  - Added quarterly/monthly toggle with default quarterly view
+All mock data is organized in `client/src/data/` for easy maintenance and eventual replacement with Jira API:
+- **businessRoadmapMock.ts**: Business requests with child epics and stories (Q4 2024 - Q3 2025)
+  - 4 business requests across themes: Compliance & Security, Customer Experience, Platform Reliability
+  - Quarterly/monthly timeline support
+- **featureRoadmapMock.ts**: 12 features spanning Sept 2024 - March 2026
+  - Includes completed, in-progress, blocked, and not-started features
+  - Contains milestone feature (single-day) to test minimum width rendering
+  - Current period (Nov 2025) has multiple active features visible in default 8-week window
+  - Dates designed to test 8-week window navigation
+- **epicRoadmapMock.ts**: 20 epics spanning Sept 2024 - Feb 2026
+  - Epics linked to features with realistic completion percentages
+  - Includes milestone epic (single-day), blocked epics, and not-started epics
+  - Current period (Nov 2025) has 6 epics visible in default 8-week window with all status types
+  - Comprehensive coverage for 8-week window testing with status diversity
+- **portfolioMetricsMock.ts**: Portfolio Dashboard metrics
+  - 5 initiatives with aggregated metrics
+  - 8 business requests with item counts and status breakdowns
+- **releaseDashboardMock.ts**: 25 stories across 4 release versions (v1.0, v1.1, v2.0, v2.1)
+  - Stories include subtasks with assignees
+  - Organized by fixVersion for release grouping
+  
+All mock data is temporary and will be replaced with real Jira API integration.
 
 ### Authentication and Authorization
 
