@@ -174,16 +174,11 @@ export default function RoadmapGuide() {
   const [hoveredLevel, setHoveredLevel] = useState<string | null>(null);
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Info className="w-6 h-6 text-primary" />
-          <h1 className="text-3xl font-bold">Roadmap Guide</h1>
-        </div>
-        <p className="text-muted-foreground">
-          Understanding work item hierarchy for effective portfolio governance and change management
-        </p>
+      <div className="flex items-center gap-2">
+        <Info className="w-6 h-6 text-primary" />
+        <h1 className="text-3xl font-bold">Roadmap Guide</h1>
       </div>
 
       {/* Executive Snapshot Card */}
@@ -193,7 +188,7 @@ export default function RoadmapGuide() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Size-Based Hierarchy Visualization */}
-          <div className="flex justify-center py-8">
+          <div className="flex justify-center py-4">
             <div className="flex flex-col gap-0 items-center w-full">
               {hierarchyLevels.map((level, index) => {
                 const Icon = level.icon;
