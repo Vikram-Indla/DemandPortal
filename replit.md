@@ -60,24 +60,37 @@ The project is configured to use Drizzle ORM for PostgreSQL (specifically via `@
 
 **Data Model Architecture:**
 - **Hierarchical Items**: Theme → Initiative → Feature → Epic → Story → Subtask (traditional hierarchy)
-- **Business Request Hierarchy**: Business Request → Epic → Story (strict parent-child relationships)
-  - Business requests contain epics as children
-  - Epics contain stories as children
+- **Business Request Mixed Hierarchy**: Business Request can contain BOTH Features and direct Epics
+  - **Feature Path**: Business Request → Feature → Epic → Story
+  - **Direct Epic Path**: Business Request → Epic → Story (no feature parent)
+  - Uses discriminated union types with `type` field ('feature', 'epic', 'story')
+  - Type guards ensure type safety: `isFeature()`, `isEpic()`, `isStory()`
   - Completion percentages automatically calculated from immediate children
-  - Business request % = average of child epics
+  - Business request % = average of ALL direct children (Features AND Epics)
+  - Feature % = average of child epics
   - Epic % = average of child stories (or explicit value if no stories)
-  - Separate hierarchy from Feature/Epic roadmaps to avoid coupling
+  - Story % = explicit value
+  - Separate from Feature/Epic roadmaps to avoid coupling
 
 **Mock Data:**
 All mock data is organized in `client/src/data/` for easy maintenance and eventual replacement with Jira API:
-- **businessRoadmapMock.ts**: Business requests with hierarchical child items (Q4 2024 - Q3 2025)
-  - Hierarchical model: Business Request → Epic → Story
-  - 4 business requests across themes: Compliance & Security, Customer Experience, Platform Reliability
-  - Each business request contains 1-2 epics with 1-2 stories each (14 total epics and stories)
-  - **Automatic percentage calculation**: Business request completion % = average of immediate child epics
-  - Epic completion % = average of immediate child stories (or explicit value if no stories)
+- **businessRoadmapMock.ts**: Business requests with mixed hierarchy (Q4 2024 - Q3 2025)
+  - **Mixed hierarchy model**: Business Request can have Features AND/OR direct Epics
+  - 4 business requests with diverse structures:
+    - BR-1: Has 1 Feature + 1 direct Epic (mixed children)
+    - BR-2: Has 2 Features (no direct epics)
+    - BR-3: Has 1 Feature with 2 Epics
+    - BR-4: Has only direct Epic (no features)
+  - Total: 4 Features, 7 Epics, 11 Stories
+  - **Discriminated union types**: BaseWorkItem, Story, Epic, Feature, BusinessRequest
+  - **Automatic percentage calculation**: Recursive averaging from immediate children
+    - Business request % = average of Features + direct Epics
+    - Feature % = average of child Epics
+    - Epic % = average of child Stories
+  - Type guards for type safety: `isFeature()`, `isEpic()`, `isStory()`
   - Quarterly/monthly timeline support
   - Helper functions: `buildBusinessRequestTree()`, `flattenToGanttItems()` for tree/timeline visualization
+  - Mirrors real-world Jira Advanced Roadmaps structure
 - **featureRoadmapMock.ts**: 12 features spanning Sept 2024 - March 2026
   - Includes completed, in-progress, blocked, and not-started features
   - Contains milestone feature (single-day) to test minimum width rendering
