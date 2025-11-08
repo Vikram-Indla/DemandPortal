@@ -25,7 +25,13 @@ The frontend is built with React 18 and TypeScript, using Vite as the build tool
 
 Key components include:
 - `DashboardLayout` with six-tab navigation
-- `StatusDashboard` for portfolio metrics
+- `StatusDashboard` (Portfolio Dashboard) for portfolio metrics
+  - Initiative Progress section with compact circular gauges (6 per row on large screens)
+  - Business Requests section displaying BR-XXX formatted numbers
+  - Business request grid shows breakdown by Features, Epics, and Stories with status counts
+  - Status indicators: Done (green check), In Progress (blue play), Blocked (red alert), Not Started (gray circle)
+  - Search, sort (priority defaults High-first), and expandable rows for details
+  - Legend explaining status icon meanings
 - `RoadmapView` (Business Roadmap) displays only business requests with quarterly/monthly timeline toggle
   - Tree view hidden by default (can be toggled visible)
   - Shows only business requests in Gantt chart (no child epics/stories visible)
@@ -103,7 +109,11 @@ All mock data is organized in `client/src/data/` for easy maintenance and eventu
   - Comprehensive coverage for 8-week window testing with status diversity
 - **portfolioMetricsMock.ts**: Portfolio Dashboard metrics
   - 5 initiatives with aggregated metrics
-  - 8 business requests with item counts and status breakdowns
+  - 8 business requests (BR-1 through BR-8) with detailed breakdowns:
+    - Each BR shows Features, Epics, and Stories counts
+    - Status breakdown for each item type (done, inProgress, blocked, notStarted)
+    - Realistic completion percentages and priority levels
+    - BR numbers formatted as BR-XXX (e.g., BR-1, BR-2)
 - **releaseDashboardMock.ts**: 25 stories across 4 release versions (v1.0, v1.1, v2.0, v2.1)
   - Stories include subtasks with assignees
   - Organized by fixVersion for release grouping
