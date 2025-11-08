@@ -5,9 +5,13 @@ import FilterBar from './FilterBar';
 import { Button } from '@/components/ui/button';
 import { PanelLeftClose, PanelLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { businessRequestTreeData, businessRequestTimelineData } from '@/data/businessRoadmapMock';
 
 //todo: remove mock functionality - replace with real Jira data
-const mockTreeData: TreeNode[] = [
+const mockTreeData: TreeNode[] = businessRequestTreeData;
+
+// Original mock data - replaced with business request data
+const _oldMockTreeData: TreeNode[] = [
   {
     id: 'feat-1',
     title: 'User Authentication & Authorization',
@@ -201,7 +205,10 @@ const mockTreeData: TreeNode[] = [
 ];
 
 //todo: remove mock functionality - replace with real Jira data
-const mockGanttData: GanttItem[] = [
+const mockGanttData: GanttItem[] = businessRequestTimelineData;
+
+// Original mock Gantt data - replaced with business request data
+const _oldMockGanttData: GanttItem[] = [
   {
     id: 'feat-1',
     title: 'User Authentication & Authorization',

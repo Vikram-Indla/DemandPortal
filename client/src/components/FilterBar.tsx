@@ -40,6 +40,7 @@ export default function FilterBar({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Types</SelectItem>
+          <SelectItem value="business-request">Business Request</SelectItem>
           <SelectItem value="feature">Feature</SelectItem>
           <SelectItem value="epic">Epic</SelectItem>
           <SelectItem value="story">Story</SelectItem>

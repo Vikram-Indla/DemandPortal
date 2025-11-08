@@ -52,7 +52,7 @@ export default function DashboardLayout({ statusContent, roadmapContent, feature
                 Portfolio Dashboard
               </TabsTrigger>
               <TabsTrigger value="roadmap" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-roadmap">
-                Portfolio Roadmap
+                Business Roadmap
               </TabsTrigger>
               <TabsTrigger value="feature-roadmap" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none" data-testid="tab-feature-roadmap">
                 Feature Roadmap
