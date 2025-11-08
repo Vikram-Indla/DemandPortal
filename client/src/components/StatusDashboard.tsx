@@ -8,15 +8,21 @@ import BusinessRequestGrid from './BusinessRequestGrid';
 import StrategicThemeSpotlight from './StrategicThemeSpotlight';
 import { CompactRiskList, CompactRiskItem } from './CompactRiskList';
 
+interface ItemBreakdown {
+  done: number;
+  inProgress: number;
+  blocked: number;
+  notStarted: number;
+}
+
 interface BusinessRequestMetrics {
   id: string;
   name: string;
   themeName: string;
   initiativeName: string;
-  totalItems: number;
-  completedItems: number;
-  inProgressItems: number;
-  blockedItems: number;
+  features: ItemBreakdown;
+  epics: ItemBreakdown;
+  stories: ItemBreakdown;
   completionPercentage: number;
   priority: 'high' | 'medium' | 'low';
 }
@@ -57,6 +63,9 @@ function CircularGauge({
     return 'hsl(var(--chart-4))';
   };
 
+  // Smaller size uses compact styling
+  const isCompact = size < 120;
+
   return (
     <div className="relative inline-flex items-center justify-center">
       <svg width={size} height={size} className="transform -rotate-90">
@@ -83,8 +92,8 @@ function CircularGauge({
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold">{percentage}%</span>
-        <span className="text-xs text-muted-foreground mt-1">Complete</span>
+        <span className={isCompact ? "text-xl font-bold" : "text-3xl font-bold"}>{percentage}%</span>
+        {!isCompact && <span className="text-xs text-muted-foreground mt-1">Complete</span>}
       </div>
     </div>
   );
@@ -136,68 +145,7 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
     },
   ];
 
-  const defaultBusinessRequests: BusinessRequestMetrics[] = businessRequests || [
-    {
-      id: 'br-1',
-      name: 'New Authentication System',
-      themeName: 'Digital Transformation',
-      initiativeName: 'Customer Portal Modernization',
-      totalItems: 24,
-      completedItems: 20,
-      inProgressItems: 4,
-      blockedItems: 0,
-      completionPercentage: 83,
-      priority: 'high',
-    },
-    {
-      id: 'br-2',
-      name: 'UI/UX Redesign',
-      themeName: 'Digital Transformation',
-      initiativeName: 'Customer Portal Modernization',
-      totalItems: 36,
-      completedItems: 12,
-      inProgressItems: 18,
-      blockedItems: 6,
-      completionPercentage: 33,
-      priority: 'medium',
-    },
-    {
-      id: 'br-3',
-      name: 'GDPR Compliance',
-      themeName: 'Security Enhancement',
-      initiativeName: 'Compliance & Audit',
-      totalItems: 28,
-      completedItems: 8,
-      inProgressItems: 8,
-      blockedItems: 12,
-      completionPercentage: 29,
-      priority: 'high',
-    },
-    {
-      id: 'br-4',
-      name: 'AWS Infrastructure Setup',
-      themeName: 'Infrastructure Optimization',
-      initiativeName: 'Cloud Migration',
-      totalItems: 42,
-      completedItems: 0,
-      inProgressItems: 0,
-      blockedItems: 0,
-      completionPercentage: 0,
-      priority: 'medium',
-    },
-    {
-      id: 'br-5',
-      name: 'Real-time Analytics Dashboard',
-      themeName: 'Digital Transformation',
-      initiativeName: 'Data Analytics Platform',
-      totalItems: 18,
-      completedItems: 10,
-      inProgressItems: 6,
-      blockedItems: 2,
-      completionPercentage: 56,
-      priority: 'high',
-    },
-  ];
+  const defaultBusinessRequests: BusinessRequestMetrics[] = businessRequests || [];
 
   // Mock portfolio risk items derived from business requests
   const mockPortfolioRisks: CompactRiskItem[] = [
@@ -274,7 +222,8 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
     
     const totalThemeItems = themeInitiatives.reduce((sum, init) => sum + init.totalItems, 0);
     const completedThemeItems = themeInitiatives.reduce((sum, init) => sum + init.completedItems, 0);
-    const atRisk = themeRequests.reduce((sum, br) => sum + br.blockedItems, 0);
+    const atRisk = themeRequests.reduce((sum, br) => 
+      sum + br.features.blocked + br.epics.blocked + br.stories.blocked, 0);
     const completedInits = themeInitiatives.filter(i => i.completionPercentage === 100).length;
     
     return {
@@ -345,24 +294,24 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
               <h3 className="text-xl font-semibold">Initiative Progress</h3>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {filteredInitiatives.map((initiative) => (
                 <Card key={initiative.id} className="hover-elevate" data-testid={`card-initiative-${initiative.id}`}>
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center space-y-4">
-                      <CircularGauge percentage={initiative.completionPercentage} size={160} strokeWidth={10} />
+                  <CardContent className="p-4">
+                    <div className="flex flex-col items-center space-y-3">
+                      <CircularGauge percentage={initiative.completionPercentage} size={100} strokeWidth={8} />
                       
-                      <div className="text-center space-y-2 w-full">
-                        <h4 className="font-semibold text-sm leading-tight">{initiative.name}</h4>
-                        <p className="text-xs text-muted-foreground">{initiative.themeName}</p>
+                      <div className="text-center space-y-1.5 w-full">
+                        <h4 className="font-semibold text-xs leading-tight line-clamp-2">{initiative.name}</h4>
+                        <p className="text-[10px] text-muted-foreground line-clamp-1">{initiative.themeName}</p>
                         
-                        <div className="pt-2 space-y-1 border-t">
-                          <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Business Requests</span>
+                        <div className="pt-1.5 space-y-0.5 border-t text-[10px]">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">BRs</span>
                             <span className="font-medium">{initiative.completedBusinessRequests}/{initiative.totalBusinessRequests}</span>
                           </div>
-                          <div className="flex justify-between text-xs">
-                            <span className="text-muted-foreground">Work Items</span>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Items</span>
                             <span className="font-medium">{initiative.completedItems}/{initiative.totalItems}</span>
                           </div>
                         </div>
@@ -378,7 +327,7 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Layers className="w-5 h-5 text-primary" />
-              <h3 className="text-xl font-semibold">Strategic Business Requests</h3>
+              <h3 className="text-xl font-semibold">Business Requests</h3>
             </div>
             
             <BusinessRequestGrid requests={filteredBusinessRequests} />

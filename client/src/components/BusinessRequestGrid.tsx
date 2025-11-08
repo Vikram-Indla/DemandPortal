@@ -14,19 +14,26 @@ import {
   AlertCircle,
   Minus,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  PlayCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+interface ItemBreakdown {
+  done: number;
+  inProgress: number;
+  blocked: number;
+  notStarted: number;
+}
 
 interface BusinessRequestMetrics {
   id: string;
   name: string;
   themeName: string;
   initiativeName: string;
-  totalItems: number;
-  completedItems: number;
-  inProgressItems: number;
-  blockedItems: number;
+  features: ItemBreakdown;
+  epics: ItemBreakdown;
+  stories: ItemBreakdown;
   completionPercentage: number;
   priority: 'high' | 'medium' | 'low';
 }
@@ -35,7 +42,7 @@ interface BusinessRequestGridProps {
   requests: BusinessRequestMetrics[];
 }
 
-type SortField = 'name' | 'priority' | 'completion' | 'blocked';
+type SortField = 'name' | 'priority' | 'completion';
 type SortDirection = 'asc' | 'desc';
 
 export default function BusinessRequestGrid({ requests }: BusinessRequestGridProps) {
@@ -49,6 +56,7 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
   const filteredAndSortedRequests = useMemo(() => {
     let filtered = requests.filter(req =>
       req.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.themeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       req.initiativeName.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -66,9 +74,6 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
         case 'completion':
           comparison = a.completionPercentage - b.completionPercentage;
           break;
-        case 'blocked':
-          comparison = a.blockedItems - b.blockedItems;
-          break;
       }
 
       return sortDirection === 'asc' ? comparison : -comparison;
@@ -82,7 +87,8 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
-      setSortDirection('asc');
+      // Priority should default to descending (High first), others ascending
+      setSortDirection(field === 'priority' ? 'desc' : 'asc');
     }
   };
 
@@ -109,11 +115,16 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
     }
   };
 
-  const getHealthDot = (completion: number, blocked: number) => {
-    if (blocked > 0) return 'bg-red-500';
+  const getHealthDot = (completion: number, features: ItemBreakdown, epics: ItemBreakdown, stories: ItemBreakdown) => {
+    const totalBlocked = features.blocked + epics.blocked + stories.blocked;
+    if (totalBlocked > 0) return 'bg-red-500';
     if (completion >= 75) return 'bg-green-500';
     if (completion >= 50) return 'bg-amber-500';
     return 'bg-blue-500';
+  };
+
+  const getTotalByType = (breakdown: ItemBreakdown) => {
+    return breakdown.done + breakdown.inProgress + breakdown.blocked + breakdown.notStarted;
   };
 
   const SortButton = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
@@ -133,6 +144,48 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
     </Button>
   );
 
+  const StatusCell = ({ breakdown, type }: { breakdown: ItemBreakdown; type: 'feature' | 'epic' | 'story' }) => {
+    const total = getTotalByType(breakdown);
+    if (total === 0) {
+      return <span className="text-sm text-muted-foreground">—</span>;
+    }
+    
+    return (
+      <div className="space-y-1">
+        <div className="flex items-center justify-center gap-1.5 text-xs">
+          <span className="font-semibold text-muted-foreground">{total}</span>
+          <span className="text-muted-foreground">{type}s</span>
+        </div>
+        <div className="flex items-center justify-center gap-2 text-[10px]">
+          {breakdown.done > 0 && (
+            <div className="flex items-center gap-0.5">
+              <CheckCircle2 className="w-2.5 h-2.5 text-green-600 dark:text-green-400" />
+              <span className="font-medium text-green-600 dark:text-green-400">{breakdown.done}</span>
+            </div>
+          )}
+          {breakdown.inProgress > 0 && (
+            <div className="flex items-center gap-0.5">
+              <PlayCircle className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
+              <span className="font-medium text-blue-600 dark:text-blue-400">{breakdown.inProgress}</span>
+            </div>
+          )}
+          {breakdown.blocked > 0 && (
+            <div className="flex items-center gap-0.5">
+              <AlertCircle className="w-2.5 h-2.5 text-red-600 dark:text-red-400" />
+              <span className="font-medium text-red-600 dark:text-red-400">{breakdown.blocked}</span>
+            </div>
+          )}
+          {breakdown.notStarted > 0 && (
+            <div className="flex items-center gap-0.5">
+              <Circle className="w-2.5 h-2.5 text-muted-foreground" />
+              <span className="font-medium text-muted-foreground">{breakdown.notStarted}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-4">
       {/* Search & Summary */}
@@ -140,7 +193,7 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
         <div className="flex items-center gap-2 flex-1 min-w-64">
           <Search className="w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search requests..."
+            placeholder="Search by BR number or name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="max-w-sm"
@@ -161,7 +214,7 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
                 <tr>
                   <th className="text-left p-0 w-12"></th>
                   <th className="text-left p-2">
-                    <SortButton field="name">Request</SortButton>
+                    <SortButton field="name">Business Request</SortButton>
                   </th>
                   <th className="text-left p-2 w-32">
                     <SortButton field="priority">Priority</SortButton>
@@ -169,17 +222,14 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
                   <th className="text-left p-2 w-48">
                     <SortButton field="completion">Progress</SortButton>
                   </th>
-                  <th className="text-center p-2 w-24">
-                    <span className="text-xs font-semibold">Total</span>
+                  <th className="text-center p-2 w-32">
+                    <span className="text-xs font-semibold">Features</span>
                   </th>
-                  <th className="text-center p-2 w-24">
-                    <span className="text-xs font-semibold">Done</span>
+                  <th className="text-center p-2 w-32">
+                    <span className="text-xs font-semibold">Epics</span>
                   </th>
-                  <th className="text-center p-2 w-24">
-                    <span className="text-xs font-semibold">In Progress</span>
-                  </th>
-                  <th className="text-center p-2 w-24">
-                    <SortButton field="blocked">Blocked</SortButton>
+                  <th className="text-center p-2 w-32">
+                    <span className="text-xs font-semibold">Stories</span>
                   </th>
                 </tr>
               </thead>
@@ -204,6 +254,7 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
                           size="sm"
                           className="h-6 w-6 p-0"
                           onClick={() => setExpandedRow(isExpanded ? null : req.id)}
+                          data-testid={`button-expand-${req.id}`}
                         >
                           {isExpanded ? 
                             <ChevronDown className="w-4 h-4" /> : 
@@ -214,7 +265,8 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
                       <td className="p-3">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <div className={cn("w-2 h-2 rounded-full", getHealthDot(req.completionPercentage, req.blockedItems))} />
+                            <div className={cn("w-2 h-2 rounded-full", getHealthDot(req.completionPercentage, req.features, req.epics, req.stories))} />
+                            <span className="font-mono text-xs text-muted-foreground">{req.id}</span>
                             <span className="font-medium text-sm">{req.name}</span>
                           </div>
                           {isExpanded && (
@@ -242,33 +294,14 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
                           </div>
                         </div>
                       </td>
-                      <td className="p-3 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Circle className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-sm font-medium">{req.totalItems}</span>
-                        </div>
+                      <td className="p-3">
+                        <StatusCell breakdown={req.features} type="feature" />
                       </td>
-                      <td className="p-3 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400" />
-                          <span className="text-sm font-semibold text-green-600 dark:text-green-400">{req.completedItems}</span>
-                        </div>
+                      <td className="p-3">
+                        <StatusCell breakdown={req.epics} type="epic" />
                       </td>
-                      <td className="p-3 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Circle className="w-3 h-3 text-blue-600 dark:text-blue-400" />
-                          <span className="text-sm font-medium text-blue-600 dark:text-blue-400">{req.inProgressItems}</span>
-                        </div>
-                      </td>
-                      <td className="p-3 text-center">
-                        {req.blockedItems > 0 ? (
-                          <div className="flex items-center justify-center gap-1">
-                            <AlertCircle className="w-3 h-3 text-red-600 dark:text-red-400" />
-                            <span className="text-sm font-semibold text-red-600 dark:text-red-400">{req.blockedItems}</span>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">—</span>
-                        )}
+                      <td className="p-3">
+                        <StatusCell breakdown={req.stories} type="story" />
                       </td>
                     </tr>
                   );
@@ -284,6 +317,28 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
           )}
         </CardContent>
       </Card>
+      
+      <div className="flex items-start gap-6 text-xs text-muted-foreground">
+        <div className="flex items-center gap-4">
+          <span className="font-semibold">Legend:</span>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-3 h-3 text-green-600 dark:text-green-400" />
+            <span>Done</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <PlayCircle className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+            <span>In Progress</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <AlertCircle className="w-3 h-3 text-red-600 dark:text-red-400" />
+            <span>Blocked</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Circle className="w-3 h-3" />
+            <span>Not Started</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
