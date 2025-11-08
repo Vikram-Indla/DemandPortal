@@ -367,16 +367,7 @@ export default function RoadmapView() {
   const [isTreeVisible, setIsTreeVisible] = useState(false);
   const [timelineView, setTimelineView] = useState<'quarterly' | 'monthly'>('quarterly');
   const [searchTerm, setSearchTerm] = useState('');
-  const [levelFilter, setLevelFilter] = useState('all');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  const [releaseFilter, setReleaseFilter] = useState('all');
   const { toast } = useToast();
-
-  const releases = useMemo(() => {
-    const uniqueReleases = new Set(mockGanttData.map(item => item.releaseLabel).filter(Boolean));
-    return Array.from(uniqueReleases) as string[];
-  }, []);
 
   // Get all business requests (for total count)
   const totalBusinessRequests = useMemo(() => {
@@ -390,22 +381,14 @@ export default function RoadmapView() {
       if (item.type !== 'business-request') return false;
       
       const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesLevel = levelFilter === 'all' || item.type === levelFilter;
-      const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
-      const matchesPriority = priorityFilter === 'all' || item.priority === priorityFilter;
-      const matchesRelease = releaseFilter === 'all' || item.releaseLabel === releaseFilter;
-      return matchesSearch && matchesLevel && matchesStatus && matchesPriority && matchesRelease;
+      return matchesSearch;
     });
-  }, [searchTerm, levelFilter, statusFilter, priorityFilter, releaseFilter]);
+  }, [searchTerm]);
 
   // Filter tree data recursively
   const filteredTreeData = useMemo(() => {
     const filterNode = (node: TreeNode): TreeNode | null => {
       const matchesSearch = node.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesLevel = levelFilter === 'all' || node.type === levelFilter;
-      const matchesStatus = statusFilter === 'all' || node.status === statusFilter;
-      const matchesPriority = priorityFilter === 'all' || node.priority === priorityFilter;
-      const matchesRelease = releaseFilter === 'all' || !node.releaseLabel || node.releaseLabel === releaseFilter;
 
       // Filter children recursively
       const filteredChildren = node.children
@@ -413,10 +396,9 @@ export default function RoadmapView() {
         .filter((child): child is TreeNode => child !== null);
 
       // Show node if it matches filters OR if any of its children match
-      const nodeMatches = matchesSearch && matchesLevel && matchesStatus && matchesPriority && matchesRelease;
       const hasMatchingChildren = filteredChildren && filteredChildren.length > 0;
 
-      if (nodeMatches || hasMatchingChildren) {
+      if (matchesSearch || hasMatchingChildren) {
         return {
           ...node,
           children: filteredChildren,
@@ -429,7 +411,7 @@ export default function RoadmapView() {
     return mockTreeData
       .map(node => filterNode(node))
       .filter((node): node is TreeNode => node !== null);
-  }, [searchTerm, levelFilter, statusFilter, priorityFilter, releaseFilter]);
+  }, [searchTerm]);
 
   const handleExport = () => {
     toast({
@@ -442,12 +424,7 @@ export default function RoadmapView() {
     <div className="h-full flex flex-col">
       <FilterBar
         onSearchChange={setSearchTerm}
-        onLevelChange={setLevelFilter}
-        onStatusChange={setStatusFilter}
-        onPriorityChange={setPriorityFilter}
-        onReleaseChange={setReleaseFilter}
         onExport={handleExport}
-        releases={releases}
       />
 
       <div className="flex-1 flex overflow-hidden">

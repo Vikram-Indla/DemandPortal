@@ -34,45 +34,51 @@ export default function FilterBar({
         />
       </div>
 
-      <Select onValueChange={onLevelChange} defaultValue="all">
-        <SelectTrigger className="w-36" data-testid="select-level">
-          <SelectValue placeholder="Item Type" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Types</SelectItem>
-          <SelectItem value="business-request">Business Request</SelectItem>
-          <SelectItem value="feature">Feature</SelectItem>
-          <SelectItem value="epic">Epic</SelectItem>
-          <SelectItem value="story">Story</SelectItem>
-        </SelectContent>
-      </Select>
+      {onLevelChange && (
+        <Select onValueChange={onLevelChange} defaultValue="all">
+          <SelectTrigger className="w-36" data-testid="select-level">
+            <SelectValue placeholder="Item Type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="business-request">Business Request</SelectItem>
+            <SelectItem value="feature">Feature</SelectItem>
+            <SelectItem value="epic">Epic</SelectItem>
+            <SelectItem value="story">Story</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
 
-      <Select onValueChange={onStatusChange} defaultValue="all">
-        <SelectTrigger className="w-36" data-testid="select-status">
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="done">Done</SelectItem>
-          <SelectItem value="in-progress">In Progress</SelectItem>
-          <SelectItem value="blocked">Blocked</SelectItem>
-          <SelectItem value="not-started">Not Started</SelectItem>
-        </SelectContent>
-      </Select>
+      {onStatusChange && (
+        <Select onValueChange={onStatusChange} defaultValue="all">
+          <SelectTrigger className="w-36" data-testid="select-status">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="done">Done</SelectItem>
+            <SelectItem value="in-progress">In Progress</SelectItem>
+            <SelectItem value="blocked">Blocked</SelectItem>
+            <SelectItem value="not-started">Not Started</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
 
-      <Select onValueChange={onPriorityChange} defaultValue="all">
-        <SelectTrigger className="w-36" data-testid="select-priority">
-          <SelectValue placeholder="Priority" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Priority</SelectItem>
-          <SelectItem value="high">High</SelectItem>
-          <SelectItem value="medium">Medium</SelectItem>
-          <SelectItem value="low">Low</SelectItem>
-        </SelectContent>
-      </Select>
+      {onPriorityChange && (
+        <Select onValueChange={onPriorityChange} defaultValue="all">
+          <SelectTrigger className="w-36" data-testid="select-priority">
+            <SelectValue placeholder="Priority" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Priority</SelectItem>
+            <SelectItem value="high">High</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="low">Low</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
 
-      {releases.length > 0 && (
+      {onReleaseChange && releases.length > 0 && (
         <Select onValueChange={onReleaseChange} defaultValue="all">
           <SelectTrigger className="w-36" data-testid="select-release">
             <SelectValue placeholder="Release" />
@@ -86,10 +92,12 @@ export default function FilterBar({
         </Select>
       )}
 
-      <Button variant="outline" size="sm" onClick={onExport} data-testid="button-export">
-        <Download className="w-4 h-4 mr-2" />
-        Export PDF
-      </Button>
+      {onExport && (
+        <Button variant="outline" size="sm" onClick={onExport} data-testid="button-export">
+          <Download className="w-4 h-4 mr-2" />
+          Export PDF
+        </Button>
+      )}
     </div>
   );
 }
