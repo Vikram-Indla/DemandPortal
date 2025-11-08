@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Zap, Target, Layers, FileText, ListChecks, Info, Clock, TrendingUp, ArrowDown, Briefcase } from "lucide-react";
+import { Zap, Target, Layers, FileText, ListChecks, Info, Clock, TrendingUp, ArrowDown, Briefcase, MoveRight, CornerDownRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HierarchyLevel {
@@ -73,12 +73,14 @@ const hierarchyLevels: HierarchyLevel[] = [
     bgColor: "bg-orange-500/10 dark:bg-orange-500/20",
     borderColor: "border-orange-500/50",
     owner: "Business Owner",
-    executiveCommentary: "Business Requests represent stakeholder-driven work items that bridge strategic initiatives to delivery. These can contain Features, Epics, or Stories as direct children, providing flexible hierarchy to match business reality. Business Owners maintain accountability for business value delivery and stakeholder communication throughout.",
+    executiveCommentary: "Business Requests represent stakeholder-driven work items that bridge strategic initiatives to delivery. Unlike traditional hierarchy, Business Requests support THREE flexible execution paths: (1) Full hierarchy through Feature → Epic → Story → Subtask, (2) Direct Epic path skipping Feature, or (3) Direct Story path skipping both Feature and Epic. This flexibility matches real-world business scenarios where scope varies by request complexity. Business Owners maintain accountability for business value delivery across all path types.",
     characteristics: [
-      "Stakeholder-driven initiatives",
-      "Flexible child structure (Feature, Epic, or Story)",
+      "Three flexible execution paths (see branching diagram)",
+      "Can include Feature and its children (Epic → Story → Subtask)",
+      "Can skip to Epic directly with its children (Story → Subtask)",
+      "Can skip to Story directly with its children (Subtask)",
       "Business value and ROI focused",
-      "Business Owner accountability"
+      "Business Owner accountability throughout"
     ],
     examples: ["GDPR Compliance", "Customer Dashboard Modernization", "API Rate Limiting"],
     typicalDuration: "",
@@ -236,6 +238,80 @@ export default function RoadmapGuide() {
                     {index < hierarchyLevels.length - 1 && (
                       <div className="flex flex-col items-center py-2">
                         <ArrowDown className="w-5 h-5 text-muted-foreground/40" />
+                      </div>
+                    )}
+
+                    {/* Business Request Branching Paths */}
+                    {level.id === 'business-request' && (
+                      <div className="w-full max-w-4xl py-6 px-4">
+                        <div className="bg-muted/30 border-2 border-dashed border-orange-500/30 rounded-lg p-6">
+                          <div className="text-center mb-4">
+                            <h4 className="font-semibold text-sm text-muted-foreground">Flexible Child Structure - Three Possible Paths:</h4>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4">
+                            {/* Path 1: Feature → Epic → Story → Subtask */}
+                            <div className="flex flex-col gap-2 items-center">
+                              <div className="text-xs font-semibold text-center text-muted-foreground mb-2">Path 1: Full Hierarchy</div>
+                              <div className="flex items-center gap-2">
+                                <CornerDownRight className="w-4 h-4 text-orange-500/60" />
+                                <Badge variant="outline" className="text-xs bg-blue-500/10 border-blue-500/50">
+                                  Feature
+                                </Badge>
+                              </div>
+                              <ArrowDown className="w-4 h-4 text-muted-foreground/40" />
+                              <Badge variant="outline" className="text-xs bg-indigo-500/10 border-indigo-500/50">
+                                Epic
+                              </Badge>
+                              <ArrowDown className="w-4 h-4 text-muted-foreground/40" />
+                              <Badge variant="outline" className="text-xs bg-green-500/10 border-green-500/50">
+                                Story
+                              </Badge>
+                              <ArrowDown className="w-4 h-4 text-muted-foreground/40" />
+                              <Badge variant="outline" className="text-xs bg-slate-500/10 border-slate-500/50">
+                                Subtask
+                              </Badge>
+                            </div>
+
+                            {/* Path 2: Epic → Story → Subtask (no Feature) */}
+                            <div className="flex flex-col gap-2 items-center">
+                              <div className="text-xs font-semibold text-center text-muted-foreground mb-2">Path 2: Direct Epic</div>
+                              <div className="flex items-center gap-2">
+                                <CornerDownRight className="w-4 h-4 text-orange-500/60" />
+                                <Badge variant="outline" className="text-xs bg-indigo-500/10 border-indigo-500/50">
+                                  Epic
+                                </Badge>
+                              </div>
+                              <ArrowDown className="w-4 h-4 text-muted-foreground/40" />
+                              <Badge variant="outline" className="text-xs bg-green-500/10 border-green-500/50">
+                                Story
+                              </Badge>
+                              <ArrowDown className="w-4 h-4 text-muted-foreground/40" />
+                              <Badge variant="outline" className="text-xs bg-slate-500/10 border-slate-500/50">
+                                Subtask
+                              </Badge>
+                              <div className="h-8"></div>
+                            </div>
+
+                            {/* Path 3: Story → Subtask (no Feature/Epic) */}
+                            <div className="flex flex-col gap-2 items-center">
+                              <div className="text-xs font-semibold text-center text-muted-foreground mb-2">Path 3: Direct Story</div>
+                              <div className="flex items-center gap-2">
+                                <CornerDownRight className="w-4 h-4 text-orange-500/60" />
+                                <Badge variant="outline" className="text-xs bg-green-500/10 border-green-500/50">
+                                  Story
+                                </Badge>
+                              </div>
+                              <ArrowDown className="w-4 h-4 text-muted-foreground/40" />
+                              <Badge variant="outline" className="text-xs bg-slate-500/10 border-slate-500/50">
+                                Subtask
+                              </Badge>
+                              <div className="h-16"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-center py-2">
+                          <ArrowDown className="w-5 h-5 text-muted-foreground/40" />
+                        </div>
                       </div>
                     )}
                   </div>
