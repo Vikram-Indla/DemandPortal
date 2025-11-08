@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Zap, Target, Layers, FileText, ListChecks, Info, Clock, TrendingUp, ArrowDown, Briefcase, MoveRight, CornerDownRight } from "lucide-react";
+import { Zap, Target, Layers, FileText, ListChecks, Info, Clock, TrendingUp, ArrowDown, Briefcase, MoveRight, CornerDownRight, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import html2pdf from 'html2pdf.js';
 
 interface HierarchyLevel {
   id: string;
@@ -177,15 +180,61 @@ const hierarchyLevels: HierarchyLevel[] = [
 
 export default function RoadmapGuide() {
   const [hoveredLevel, setHoveredLevel] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+
+  const handleExportPDF = async () => {
+    if (!contentRef.current) return;
+
+    setIsExporting(true);
+    
+    try {
+      const opt = {
+        margin: 0.5,
+        filename: 'roadmap-guide-hierarchy.pdf',
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' as const }
+      };
+
+      await html2pdf().set(opt).from(contentRef.current).save();
+      
+      toast({
+        title: "PDF Exported",
+        description: "Roadmap Guide has been exported successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "There was an error exporting the PDF.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 pt-8">
       {/* Executive Snapshot Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Portfolio Hierarchy Model</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Portfolio Hierarchy Model</CardTitle>
+            <Button 
+              onClick={handleExportPDF} 
+              variant="outline" 
+              size="sm"
+              disabled={isExporting}
+              data-testid="button-export-pdf"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {isExporting ? "Exporting..." : "Export PDF"}
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6" ref={contentRef}>
           {/* Size-Based Hierarchy Visualization */}
           <div className="flex justify-center py-4">
             <div className="flex flex-col gap-0 items-center w-full">
