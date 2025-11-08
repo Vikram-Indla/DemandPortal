@@ -60,22 +60,24 @@ The project is configured to use Drizzle ORM for PostgreSQL (specifically via `@
 
 **Data Model Architecture:**
 - **Hierarchical Items**: Theme → Initiative → Feature → Epic → Story → Subtask (traditional hierarchy)
-- **Business Request Linking**: Business requests are NOT hierarchical parents but linking/tagging mechanisms
-  - Work items (features, epics, stories) can directly link to business requests via `businessRequestId`
-  - Flexible association model: A feature/epic/story can be linked to a business request without strict parent-child relationships
-  - This reflects real-world Jira usage where business requests serve as organizational tags/categories
-  - Supports many-to-one relationships: multiple work items can link to a single business request
+- **Business Request Hierarchy**: Business Request → Epic → Story (strict parent-child relationships)
+  - Business requests contain epics as children
+  - Epics contain stories as children
+  - Completion percentages automatically calculated from immediate children
+  - Business request % = average of child epics
+  - Epic % = average of child stories (or explicit value if no stories)
+  - Separate hierarchy from Feature/Epic roadmaps to avoid coupling
 
 **Mock Data:**
 All mock data is organized in `client/src/data/` for easy maintenance and eventual replacement with Jira API:
-- **businessRoadmapMock.ts**: Business requests with linked work items (Q4 2024 - Q3 2025)
-  - **IMPORTANT**: Business requests are LINKING mechanisms, not hierarchical parents
-  - Features, epics, and stories link to business requests via `businessRequestId` field
-  - Direct linking model allows flexible associations without strict parent-child relationships
+- **businessRoadmapMock.ts**: Business requests with hierarchical child items (Q4 2024 - Q3 2025)
+  - Hierarchical model: Business Request → Epic → Story
   - 4 business requests across themes: Compliance & Security, Customer Experience, Platform Reliability
-  - 14 linked work items (epics and stories) associated with business requests
+  - Each business request contains 1-2 epics with 1-2 stories each (14 total epics and stories)
+  - **Automatic percentage calculation**: Business request completion % = average of immediate child epics
+  - Epic completion % = average of immediate child stories (or explicit value if no stories)
   - Quarterly/monthly timeline support
-  - Helper functions: `getLinkedItems()`, `buildBusinessRequestTree()` for tree visualization
+  - Helper functions: `buildBusinessRequestTree()`, `flattenToGanttItems()` for tree/timeline visualization
 - **featureRoadmapMock.ts**: 12 features spanning Sept 2024 - March 2026
   - Includes completed, in-progress, blocked, and not-started features
   - Contains milestone feature (single-day) to test minimum width rendering

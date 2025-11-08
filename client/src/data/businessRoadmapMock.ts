@@ -2,12 +2,37 @@ import { TreeNode } from '@/components/HierarchyTree';
 import { GanttItem } from '@/components/GanttChart';
 
 // Business Request mock data for Business Roadmap
-// IMPORTANT: Business requests are LINKING mechanisms, not hierarchical parents
-// Features, epics, and stories link to business requests via businessRequestId
-// A feature/epic/story can be directly linked to a business request without strict parent-child relationships
+// Hierarchical model: Business Request → Epic → Story
+// Completion percentages are automatically calculated from immediate children
 
-// Business Request definitions (the tags/categories that items link to)
-export interface BusinessRequest {
+// Story interface
+interface Story {
+  id: string;
+  title: string;
+  status: 'in-progress' | 'done' | 'blocked' | 'not-started';
+  priority: 'high' | 'medium' | 'low';
+  targetStartDate: Date;
+  targetEndDate: Date;
+  completionPercentage: number;
+  storyPoints?: number;
+}
+
+// Epic interface with optional children
+interface Epic {
+  id: string;
+  title: string;
+  status: 'in-progress' | 'done' | 'blocked' | 'not-started';
+  priority: 'high' | 'medium' | 'low';
+  releaseLabel?: string;
+  targetStartDate: Date;
+  targetEndDate: Date;
+  completionPercentage?: number; // Optional - will be calculated from stories if not provided
+  storyPoints?: number;
+  stories?: Story[];
+}
+
+// Business Request interface with children
+interface BusinessRequest {
   id: string;
   title: string;
   description: string;
@@ -18,9 +43,28 @@ export interface BusinessRequest {
   releaseLabel: string;
   targetStartDate: Date;
   targetEndDate: Date;
-  completionPercentage: number;
+  completionPercentage?: number; // Optional - will be calculated from epics
+  epics: Epic[];
 }
 
+// Automatic percentage calculation based on immediate children
+function calculateCompletion(item: BusinessRequest | Epic): number {
+  if ('epics' in item) {
+    // Business Request - calculate from epics
+    if (!item.epics || item.epics.length === 0) return 0;
+    const total = item.epics.reduce((sum, epic) => sum + calculateCompletion(epic), 0);
+    return Math.round(total / item.epics.length);
+  } else if ('stories' in item && item.stories && item.stories.length > 0) {
+    // Epic with stories - calculate from stories
+    const total = item.stories.reduce((sum, story) => sum + story.completionPercentage, 0);
+    return Math.round(total / item.stories.length);
+  } else {
+    // Epic without stories - use explicit percentage or 0
+    return item.completionPercentage || 0;
+  }
+}
+
+// Hierarchical business request data
 export const businessRequests: BusinessRequest[] = [
   {
     id: 'br-1',
@@ -33,7 +77,72 @@ export const businessRequests: BusinessRequest[] = [
     releaseLabel: 'Q1 2025',
     targetStartDate: new Date('2024-11-01'),
     targetEndDate: new Date('2025-03-31'),
-    completionPercentage: 62,
+    epics: [
+      {
+        id: 'epic-br1-1',
+        title: 'Data Privacy Controls',
+        status: 'in-progress',
+        priority: 'high',
+        releaseLabel: 'Q1 2025',
+        targetStartDate: new Date('2024-11-01'),
+        targetEndDate: new Date('2025-01-31'),
+        storyPoints: 34,
+        stories: [
+          {
+            id: 'story-br1-1',
+            title: 'User consent management UI',
+            status: 'done',
+            priority: 'high',
+            targetStartDate: new Date('2024-11-01'),
+            targetEndDate: new Date('2024-12-15'),
+            completionPercentage: 100,
+            storyPoints: 13,
+          },
+          {
+            id: 'story-br1-2',
+            title: 'Cookie banner implementation',
+            status: 'in-progress',
+            priority: 'high',
+            targetStartDate: new Date('2024-12-16'),
+            targetEndDate: new Date('2025-01-31'),
+            completionPercentage: 70,
+            storyPoints: 21,
+          },
+        ],
+      },
+      {
+        id: 'epic-br1-2',
+        title: 'Data Export Functionality',
+        status: 'in-progress',
+        priority: 'high',
+        releaseLabel: 'Q1 2025',
+        targetStartDate: new Date('2025-02-01'),
+        targetEndDate: new Date('2025-03-31'),
+        storyPoints: 55,
+        stories: [
+          {
+            id: 'story-br1-3',
+            title: 'Export user data API',
+            status: 'done',
+            priority: 'high',
+            targetStartDate: new Date('2025-02-01'),
+            targetEndDate: new Date('2025-02-28'),
+            completionPercentage: 100,
+            storyPoints: 34,
+          },
+          {
+            id: 'story-br1-4',
+            title: 'PDF generation for export',
+            status: 'not-started',
+            priority: 'medium',
+            targetStartDate: new Date('2025-03-01'),
+            targetEndDate: new Date('2025-03-31'),
+            completionPercentage: 0,
+            storyPoints: 21,
+          },
+        ],
+      },
+    ],
   },
   {
     id: 'br-2',
@@ -46,7 +155,72 @@ export const businessRequests: BusinessRequest[] = [
     releaseLabel: 'Q2 2025',
     targetStartDate: new Date('2025-01-15'),
     targetEndDate: new Date('2025-06-30'),
-    completionPercentage: 45,
+    epics: [
+      {
+        id: 'epic-br2-1',
+        title: 'Access Control Audit Trail',
+        status: 'in-progress',
+        priority: 'high',
+        releaseLabel: 'Q2 2025',
+        targetStartDate: new Date('2025-01-15'),
+        targetEndDate: new Date('2025-04-15'),
+        storyPoints: 55,
+        stories: [
+          {
+            id: 'story-br2-1',
+            title: 'Implement audit logging',
+            status: 'done',
+            priority: 'high',
+            targetStartDate: new Date('2025-01-15'),
+            targetEndDate: new Date('2025-03-01'),
+            completionPercentage: 100,
+            storyPoints: 34,
+          },
+          {
+            id: 'story-br2-2',
+            title: 'Build audit dashboard',
+            status: 'in-progress',
+            priority: 'medium',
+            targetStartDate: new Date('2025-03-02'),
+            targetEndDate: new Date('2025-04-15'),
+            completionPercentage: 40,
+            storyPoints: 21,
+          },
+        ],
+      },
+      {
+        id: 'epic-br2-2',
+        title: 'Security Documentation',
+        status: 'not-started',
+        priority: 'medium',
+        releaseLabel: 'Q2 2025',
+        targetStartDate: new Date('2025-04-16'),
+        targetEndDate: new Date('2025-06-30'),
+        storyPoints: 89,
+        stories: [
+          {
+            id: 'story-br2-3',
+            title: 'Document security policies',
+            status: 'in-progress',
+            priority: 'medium',
+            targetStartDate: new Date('2025-04-16'),
+            targetEndDate: new Date('2025-05-31'),
+            completionPercentage: 30,
+            storyPoints: 55,
+          },
+          {
+            id: 'story-br2-4',
+            title: 'Create incident response plan',
+            status: 'not-started',
+            priority: 'medium',
+            targetStartDate: new Date('2025-06-01'),
+            targetEndDate: new Date('2025-06-30'),
+            completionPercentage: 0,
+            storyPoints: 34,
+          },
+        ],
+      },
+    ],
   },
   {
     id: 'br-3',
@@ -59,7 +233,62 @@ export const businessRequests: BusinessRequest[] = [
     releaseLabel: 'Q2 2025',
     targetStartDate: new Date('2025-02-01'),
     targetEndDate: new Date('2025-05-31'),
-    completionPercentage: 35,
+    epics: [
+      {
+        id: 'epic-br3-1',
+        title: 'Real-time Analytics',
+        status: 'in-progress',
+        priority: 'medium',
+        releaseLabel: 'Q2 2025',
+        targetStartDate: new Date('2025-02-01'),
+        targetEndDate: new Date('2025-04-15'),
+        storyPoints: 55,
+        stories: [
+          {
+            id: 'story-br3-1',
+            title: 'WebSocket live updates',
+            status: 'in-progress',
+            priority: 'high',
+            targetStartDate: new Date('2025-02-01'),
+            targetEndDate: new Date('2025-03-15'),
+            completionPercentage: 60,
+            storyPoints: 34,
+          },
+          {
+            id: 'story-br3-2',
+            title: 'Custom metrics widgets',
+            status: 'not-started',
+            priority: 'medium',
+            targetStartDate: new Date('2025-03-16'),
+            targetEndDate: new Date('2025-04-15'),
+            completionPercentage: 0,
+            storyPoints: 21,
+          },
+        ],
+      },
+      {
+        id: 'epic-br3-2',
+        title: 'Mobile Responsive Design',
+        status: 'blocked',
+        priority: 'low',
+        releaseLabel: 'Q2 2025',
+        targetStartDate: new Date('2025-04-16'),
+        targetEndDate: new Date('2025-05-31'),
+        storyPoints: 34,
+        stories: [
+          {
+            id: 'story-br3-3',
+            title: 'Responsive layout implementation',
+            status: 'blocked',
+            priority: 'low',
+            targetStartDate: new Date('2025-04-16'),
+            targetEndDate: new Date('2025-05-31'),
+            completionPercentage: 20,
+            storyPoints: 34,
+          },
+        ],
+      },
+    ],
   },
   {
     id: 'br-4',
@@ -72,314 +301,38 @@ export const businessRequests: BusinessRequest[] = [
     releaseLabel: 'Q3 2025',
     targetStartDate: new Date('2025-07-01'),
     targetEndDate: new Date('2025-09-30'),
-    completionPercentage: 0,
+    epics: [
+      {
+        id: 'epic-br4-1',
+        title: 'Rate Limiter Implementation',
+        status: 'not-started',
+        priority: 'medium',
+        releaseLabel: 'Q3 2025',
+        targetStartDate: new Date('2025-07-01'),
+        targetEndDate: new Date('2025-09-30'),
+        storyPoints: 55,
+        stories: [
+          {
+            id: 'story-br4-1',
+            title: 'Redis rate limiter setup',
+            status: 'not-started',
+            priority: 'medium',
+            targetStartDate: new Date('2025-07-01'),
+            targetEndDate: new Date('2025-09-30'),
+            completionPercentage: 0,
+            storyPoints: 55,
+          },
+        ],
+      },
+    ],
   },
 ];
 
-// Work items that link to business requests
-// These can be features, epics, or stories - all directly linked to business requests
-export interface LinkedWorkItem extends GanttItem {
-  businessRequestId: string; // Direct link to business request
-}
+// Helper functions to work with the hierarchical model
 
-// Linked work items - features, epics, and stories that are associated with business requests
-// Each item has a businessRequestId that links it to a business request
-export const linkedWorkItems: LinkedWorkItem[] = [
-  // Epics and stories linked to BR-1: GDPR Compliance Requirements
-  {
-    id: 'epic-br1-1',
-    businessRequestId: 'br-1',
-    title: 'Data Privacy Controls',
-    type: 'epic',
-    status: 'in-progress',
-    priority: 'high',
-    releaseLabel: 'Q1 2025',
-    targetStartDate: new Date('2024-11-01'),
-    targetEndDate: new Date('2025-01-31'),
-    completionPercentage: 75,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Data Protection Initiative',
-    storyPoints: 34,
-  },
-  {
-    id: 'story-br1-1',
-    businessRequestId: 'br-1',
-    title: 'User consent management UI',
-    type: 'story',
-    status: 'done',
-    priority: 'high',
-    targetStartDate: new Date('2024-11-01'),
-    targetEndDate: new Date('2024-12-15'),
-    completionPercentage: 100,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Data Protection Initiative',
-    storyPoints: 13,
-  },
-  {
-    id: 'story-br1-2',
-    businessRequestId: 'br-1',
-    title: 'Cookie banner implementation',
-    type: 'story',
-    status: 'in-progress',
-    priority: 'high',
-    targetStartDate: new Date('2024-12-16'),
-    targetEndDate: new Date('2025-01-31'),
-    completionPercentage: 70,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Data Protection Initiative',
-    storyPoints: 21,
-  },
-  {
-    id: 'epic-br1-2',
-    businessRequestId: 'br-1',
-    title: 'Data Export Functionality',
-    type: 'epic',
-    status: 'in-progress',
-    priority: 'high',
-    releaseLabel: 'Q1 2025',
-    targetStartDate: new Date('2025-02-01'),
-    targetEndDate: new Date('2025-03-31'),
-    completionPercentage: 50,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Data Protection Initiative',
-    storyPoints: 55,
-  },
-  {
-    id: 'story-br1-3',
-    businessRequestId: 'br-1',
-    title: 'Export user data API',
-    type: 'story',
-    status: 'done',
-    priority: 'high',
-    targetStartDate: new Date('2025-02-01'),
-    targetEndDate: new Date('2025-02-28'),
-    completionPercentage: 100,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Data Protection Initiative',
-    storyPoints: 34,
-  },
-  {
-    id: 'story-br1-4',
-    businessRequestId: 'br-1',
-    title: 'PDF generation for export',
-    type: 'story',
-    status: 'not-started',
-    priority: 'medium',
-    targetStartDate: new Date('2025-03-01'),
-    targetEndDate: new Date('2025-03-31'),
-    completionPercentage: 0,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Data Protection Initiative',
-    storyPoints: 21,
-  },
-
-  // Epics and stories linked to BR-2: SOC 2 Audit Preparation
-  {
-    id: 'epic-br2-1',
-    businessRequestId: 'br-2',
-    title: 'Access Control Audit Trail',
-    type: 'epic',
-    status: 'in-progress',
-    priority: 'high',
-    releaseLabel: 'Q2 2025',
-    targetStartDate: new Date('2025-01-15'),
-    targetEndDate: new Date('2025-04-15'),
-    completionPercentage: 60,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Security Certification',
-    storyPoints: 55,
-  },
-  {
-    id: 'story-br2-1',
-    businessRequestId: 'br-2',
-    title: 'Implement audit logging',
-    type: 'story',
-    status: 'done',
-    priority: 'high',
-    targetStartDate: new Date('2025-01-15'),
-    targetEndDate: new Date('2025-03-01'),
-    completionPercentage: 100,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Security Certification',
-    storyPoints: 34,
-  },
-  {
-    id: 'story-br2-2',
-    businessRequestId: 'br-2',
-    title: 'Build audit dashboard',
-    type: 'story',
-    status: 'in-progress',
-    priority: 'medium',
-    targetStartDate: new Date('2025-03-02'),
-    targetEndDate: new Date('2025-04-15'),
-    completionPercentage: 40,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Security Certification',
-    storyPoints: 21,
-  },
-  {
-    id: 'epic-br2-2',
-    businessRequestId: 'br-2',
-    title: 'Security Documentation',
-    type: 'epic',
-    status: 'not-started',
-    priority: 'medium',
-    releaseLabel: 'Q2 2025',
-    targetStartDate: new Date('2025-04-16'),
-    targetEndDate: new Date('2025-06-30'),
-    completionPercentage: 30,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Security Certification',
-    storyPoints: 89,
-  },
-  {
-    id: 'story-br2-3',
-    businessRequestId: 'br-2',
-    title: 'Document security policies',
-    type: 'story',
-    status: 'in-progress',
-    priority: 'medium',
-    targetStartDate: new Date('2025-04-16'),
-    targetEndDate: new Date('2025-05-31'),
-    completionPercentage: 30,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Security Certification',
-    storyPoints: 55,
-  },
-  {
-    id: 'story-br2-4',
-    businessRequestId: 'br-2',
-    title: 'Create incident response plan',
-    type: 'story',
-    status: 'not-started',
-    priority: 'medium',
-    targetStartDate: new Date('2025-06-01'),
-    targetEndDate: new Date('2025-06-30'),
-    completionPercentage: 0,
-    themeName: 'Compliance & Security',
-    initiativeName: 'Security Certification',
-    storyPoints: 34,
-  },
-
-  // Epics and stories linked to BR-3: Customer Dashboard Modernization
-  {
-    id: 'epic-br3-1',
-    businessRequestId: 'br-3',
-    title: 'Real-time Analytics',
-    type: 'epic',
-    status: 'in-progress',
-    priority: 'medium',
-    releaseLabel: 'Q2 2025',
-    targetStartDate: new Date('2025-02-01'),
-    targetEndDate: new Date('2025-04-15'),
-    completionPercentage: 50,
-    themeName: 'Customer Experience',
-    initiativeName: 'UI/UX Enhancement',
-    storyPoints: 55,
-  },
-  {
-    id: 'story-br3-1',
-    businessRequestId: 'br-3',
-    title: 'WebSocket live updates',
-    type: 'story',
-    status: 'in-progress',
-    priority: 'high',
-    targetStartDate: new Date('2025-02-01'),
-    targetEndDate: new Date('2025-03-15'),
-    completionPercentage: 60,
-    themeName: 'Customer Experience',
-    initiativeName: 'UI/UX Enhancement',
-    storyPoints: 34,
-  },
-  {
-    id: 'story-br3-2',
-    businessRequestId: 'br-3',
-    title: 'Custom metrics widgets',
-    type: 'story',
-    status: 'not-started',
-    priority: 'medium',
-    targetStartDate: new Date('2025-03-16'),
-    targetEndDate: new Date('2025-04-15'),
-    completionPercentage: 0,
-    themeName: 'Customer Experience',
-    initiativeName: 'UI/UX Enhancement',
-    storyPoints: 21,
-  },
-  {
-    id: 'epic-br3-2',
-    businessRequestId: 'br-3',
-    title: 'Mobile Responsive Design',
-    type: 'epic',
-    status: 'blocked',
-    priority: 'low',
-    releaseLabel: 'Q2 2025',
-    targetStartDate: new Date('2025-04-16'),
-    targetEndDate: new Date('2025-05-31'),
-    completionPercentage: 20,
-    themeName: 'Customer Experience',
-    initiativeName: 'UI/UX Enhancement',
-    storyPoints: 34,
-  },
-  {
-    id: 'story-br3-3',
-    businessRequestId: 'br-3',
-    title: 'Responsive layout implementation',
-    type: 'story',
-    status: 'blocked',
-    priority: 'low',
-    targetStartDate: new Date('2025-04-16'),
-    targetEndDate: new Date('2025-05-31'),
-    completionPercentage: 20,
-    themeName: 'Customer Experience',
-    initiativeName: 'UI/UX Enhancement',
-    storyPoints: 34,
-  },
-
-  // Epics and stories linked to BR-4: API Rate Limiting Enhancement
-  {
-    id: 'epic-br4-1',
-    businessRequestId: 'br-4',
-    title: 'Rate Limiter Implementation',
-    type: 'epic',
-    status: 'not-started',
-    priority: 'medium',
-    releaseLabel: 'Q3 2025',
-    targetStartDate: new Date('2025-07-01'),
-    targetEndDate: new Date('2025-09-30'),
-    completionPercentage: 0,
-    themeName: 'Platform Reliability',
-    initiativeName: 'Infrastructure Hardening',
-    storyPoints: 55,
-  },
-  {
-    id: 'story-br4-1',
-    businessRequestId: 'br-4',
-    title: 'Redis rate limiter setup',
-    type: 'story',
-    status: 'not-started',
-    priority: 'medium',
-    targetStartDate: new Date('2025-07-01'),
-    targetEndDate: new Date('2025-09-30'),
-    completionPercentage: 0,
-    themeName: 'Platform Reliability',
-    initiativeName: 'Infrastructure Hardening',
-    storyPoints: 55,
-  },
-];
-
-// Helper functions to work with the linking model
-
-// Get all work items linked to a specific business request
-export function getLinkedItems(businessRequestId: string): LinkedWorkItem[] {
-  return linkedWorkItems.filter(item => item.businessRequestId === businessRequestId);
-}
-
-// Build tree structure for a business request (for HierarchyTree component)
-export function buildBusinessRequestTree(businessRequestId: string): TreeNode {
-  const br = businessRequests.find(r => r.id === businessRequestId);
-  if (!br) throw new Error(`Business request ${businessRequestId} not found`);
-
-  const items = getLinkedItems(businessRequestId);
+// Build tree structure for HierarchyTree component
+export function buildBusinessRequestTree(br: BusinessRequest): TreeNode {
+  const brCompletion = calculateCompletion(br);
   
   return {
     id: br.id,
@@ -388,28 +341,42 @@ export function buildBusinessRequestTree(businessRequestId: string): TreeNode {
     status: br.status,
     priority: br.priority,
     releaseLabel: br.releaseLabel,
-    completionPercentage: br.completionPercentage,
-    children: items.map(item => ({
-      id: item.id,
-      title: item.title,
-      type: item.type as 'epic' | 'story' | 'feature',
-      status: item.status,
-      priority: item.priority,
-      releaseLabel: item.releaseLabel,
-      completionPercentage: item.completionPercentage,
-    })),
+    completionPercentage: brCompletion,
+    children: br.epics.map(epic => {
+      const epicCompletion = calculateCompletion(epic);
+      return {
+        id: epic.id,
+        title: epic.title,
+        type: 'epic',
+        status: epic.status,
+        priority: epic.priority,
+        releaseLabel: epic.releaseLabel,
+        completionPercentage: epicCompletion,
+        children: epic.stories?.map(story => ({
+          id: story.id,
+          title: story.title,
+          type: 'story',
+          status: story.status,
+          priority: story.priority,
+          completionPercentage: story.completionPercentage,
+        })),
+      };
+    }),
   };
 }
 
 // Build tree data for all business requests
 export const businessRequestTreeData: TreeNode[] = businessRequests.map(br => 
-  buildBusinessRequestTree(br.id)
+  buildBusinessRequestTree(br)
 );
 
-// Build timeline data - combine business requests with their linked items
-export const businessRequestTimelineData: GanttItem[] = [
-  // Add all business requests
-  ...businessRequests.map(br => ({
+// Flatten hierarchical structure for Gantt timeline
+function flattenToGanttItems(br: BusinessRequest): GanttItem[] {
+  const brCompletion = calculateCompletion(br);
+  const items: GanttItem[] = [];
+  
+  // Add business request
+  items.push({
     id: br.id,
     title: br.title,
     type: 'business-request' as const,
@@ -418,11 +385,54 @@ export const businessRequestTimelineData: GanttItem[] = [
     releaseLabel: br.releaseLabel,
     targetStartDate: br.targetStartDate,
     targetEndDate: br.targetEndDate,
-    completionPercentage: br.completionPercentage,
+    completionPercentage: brCompletion,
     themeName: br.themeName,
     initiativeName: br.initiativeName,
     storyPoints: undefined,
-  })),
-  // Add all linked work items
-  ...linkedWorkItems,
-];
+  });
+  
+  // Add epics
+  for (const epic of br.epics) {
+    const epicCompletion = calculateCompletion(epic);
+    items.push({
+      id: epic.id,
+      title: epic.title,
+      type: 'epic' as const,
+      status: epic.status,
+      priority: epic.priority,
+      releaseLabel: epic.releaseLabel,
+      targetStartDate: epic.targetStartDate,
+      targetEndDate: epic.targetEndDate,
+      completionPercentage: epicCompletion,
+      themeName: br.themeName,
+      initiativeName: br.initiativeName,
+      storyPoints: epic.storyPoints,
+    });
+    
+    // Add stories
+    if (epic.stories) {
+      for (const story of epic.stories) {
+        items.push({
+          id: story.id,
+          title: story.title,
+          type: 'story' as const,
+          status: story.status,
+          priority: story.priority,
+          targetStartDate: story.targetStartDate,
+          targetEndDate: story.targetEndDate,
+          completionPercentage: story.completionPercentage,
+          themeName: br.themeName,
+          initiativeName: br.initiativeName,
+          storyPoints: story.storyPoints,
+        });
+      }
+    }
+  }
+  
+  return items;
+}
+
+// Build timeline data - flatten all business requests and their children
+export const businessRequestTimelineData: GanttItem[] = businessRequests.flatMap(br => 
+  flattenToGanttItems(br)
+);
