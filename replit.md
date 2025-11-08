@@ -53,6 +53,10 @@ Key components include:
   - Inclusive duration calculation ensures both start and end dates are properly represented
 - `ReleaseDashboard` for release-version grouping
 - `RoadmapGuide` for educational hierarchy visualization with executive commentary via a centered modal dialog
+  - 7-level hierarchy: Strategic Theme → Initiative → Business Request → Feature → Epic → Story → Subtask
+  - Business Request layer (Business Owner) positioned between Initiative and Feature
+  - Business Request can have Features, Epics, or Stories as direct children (flexible hierarchy)
+  - No time duration constraints shown for Business Request (only count badge)
 - `FilterBar` with configurable filters for level, status, priority, release, and search
 - `HierarchyTree` and `GanttChart` supporting multiple work item types including business-request with quarterly/monthly timeline modes.
 
