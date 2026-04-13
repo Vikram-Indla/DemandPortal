@@ -4,18 +4,17 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Button } from '@/components/ui/button';
-import { 
-  Package, 
-  CheckCircle2, 
-  Circle, 
-  AlertCircle, 
-  ArrowUp, 
-  ArrowDown, 
+import {
+  Package,
+  CheckCircle2,
+  Circle,
+  AlertCircle,
+  ArrowUp,
+  ArrowDown,
   Minus,
   ChevronDown,
   ChevronRight,
   Users,
-  ChevronRight as BreadcrumbIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CompactRiskList, CompactRiskItem } from './CompactRiskList';
@@ -254,9 +253,9 @@ export default function ReleaseDashboard({ stories }: ReleaseDashboardProps) {
 
                                 <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0 max-w-md">
                                   <span className="truncate">{story.businessRequestName}</span>
-                                  <BreadcrumbIcon className="w-2.5 h-2.5 flex-shrink-0" />
+                                  <ChevronRight className="w-2.5 h-2.5 flex-shrink-0" />
                                   <span className="truncate">{story.featureName}</span>
-                                  <BreadcrumbIcon className="w-2.5 h-2.5 flex-shrink-0" />
+                                  <ChevronRight className="w-2.5 h-2.5 flex-shrink-0" />
                                   <span className="truncate font-medium">{story.epicName}</span>
                                 </div>
 

@@ -45,6 +45,73 @@ interface BusinessRequestGridProps {
 type SortField = 'name' | 'priority' | 'completion';
 type SortDirection = 'asc' | 'desc';
 
+function SortButton({ field, sortField, sortDirection, onSort, children }: {
+  field: SortField;
+  sortField: SortField;
+  sortDirection: SortDirection;
+  onSort: (field: SortField) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className="h-8 px-2 hover-elevate"
+      onClick={() => onSort(field)}
+    >
+      <span className="font-semibold text-xs">{children}</span>
+      {sortField === field && (
+        sortDirection === 'asc' ?
+          <ArrowUp className="ml-1 w-3 h-3" /> :
+          <ArrowDown className="ml-1 w-3 h-3" />
+      )}
+      {sortField !== field && <ArrowUpDown className="ml-1 w-3 h-3 opacity-40" />}
+    </Button>
+  );
+}
+
+function StatusCell({ breakdown, type }: { breakdown: ItemBreakdown; type: 'feature' | 'epic' | 'story' }) {
+  const total = breakdown.done + breakdown.inProgress + breakdown.blocked + breakdown.notStarted;
+  if (total === 0) {
+    return <span className="text-sm text-muted-foreground">—</span>;
+  }
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-center gap-1.5 text-xs">
+        <span className="font-semibold text-muted-foreground">{total}</span>
+        <span className="text-muted-foreground">{type}s</span>
+      </div>
+      <div className="flex items-center justify-center gap-2 text-[10px]">
+        {breakdown.done > 0 && (
+          <div className="flex items-center gap-0.5">
+            <CheckCircle2 className="w-2.5 h-2.5 text-green-600 dark:text-green-400" />
+            <span className="font-medium text-green-600 dark:text-green-400">{breakdown.done}</span>
+          </div>
+        )}
+        {breakdown.inProgress > 0 && (
+          <div className="flex items-center gap-0.5">
+            <PlayCircle className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
+            <span className="font-medium text-blue-600 dark:text-blue-400">{breakdown.inProgress}</span>
+          </div>
+        )}
+        {breakdown.blocked > 0 && (
+          <div className="flex items-center gap-0.5">
+            <AlertCircle className="w-2.5 h-2.5 text-red-600 dark:text-red-400" />
+            <span className="font-medium text-red-600 dark:text-red-400">{breakdown.blocked}</span>
+          </div>
+        )}
+        {breakdown.notStarted > 0 && (
+          <div className="flex items-center gap-0.5">
+            <Circle className="w-2.5 h-2.5 text-muted-foreground" />
+            <span className="font-medium text-muted-foreground">{breakdown.notStarted}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function BusinessRequestGrid({ requests }: BusinessRequestGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortField, setSortField] = useState<SortField>('name');
@@ -123,69 +190,6 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
     return 'bg-blue-500';
   };
 
-  const getTotalByType = (breakdown: ItemBreakdown) => {
-    return breakdown.done + breakdown.inProgress + breakdown.blocked + breakdown.notStarted;
-  };
-
-  const SortButton = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="h-8 px-2 hover-elevate"
-      onClick={() => handleSort(field)}
-    >
-      <span className="font-semibold text-xs">{children}</span>
-      {sortField === field && (
-        sortDirection === 'asc' ? 
-          <ArrowUp className="ml-1 w-3 h-3" /> : 
-          <ArrowDown className="ml-1 w-3 h-3" />
-      )}
-      {sortField !== field && <ArrowUpDown className="ml-1 w-3 h-3 opacity-40" />}
-    </Button>
-  );
-
-  const StatusCell = ({ breakdown, type }: { breakdown: ItemBreakdown; type: 'feature' | 'epic' | 'story' }) => {
-    const total = getTotalByType(breakdown);
-    if (total === 0) {
-      return <span className="text-sm text-muted-foreground">—</span>;
-    }
-    
-    return (
-      <div className="space-y-1">
-        <div className="flex items-center justify-center gap-1.5 text-xs">
-          <span className="font-semibold text-muted-foreground">{total}</span>
-          <span className="text-muted-foreground">{type}s</span>
-        </div>
-        <div className="flex items-center justify-center gap-2 text-[10px]">
-          {breakdown.done > 0 && (
-            <div className="flex items-center gap-0.5">
-              <CheckCircle2 className="w-2.5 h-2.5 text-green-600 dark:text-green-400" />
-              <span className="font-medium text-green-600 dark:text-green-400">{breakdown.done}</span>
-            </div>
-          )}
-          {breakdown.inProgress > 0 && (
-            <div className="flex items-center gap-0.5">
-              <PlayCircle className="w-2.5 h-2.5 text-blue-600 dark:text-blue-400" />
-              <span className="font-medium text-blue-600 dark:text-blue-400">{breakdown.inProgress}</span>
-            </div>
-          )}
-          {breakdown.blocked > 0 && (
-            <div className="flex items-center gap-0.5">
-              <AlertCircle className="w-2.5 h-2.5 text-red-600 dark:text-red-400" />
-              <span className="font-medium text-red-600 dark:text-red-400">{breakdown.blocked}</span>
-            </div>
-          )}
-          {breakdown.notStarted > 0 && (
-            <div className="flex items-center gap-0.5">
-              <Circle className="w-2.5 h-2.5 text-muted-foreground" />
-              <span className="font-medium text-muted-foreground">{breakdown.notStarted}</span>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-4">
       {/* Search & Summary */}
@@ -236,13 +240,13 @@ export default function BusinessRequestGrid({ requests }: BusinessRequestGridPro
                 <tr>
                   <th className="text-left p-0 w-12"></th>
                   <th className="text-left p-2">
-                    <SortButton field="name">Business Request</SortButton>
+                    <SortButton field="name" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Business Request</SortButton>
                   </th>
                   <th className="text-left p-2 w-32">
-                    <SortButton field="priority">Priority</SortButton>
+                    <SortButton field="priority" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Priority</SortButton>
                   </th>
                   <th className="text-left p-2 w-48">
-                    <SortButton field="completion">Progress</SortButton>
+                    <SortButton field="completion" sortField={sortField} sortDirection={sortDirection} onSort={handleSort}>Progress</SortButton>
                   </th>
                   <th className="text-center p-2 w-32">
                     <span className="text-xs font-semibold">Features</span>

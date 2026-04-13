@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { AlertCircle, ArrowUp, ArrowDown, Minus, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface GanttItem {
@@ -49,7 +49,7 @@ const statusColors: Record<string, { bg: string; border: string; text: string }>
   },
 };
 
-const priorityConfig: Record<string, { icon: any; color: string }> = {
+const priorityConfig: Record<string, { icon: LucideIcon; color: string }> = {
   high: { icon: ArrowUp, color: 'text-red-600 dark:text-red-400' },
   medium: { icon: Minus, color: 'text-amber-600 dark:text-amber-400' },
   low: { icon: ArrowDown, color: 'text-slate-600 dark:text-slate-400' },

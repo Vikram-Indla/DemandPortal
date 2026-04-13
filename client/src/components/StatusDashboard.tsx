@@ -147,10 +147,9 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
 
   const defaultBusinessRequests: BusinessRequestMetrics[] = businessRequests || [];
 
-  // Mock portfolio risk items derived from business requests
   const mockPortfolioRisks: CompactRiskItem[] = [
     {
-      id: 'br-1',
+      id: 'BR-1',
       key: 'BR-001',
       title: 'SSO Integration',
       type: 'feature',
@@ -161,7 +160,7 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
       isAtRisk: true,
     },
     {
-      id: 'br-3',
+      id: 'BR-3',
       key: 'BR-003',
       title: 'GDPR Compliance',
       type: 'epic',
@@ -172,7 +171,7 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
       isAtRisk: true,
     },
     {
-      id: 'br-2',
+      id: 'BR-2',
       key: 'BR-002',
       title: 'Customer Portal Modernization',
       type: 'initiative',
@@ -183,7 +182,7 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
       isAtRisk: true,
     },
     {
-      id: 'br-5',
+      id: 'BR-5',
       key: 'BR-005',
       title: 'Real-time Analytics Dashboard',
       type: 'feature',
@@ -270,19 +269,6 @@ export default function StatusDashboard({ initiatives, businessRequests }: Statu
       status,
     };
   }, [selectedTheme, defaultInitiatives, defaultBusinessRequests]);
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'text-red-600 dark:text-red-400';
-      case 'medium':
-        return 'text-yellow-600 dark:text-yellow-400';
-      case 'low':
-        return 'text-gray-600 dark:text-gray-400';
-      default:
-        return 'text-gray-600';
-    }
-  };
 
   return (
     <div className="p-6 space-y-6 overflow-auto h-full">

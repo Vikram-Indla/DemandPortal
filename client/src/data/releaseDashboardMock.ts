@@ -1,4 +1,4 @@
-import { Story, Subtask } from '@/components/ReleaseDashboard';
+import { Story } from '@/components/ReleaseDashboard';
 
 // Release Dashboard mock data
 // Stories and subtasks organized by fixVersion (release version)
@@ -113,7 +113,7 @@ export const releaseDashboardMock: Story[] = [
       { id: 'st4', key: 'PROJ-202-1', title: 'Setup WebSocket server', status: 'done', assignee: 'Sarah Jones' },
       { id: 'st5', key: 'PROJ-202-2', title: 'Implement client connection handler', status: 'in-progress', assignee: 'Mike Davis' },
       { id: 'st6', key: 'PROJ-202-3', title: 'Add heartbeat mechanism', status: 'todo', assignee: 'Sarah Jones' },
-      { id: 'st7', key: 'PROJ-202-4', title: 'Create reconnection logic', status: 'todo' },
+      { id: 'st7', key: 'PROJ-202-4', title: 'Create reconnection logic', status: 'todo', assignee: 'Mike Davis' },
     ],
   },
   {
@@ -164,6 +164,7 @@ export const releaseDashboardMock: Story[] = [
     title: 'Add user preferences for notifications',
     status: 'blocked',
     priority: 'medium',
+    assignee: 'David Park',
     fixVersion: 'v1.1',
     storyPoints: 3,
     epicName: 'User Profile Management',
@@ -187,7 +188,7 @@ export const releaseDashboardMock: Story[] = [
     subtasks: [
       { id: 'st8', key: 'PROJ-207-1', title: 'Add avatar upload', status: 'done', assignee: 'Sarah Johnson' },
       { id: 'st9', key: 'PROJ-207-2', title: 'Theme preferences UI', status: 'in-progress', assignee: 'Mike Davis' },
-      { id: 'st10', key: 'PROJ-207-3', title: 'Save custom settings', status: 'todo' },
+      { id: 'st10', key: 'PROJ-207-3', title: 'Save custom settings', status: 'todo', assignee: 'Sarah Johnson' },
     ],
   },
 
@@ -228,7 +229,7 @@ export const releaseDashboardMock: Story[] = [
       { id: 'st14', key: 'PROJ-302-1', title: 'Design report builder UI', status: 'todo', assignee: 'Lisa Anderson' },
       { id: 'st15', key: 'PROJ-302-2', title: 'Create drag-and-drop components', status: 'todo', assignee: 'Tom Wilson' },
       { id: 'st16', key: 'PROJ-302-3', title: 'Implement data source selector', status: 'todo', assignee: 'Emily Chen' },
-      { id: 'st17', key: 'PROJ-302-4', title: 'Add preview functionality', status: 'todo' },
+      { id: 'st17', key: 'PROJ-302-4', title: 'Add preview functionality', status: 'todo', assignee: 'Lisa Anderson' },
       { id: 'st18', key: 'PROJ-302-5', title: 'Implement save/load templates', status: 'todo', assignee: 'Lisa Anderson' },
     ],
   },
@@ -362,7 +363,7 @@ export const releaseDashboardMock: Story[] = [
       { id: 'st19', key: 'PROJ-404-1', title: 'Design connector architecture', status: 'todo', assignee: 'Michael Chen' },
       { id: 'st20', key: 'PROJ-404-2', title: 'Implement base connector class', status: 'todo', assignee: 'David Park' },
       { id: 'st21', key: 'PROJ-404-3', title: 'Create OAuth2 helper', status: 'todo', assignee: 'Emily Rodriguez' },
-      { id: 'st22', key: 'PROJ-404-4', title: 'Build connector registry', status: 'todo' },
+      { id: 'st22', key: 'PROJ-404-4', title: 'Build connector registry', status: 'todo', assignee: 'Michael Chen' },
     ],
   },
   {

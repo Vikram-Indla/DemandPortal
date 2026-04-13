@@ -447,7 +447,7 @@ export const businessRequests: BusinessRequest[] = [
 // Helper functions for mixed hierarchy
 
 // Build tree structure for HierarchyTree component
-export function buildBusinessRequestTree(br: BusinessRequest): TreeNode {
+function buildBusinessRequestTree(br: BusinessRequest): TreeNode {
   const brCompletion = calculateCompletion(br);
   
   return {

@@ -27,6 +27,8 @@ interface EpicRoadmapProps {
 
 type TimelineView = 'weekly' | 'bi-weekly' | 'monthly';
 
+const WINDOW_DAYS = 56; // 8 weeks
+
 const statusColors: Record<string, { bg: string; border: string; text: string }> = {
   done: { 
     bg: 'bg-green-100 dark:bg-green-950/30', 
@@ -69,7 +71,7 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
   const goToPreviousWindow = () => {
     setWindowStartDate(prev => {
       const newDate = new Date(prev);
-      newDate.setDate(newDate.getDate() - 56); // 8 weeks
+      newDate.setDate(newDate.getDate() - WINDOW_DAYS);
       return newDate;
     });
   };
@@ -77,7 +79,7 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
   const goToNextWindow = () => {
     setWindowStartDate(prev => {
       const newDate = new Date(prev);
-      newDate.setDate(newDate.getDate() + 56); // 8 weeks
+      newDate.setDate(newDate.getDate() + WINDOW_DAYS);
       return newDate;
     });
   };
@@ -87,12 +89,11 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
   };
 
   const { periods, startDate, endDate, visibleEpics } = useMemo(() => {
-    // Fixed 8-week (56-day) window
     const alignedStartDate = new Date(windowStartDate);
-    alignedStartDate.setHours(0, 0, 0, 0); // Normalize to midnight
-    
+    alignedStartDate.setHours(0, 0, 0, 0);
+
     const alignedEndDate = new Date(windowStartDate);
-    alignedEndDate.setDate(alignedEndDate.getDate() + 55); // 56 days inclusive (0-55)
+    alignedEndDate.setDate(alignedEndDate.getDate() + WINDOW_DAYS - 1);
     alignedEndDate.setHours(23, 59, 59, 999); // Normalize to end of day
 
     // Filter epics that overlap with the window
@@ -152,8 +153,7 @@ export default function EpicRoadmap({ epics }: EpicRoadmapProps) {
     };
   }, [windowStartDate, epics, timelineView]);
 
-  // Fixed to 56 days for 8 weeks
-  const totalDays = 56;
+  const totalDays = WINDOW_DAYS;
 
   const getBarPosition = (epic: Epic) => {
     const DAY_MS = 1000 * 60 * 60 * 24;

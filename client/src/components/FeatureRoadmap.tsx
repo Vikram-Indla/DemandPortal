@@ -26,6 +26,8 @@ interface FeatureRoadmapProps {
 
 type TimelineView = 'weekly' | 'bi-weekly' | 'monthly';
 
+const WINDOW_DAYS = 56; // 8 weeks
+
 const statusColors: Record<string, { bg: string; border: string; text: string }> = {
   done: { 
     bg: 'bg-green-100 dark:bg-green-950/30', 
@@ -68,7 +70,7 @@ export default function FeatureRoadmap({ features }: FeatureRoadmapProps) {
   const goToPreviousWindow = () => {
     setWindowStartDate(prev => {
       const newDate = new Date(prev);
-      newDate.setDate(newDate.getDate() - 56); // 8 weeks
+      newDate.setDate(newDate.getDate() - WINDOW_DAYS);
       return newDate;
     });
   };
@@ -76,7 +78,7 @@ export default function FeatureRoadmap({ features }: FeatureRoadmapProps) {
   const goToNextWindow = () => {
     setWindowStartDate(prev => {
       const newDate = new Date(prev);
-      newDate.setDate(newDate.getDate() + 56); // 8 weeks
+      newDate.setDate(newDate.getDate() + WINDOW_DAYS);
       return newDate;
     });
   };
@@ -86,12 +88,11 @@ export default function FeatureRoadmap({ features }: FeatureRoadmapProps) {
   };
 
   const { periods, startDate, endDate, visibleFeatures } = useMemo(() => {
-    // Fixed 8-week (56-day) window
     const alignedStartDate = new Date(windowStartDate);
-    alignedStartDate.setHours(0, 0, 0, 0); // Normalize to midnight
-    
+    alignedStartDate.setHours(0, 0, 0, 0);
+
     const alignedEndDate = new Date(windowStartDate);
-    alignedEndDate.setDate(alignedEndDate.getDate() + 55); // 56 days inclusive (0-55)
+    alignedEndDate.setDate(alignedEndDate.getDate() + WINDOW_DAYS - 1);
     alignedEndDate.setHours(23, 59, 59, 999); // Normalize to end of day
 
     // Filter features that overlap with the window
@@ -151,8 +152,7 @@ export default function FeatureRoadmap({ features }: FeatureRoadmapProps) {
     };
   }, [windowStartDate, features, timelineView]);
 
-  // Fixed to 56 days for 8 weeks
-  const totalDays = 56;
+  const totalDays = WINDOW_DAYS;
 
   const getBarPosition = (feature: Feature) => {
     const DAY_MS = 1000 * 60 * 60 * 24;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, ChevronDown, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { ChevronRight, ChevronDown, ArrowUp, ArrowDown, Minus, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
@@ -33,7 +33,7 @@ const statusColors: Record<string, string> = {
   'not-started': 'bg-gray-500/20 text-gray-700 dark:text-gray-400',
 };
 
-const priorityConfig: Record<string, { icon: any; color: string }> = {
+const priorityConfig: Record<string, { icon: LucideIcon; color: string }> = {
   high: { icon: ArrowUp, color: 'text-red-600 dark:text-red-400' },
   medium: { icon: Minus, color: 'text-yellow-600 dark:text-yellow-400' },
   low: { icon: ArrowDown, color: 'text-gray-600 dark:text-gray-400' },
